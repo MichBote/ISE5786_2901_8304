@@ -8,7 +8,7 @@ import geometries.api.Geometry;
  * The class stores the radius and its square for efficient computations.
  * </p>
  *
- * @author Michal Berdugo & Bina Cohen
+ * @author Michal Berdugo &amp; Bina Cohen
  */
 public abstract class RadialGeometry extends Geometry {
     /**

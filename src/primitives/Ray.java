@@ -9,7 +9,7 @@ import java.util.Objects;
  * The direction is stored normalized.
  * </p>
  *
- * @author Michal Berdugo & Bina Cohen
+ * @author Michal Berdugo &amp; Bina Cohen
  */
 public final class Ray {
     /**

@@ -11,7 +11,7 @@ import primitives.Vector;
  * The normal is stored normalized.
  * </p>
  *
- * @author Michal Berdugo & Bina Cohen
+ * @author Michal Berdugo &amp; Bina Cohen
  */
 public final class Plane extends Geometry {
     /**

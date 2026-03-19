@@ -10,7 +10,7 @@ import primitives.Vector;
  * The normal computation will be implemented in a later stage.
  * </p>
  *
- * @author Michal Berdugo & Bina Cohen
+ * @author Michal Berdugo &amp; Bina Cohen
  */
 public final class Sphere extends RadialGeometry {
     /**

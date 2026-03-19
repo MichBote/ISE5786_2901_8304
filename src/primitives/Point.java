@@ -8,7 +8,7 @@ import java.util.Objects;
  * The point is immutable.
  * </p>
  *
- * @author Michal Berdugo & Bina Cohen
+ * @author Michal Berdugo &amp; Bina Cohen
  */
 public class Point {
     /**

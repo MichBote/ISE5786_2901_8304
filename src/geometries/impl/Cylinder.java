@@ -11,7 +11,7 @@ import primitives.Vector;
  * At this stage, the class stores the constructor parameters only.
  * </p>
  *
- * @author Michal Berdugo & Bina Cohen
+ * @author Michal Berdugo &amp; Bina Cohen
  */
 public final class Cylinder extends Tube {
     /**

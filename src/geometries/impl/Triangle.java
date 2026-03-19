@@ -8,7 +8,7 @@ import primitives.Point;
  * A triangle is a specific case of a convex polygon with three vertices.
  * </p>
  *
- * @author Michal Berdugo & Bina Cohen
+ * @author Michal Berdugo &amp; Bina Cohen
  */
 public final class Triangle extends Polygon {
 

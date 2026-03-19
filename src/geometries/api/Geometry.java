@@ -10,9 +10,13 @@ import primitives.Vector;
  * Intersection-related APIs will be added in later stages.
  * </p>
  *
- * @author Michal Berdugo & Bina Cohen
+ * @author Michal Berdugo &amp; Bina Cohen
  */
 public abstract class Geometry {
+    /**
+     * Default constructor to satisfy JavaDoc generator
+     */
+    public Geometry() { /* Default constructor to satisfy JavaDoc generator */ }
 
     /**
      * Returns the normal vector to the geometry at the given point.

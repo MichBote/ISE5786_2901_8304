@@ -13,7 +13,7 @@ import static primitives.Util.isZero;
  * Zero vectors are not allowed.
  * </p>
  *
- * @author Michal Berdugo & Bina Cohen
+ * @author Michal Berdugo &amp; Bina Cohen
  */
 public final class Vector extends Point {
     /**
