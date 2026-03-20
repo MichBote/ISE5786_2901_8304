@@ -1,7 +1,5 @@
 package primitives;
 
-import static primitives.Util.isZero;
-
 /**
  * Represents a 3D vector in a Cartesian coordinate system.
  * <p>
@@ -38,9 +36,7 @@ public final class Vector extends Point {
      * @throws IllegalArgumentException if the vector is a zero vector
      */
     public Vector(double x, double y, double z) {
-        super(x, y, z);
-        if (isZero(x) && isZero(y) && isZero(z))
-            throw new IllegalArgumentException("Zero vector is not allowed");
+        this(new Double3(x, y, z));
     }
 
     /**
@@ -50,9 +46,9 @@ public final class Vector extends Point {
      * @throws IllegalArgumentException if the vector is a zero vector
      */
     public Vector(Double3 xyz) {
-        super(xyz);
         if (Double3.ZERO.equals(xyz))
             throw new IllegalArgumentException("Zero vector is not allowed");
+        super(xyz);
     }
 
     /**
