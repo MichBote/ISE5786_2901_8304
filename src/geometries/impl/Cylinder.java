@@ -4,6 +4,8 @@ import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
 
+import static primitives.Util.isZero;
+
 /**
  * Represents a finite cylinder in 3D space.
  * <p>
@@ -33,7 +35,17 @@ public final class Cylinder extends Tube {
 
     @Override
     public Vector getNormal(Point point) {
-        return null;
+        Point p0 = _axis.origin();
+        Vector v = _axis.direction();
+
+        double t = v.dotProduct(point.subtract(p0));
+        if (isZero(t)) {
+            return v.scale(-1);
+        }
+        if (isZero(t - _height)) {
+            return v;
+        }
+        return super.getNormal(point);
     }
 
     @Override
