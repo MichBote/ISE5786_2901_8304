@@ -4,6 +4,9 @@ import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
 
+import static primitives.Util.alignZero;
+import static primitives.Util.isZero;
+
 /**
  * Represents an infinite tube (general cylinder) in 3D space.
  * <p>
@@ -35,8 +38,8 @@ public class Tube extends RadialGeometry {
         Point p0 = _axis.origin();
         Vector v = _axis.direction();
 
-        double t = v.dotProduct(point.subtract(p0));
-        Point o = p0.add(v.scale(t));
+        double t = alignZero(v.dotProduct(point.subtract(p0)));
+        Point o = isZero(t) ? p0 : p0.add(v.scale(t));
         return point.subtract(o).normalize();
     }
 
