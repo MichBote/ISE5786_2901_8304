@@ -38,6 +38,15 @@ public final class Cylinder extends Tube {
         Point p0 = _axis.origin();
         Vector v = _axis.direction();
 
+        if (point.equals(p0)) {
+            return v.scale(-1);
+        }
+
+        Point pTop = p0.add(v.scale(_height));
+        if (point.equals(pTop)) {
+            return v;
+        }
+
         double t = v.dotProduct(point.subtract(p0));
         if (isZero(t)) {
             return v.scale(-1);
