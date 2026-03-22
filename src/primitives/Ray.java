@@ -53,10 +53,10 @@ public final class Ray {
 
     @Override
     public boolean equals(Object obj) {
-        return this == obj
-                || (obj instanceof Ray other)
-                && _origin.equals(other._origin)
-                && _direction.equals(other._direction);
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Ray other = (Ray) obj;
+        return _origin.equals(other._origin) && _direction.equals(other._direction);
     }
 
     @Override
@@ -66,6 +66,6 @@ public final class Ray {
 
     @Override
     public String toString() {
-        return "Ray(origin=" + _origin + ", direction=" + _direction + ")";
+        return "Ray:" + _origin + _direction;
     }
 }

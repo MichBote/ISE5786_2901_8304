@@ -1,7 +1,5 @@
 package primitives;
 
-import java.util.Objects;
-
 /**
  * Represents a point in a 3D Cartesian coordinate system.
  * <p>
@@ -14,7 +12,7 @@ public class Point {
     /**
      * Point coordinates
      */
-    protected final Double3 xyz_;
+    protected final Double3 _xyz;
 
     /**
      * The origin (0,0,0)
@@ -38,7 +36,7 @@ public class Point {
      * @param xyz point coordinates
      */
     public Point(Double3 xyz) {
-        xyz_ = xyz;
+        _xyz = xyz;
     }
 
     /**
@@ -51,7 +49,7 @@ public class Point {
      * @return the vector from {@code other} to {@code this}
      */
     public Vector subtract(Point other) {
-        return new Vector(xyz_.subtract(other.xyz_));
+        return new Vector(_xyz.subtract(other._xyz));
     }
 
     /**
@@ -61,7 +59,7 @@ public class Point {
      * @return a new translated point
      */
     public Point add(Vector vector) {
-        return new Point(xyz_.add(vector.xyz_));
+        return new Point(_xyz.add(vector._xyz));
     }
 
     /**
@@ -71,9 +69,9 @@ public class Point {
      * @return squared distance
      */
     public double distanceSquared(Point other) {
-        double dx = xyz_._d1() - other.xyz_._d1();
-        double dy = xyz_._d2() - other.xyz_._d2();
-        double dz = xyz_._d3() - other.xyz_._d3();
+        double dx = _xyz._d1() - other._xyz._d1();
+        double dy = _xyz._d2() - other._xyz._d2();
+        double dz = _xyz._d3() - other._xyz._d3();
         return dx * dx + dy * dy + dz * dz;
     }
 
@@ -92,16 +90,18 @@ public class Point {
 
     @Override
     public boolean equals(Object obj) {
-        return this == obj || (obj instanceof Point other) && xyz_.equals(other.xyz_);
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        return _xyz.equals(((Point) obj)._xyz);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(xyz_);
+        return _xyz.hashCode();
     }
 
     @Override
     public String toString() {
-        return "Point" + xyz_;
+        return "" + _xyz;
     }
 }

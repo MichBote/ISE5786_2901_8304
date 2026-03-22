@@ -4,7 +4,7 @@ package primitives;
  * Represents a 3D vector in a Cartesian coordinate system.
  * <p>
  * A vector has direction and magnitude. It is implemented as an extension of
- * {@link Point} and reuses the protected {@link Point#xyz_} coordinates.
+ * {@link Point} and reuses the protected {@link Point#_xyz} coordinates.
  * The vector is immutable.
  * </p>
  * <p>
@@ -58,7 +58,7 @@ public final class Vector extends Point {
      * @return the resulting vector
      */
     public Vector add(Vector other) {
-        return new Vector(xyz_.add(other.xyz_));
+        return new Vector(_xyz.add(other._xyz));
     }
 
     /**
@@ -68,7 +68,7 @@ public final class Vector extends Point {
      * @return the scaled vector
      */
     public Vector scale(double scalar) {
-        return new Vector(xyz_.scale(scalar));
+        return new Vector(_xyz.scale(scalar));
     }
 
     /**
@@ -78,7 +78,7 @@ public final class Vector extends Point {
      * @return dot product
      */
     public double dotProduct(Vector other) {
-        return xyz_._d1() * other.xyz_._d1() + xyz_._d2() * other.xyz_._d2() + xyz_._d3() * other.xyz_._d3();
+        return _xyz._d1() * other._xyz._d1() + _xyz._d2() * other._xyz._d2() + _xyz._d3() * other._xyz._d3();
     }
 
     /**
@@ -88,9 +88,9 @@ public final class Vector extends Point {
      * @return cross product vector
      */
     public Vector crossProduct(Vector other) {
-        double x = xyz_._d2() * other.xyz_._d3() - xyz_._d3() * other.xyz_._d2();
-        double y = xyz_._d3() * other.xyz_._d1() - xyz_._d1() * other.xyz_._d3();
-        double z = xyz_._d1() * other.xyz_._d2() - xyz_._d2() * other.xyz_._d1();
+        double x = _xyz._d2() * other._xyz._d3() - _xyz._d3() * other._xyz._d2();
+        double y = _xyz._d3() * other._xyz._d1() - _xyz._d1() * other._xyz._d3();
+        double z = _xyz._d1() * other._xyz._d2() - _xyz._d2() * other._xyz._d1();
         return new Vector(x, y, z);
     }
 
@@ -100,9 +100,9 @@ public final class Vector extends Point {
      * @return squared length
      */
     public double lengthSquared() {
-        double x = xyz_._d1();
-        double y = xyz_._d2();
-        double z = xyz_._d3();
+        double x = _xyz._d1();
+        double y = _xyz._d2();
+        double z = _xyz._d3();
         return x * x + y * y + z * z;
     }
 
@@ -125,7 +125,14 @@ public final class Vector extends Point {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        return super.equals(obj);
+    }
+
+    @Override
     public String toString() {
-        return "Vector" + xyz_;
+        return "->" + super.toString();
     }
 }
