@@ -73,6 +73,16 @@ class PlaneTests {
                 () -> new Plane(new Point(0, 0, 1), new Point(0, 0, 1), new Point(0, 1, 0)),
                 ERROR_PLANE);
 
+        // BV01.1: Two points coincide (p1 == p3)
+        assertThrows(IllegalArgumentException.class,
+            () -> new Plane(new Point(0, 0, 1), new Point(1, 0, 0), new Point(0, 0, 1)),
+            ERROR_PLANE);
+
+        // BV01.2: Two points coincide (p2 == p3)
+        assertThrows(IllegalArgumentException.class,
+            () -> new Plane(new Point(0, 0, 1), new Point(1, 0, 0), new Point(1, 0, 0)),
+            ERROR_PLANE);
+
         // BV02: All three points coincide
         assertThrows(IllegalArgumentException.class,
                 () -> new Plane(new Point(1, 1, 1), new Point(1, 1, 1), new Point(1, 1, 1)),
