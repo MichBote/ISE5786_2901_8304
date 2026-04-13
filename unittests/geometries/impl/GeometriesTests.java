@@ -47,7 +47,7 @@ class GeometriesTests {
         // Arrange
         Sphere sphere1 = new Sphere(new Point(2, 0, 0), 1d);
         Sphere sphere2 = new Sphere(new Point(6, 0, 0), 1d);
-        Plane plane = new Plane(new Point(4, 0, 0), new Vector(1, 0, 0));
+        Plane plane = new Plane(new Point(0, 4, 0), new Vector(0, 1, 0));
         Geometries geometries = new Geometries(sphere1, plane, sphere2);
 
         // Act
@@ -66,7 +66,7 @@ class GeometriesTests {
     void testFindIntersectionsOne() {
         // Arrange
         Sphere sphere1 = new Sphere(new Point(2, 0, 0), 1d);
-        Sphere sphere2 = new Sphere(new Point(6, 0, 0), 1d);
+        Sphere sphere2 = new Sphere(new Point(6, 3, 0), 1d);
         Plane plane = new Plane(new Point(0, 0, 2), new Vector(0, 0, 1));
         Geometries geometries = new Geometries(sphere1, plane, sphere2);
 
