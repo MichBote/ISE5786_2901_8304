@@ -61,10 +61,15 @@ public class Tube extends RadialGeometry {
         }
 
         Vector vPerp;
-        try {
-            vPerp = v.add(va.scale(-vVa));
-        } catch (IllegalArgumentException ex) {
-            return null;
+        if (isZero(vVa)) {
+            vPerp = v;
+        } else {
+            try {
+                vPerp = v.add(va.scale(-vVa));
+            } catch (IllegalArgumentException ex) {
+                // Should happen only in near-parallel numeric edge-cases
+                return null;
+            }
         }
 
         double a = alignZero(vPerp.lengthSquared());
@@ -90,12 +95,17 @@ public class Tube extends RadialGeometry {
             c = -_radiusSquared;
         } else {
             double dpVa = deltaP.dotProduct(va);
+
             Vector deltaPerp;
-            try {
-                deltaPerp = deltaP.add(va.scale(-dpVa));
-            } catch (IllegalArgumentException ex) {
-                // Ray origin is on the axis line => deltaPerp is zero
-                deltaPerp = null;
+            if (isZero(dpVa)) {
+                deltaPerp = deltaP;
+            } else {
+                try {
+                    deltaPerp = deltaP.add(va.scale(-dpVa));
+                } catch (IllegalArgumentException ex) {
+                    // Ray origin is on the axis line => deltaPerp is zero
+                    deltaPerp = null;
+                }
             }
 
             if (deltaPerp == null) {
