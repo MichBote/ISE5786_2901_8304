@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import primitives.Point;
+import primitives.Ray;
 import primitives.Vector;
 
 /**
@@ -26,6 +27,12 @@ class SphereTests {
     /** Error message for wrong sphere */
     private static final String ERROR_SPHERE = "ERROR: wrong Sphere normal";
 
+    /** Error message for wrong sphere intersection */
+    private static final String ERROR_SPHERE_INTERSECTION = "ERROR: wrong Sphere intersection result";
+
+    /** Sphere used in intersection tests (avoid Point.ZERO in test data) */
+    private static final Sphere SPHERE = new Sphere(new Point(2, 0, 0), 1d);
+
     /**
      * Test method for {@link Sphere#getNormal(Point)}.
      */
@@ -38,5 +45,271 @@ class SphereTests {
         Vector n = sphere.getNormal(new Point(0, 0, 1));
         assertEquals(1d, n.length(), DELTA, ERROR_SPHERE);
         assertEquals(new Vector(0, 0, 1), n, ERROR_SPHERE);
+    }
+
+    private static void assertPointEquals(Point expected, Point actual, String message) {
+        assertEquals(0d, expected.distance(actual), DELTA, message);
+    }
+
+    /**
+     * Test method for {@link Sphere#findIntersections(Ray)}.
+     */
+    @Test
+    void testFindIntersectionsEP01RayOutsideSphere() {
+        // Arrange
+        Ray ray = new Ray(new Point(-2, 2, 0), new Vector(1, 0, 0));
+
+        // Act
+        var result = SPHERE.findIntersections(ray);
+
+        // Assert
+        // ============ Equivalence Partitions Tests ==============
+        // EP01: Ray's line is outside the sphere (0 points)
+        assertNull(result, ERROR_SPHERE_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsEP02RayCrossesSphereTwoPoints() {
+        // Arrange
+        Ray ray = new Ray(new Point(-2, 0, 0), new Vector(1, 0, 0));
+
+        // Act
+        var result = SPHERE.findIntersections(ray);
+
+        // Assert
+        // ============ Equivalence Partitions Tests ==============
+        // EP02: Ray starts before and crosses the sphere (2 points)
+        assertNotNull(result, ERROR_SPHERE_INTERSECTION);
+        assertEquals(2, result.size(), ERROR_SPHERE_INTERSECTION);
+        assertPointEquals(new Point(1, 0, 0), result.get(0), ERROR_SPHERE_INTERSECTION);
+        assertPointEquals(new Point(3, 0, 0), result.get(1), ERROR_SPHERE_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsEP03RayStartsInsideSphere() {
+        // Arrange
+        Ray ray = new Ray(new Point(2.5, 0, 0), new Vector(1, 0, 0));
+
+        // Act
+        var result = SPHERE.findIntersections(ray);
+
+        // Assert
+        // ============ Equivalence Partitions Tests ==============
+        // EP03: Ray starts inside the sphere (1 point)
+        assertNotNull(result, ERROR_SPHERE_INTERSECTION);
+        assertEquals(1, result.size(), ERROR_SPHERE_INTERSECTION);
+        assertPointEquals(new Point(3, 0, 0), result.get(0), ERROR_SPHERE_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsEP04RayStartsAfterSphere() {
+        // Arrange
+        Ray ray = new Ray(new Point(4, 0, 0), new Vector(1, 0, 0));
+
+        // Act
+        var result = SPHERE.findIntersections(ray);
+
+        // Assert
+        // ============ Equivalence Partitions Tests ==============
+        // EP04: Ray starts after the sphere (0 points)
+        assertNull(result, ERROR_SPHERE_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsBV11RayStartsOnSphereGoesInside() {
+        // Arrange
+        Point p1 = new Point(2 - Math.sqrt(0.75), 0, 0.5);
+        Point p2 = new Point(2 + Math.sqrt(0.75), 0, 0.5);
+        Ray ray = new Ray(p1, new Vector(1, 0, 0));
+
+        // Act
+        var result = SPHERE.findIntersections(ray);
+
+        // Assert
+        // =============== Boundary Values Tests ==================
+        // BV11: Ray starts at sphere and goes inside (1 point)
+        assertNotNull(result, ERROR_SPHERE_INTERSECTION);
+        assertEquals(1, result.size(), ERROR_SPHERE_INTERSECTION);
+        assertPointEquals(p2, result.get(0), ERROR_SPHERE_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsBV12RayStartsOnSphereGoesOutside() {
+        // Arrange
+        Point p1 = new Point(2 - Math.sqrt(0.75), 0, 0.5);
+        Ray ray = new Ray(p1, new Vector(-1, 0, 0));
+
+        // Act
+        var result = SPHERE.findIntersections(ray);
+
+        // Assert
+        // =============== Boundary Values Tests ==================
+        // BV12: Ray starts at sphere and goes outside (0 points)
+        assertNull(result, ERROR_SPHERE_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsBV21RayLineThroughCenterStartsBefore() {
+        // Arrange
+        Ray ray = new Ray(new Point(-2, 0, 0), new Vector(1, 0, 0));
+
+        // Act
+        var result = SPHERE.findIntersections(ray);
+
+        // Assert
+        // =============== Boundary Values Tests ==================
+        // BV21: Ray starts before the sphere (2 points)
+        assertNotNull(result, ERROR_SPHERE_INTERSECTION);
+        assertEquals(2, result.size(), ERROR_SPHERE_INTERSECTION);
+        assertPointEquals(new Point(1, 0, 0), result.get(0), ERROR_SPHERE_INTERSECTION);
+        assertPointEquals(new Point(3, 0, 0), result.get(1), ERROR_SPHERE_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsBV22RayStartsOnSphereGoesInsideThroughCenter() {
+        // Arrange
+        Ray ray = new Ray(new Point(1, 0, 0), new Vector(1, 0, 0));
+
+        // Act
+        var result = SPHERE.findIntersections(ray);
+
+        // Assert
+        // =============== Boundary Values Tests ==================
+        // BV22: Ray starts at sphere and goes inside (1 point)
+        assertNotNull(result, ERROR_SPHERE_INTERSECTION);
+        assertEquals(1, result.size(), ERROR_SPHERE_INTERSECTION);
+        assertPointEquals(new Point(3, 0, 0), result.get(0), ERROR_SPHERE_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsBV23RayStartsInsideThroughCenter() {
+        // Arrange
+        Ray ray = new Ray(new Point(2.5, 0, 0), new Vector(1, 0, 0));
+
+        // Act
+        var result = SPHERE.findIntersections(ray);
+
+        // Assert
+        // =============== Boundary Values Tests ==================
+        // BV23: Ray starts inside (1 point)
+        assertNotNull(result, ERROR_SPHERE_INTERSECTION);
+        assertEquals(1, result.size(), ERROR_SPHERE_INTERSECTION);
+        assertPointEquals(new Point(3, 0, 0), result.get(0), ERROR_SPHERE_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsBV24RayStartsAtCenter() {
+        // Arrange
+        Ray ray = new Ray(new Point(2, 0, 0), new Vector(1, 0, 0));
+
+        // Act
+        var result = SPHERE.findIntersections(ray);
+
+        // Assert
+        // =============== Boundary Values Tests ==================
+        // BV24: Ray starts at the center (1 point)
+        assertNotNull(result, ERROR_SPHERE_INTERSECTION);
+        assertEquals(1, result.size(), ERROR_SPHERE_INTERSECTION);
+        assertPointEquals(new Point(3, 0, 0), result.get(0), ERROR_SPHERE_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsBV25RayStartsOnSphereGoesOutsideThroughCenter() {
+        // Arrange
+        Ray ray = new Ray(new Point(3, 0, 0), new Vector(1, 0, 0));
+
+        // Act
+        var result = SPHERE.findIntersections(ray);
+
+        // Assert
+        // =============== Boundary Values Tests ==================
+        // BV25: Ray starts at sphere and goes outside (0 points)
+        assertNull(result, ERROR_SPHERE_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsBV26RayStartsAfterSphereThroughCenter() {
+        // Arrange
+        Ray ray = new Ray(new Point(4, 0, 0), new Vector(1, 0, 0));
+
+        // Act
+        var result = SPHERE.findIntersections(ray);
+
+        // Assert
+        // =============== Boundary Values Tests ==================
+        // BV26: Ray starts after sphere (0 points)
+        assertNull(result, ERROR_SPHERE_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsBV31TangentRayStartsBeforeTangentPoint() {
+        // Arrange
+        Ray ray = new Ray(new Point(0, 1, 0), new Vector(1, 0, 0));
+
+        // Act
+        var result = SPHERE.findIntersections(ray);
+
+        // Assert
+        // =============== Boundary Values Tests ==================
+        // BV31: Ray starts before the tangent point (0 points)
+        assertNull(result, ERROR_SPHERE_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsBV32TangentRayStartsAtTangentPoint() {
+        // Arrange
+        Ray ray = new Ray(new Point(2, 1, 0), new Vector(1, 0, 0));
+
+        // Act
+        var result = SPHERE.findIntersections(ray);
+
+        // Assert
+        // =============== Boundary Values Tests ==================
+        // BV32: Ray starts at the tangent point (0 points)
+        assertNull(result, ERROR_SPHERE_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsBV33TangentRayStartsAfterTangentPoint() {
+        // Arrange
+        Ray ray = new Ray(new Point(3, 1, 0), new Vector(1, 0, 0));
+
+        // Act
+        var result = SPHERE.findIntersections(ray);
+
+        // Assert
+        // =============== Boundary Values Tests ==================
+        // BV33: Ray starts after the tangent point (0 points)
+        assertNull(result, ERROR_SPHERE_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsBV41RayLineOutsideOrthogonalToCenterLine() {
+        // Arrange
+        Ray ray = new Ray(new Point(2, 2, 0), new Vector(1, 0, 0));
+
+        // Act
+        var result = SPHERE.findIntersections(ray);
+
+        // Assert
+        // =============== Boundary Values Tests ==================
+        // BV41: Ray's line is outside sphere, ray is orthogonal to ray start to sphere's center line
+        assertNull(result, ERROR_SPHERE_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsBV42RayStartsInsideOrthogonalToCenterLine() {
+        // Arrange
+        Ray ray = new Ray(new Point(2, 0.5, 0), new Vector(1, 0, 0));
+
+        // Act
+        var result = SPHERE.findIntersections(ray);
+
+        // Assert
+        // =============== Boundary Values Tests ==================
+        // BV42: Ray starts inside, ray is orthogonal to ray start to sphere's center line (1 point)
+        assertNotNull(result, ERROR_SPHERE_INTERSECTION);
+        assertEquals(1, result.size(), ERROR_SPHERE_INTERSECTION);
+        assertPointEquals(new Point(2 + Math.sqrt(0.75), 0.5, 0), result.get(0), ERROR_SPHERE_INTERSECTION);
     }
 }

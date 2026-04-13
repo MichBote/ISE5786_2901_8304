@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import primitives.Point;
+import primitives.Ray;
 import primitives.Vector;
 
 /**
@@ -30,6 +31,13 @@ class PlaneTests {
 
     /** Error message for valid constructor not throwing */
     private static final String ERROR_VALID_CONSTRUCTOR_THREW = "ERROR: valid plane constructor must not throw";
+
+    /** Error message for wrong plane intersection */
+    private static final String ERROR_PLANE_INTERSECTION = "ERROR: wrong Plane intersection result";
+
+    private static void assertPointEquals(Point expected, Point actual, String message) {
+        assertEquals(0d, expected.distance(actual), DELTA, message);
+    }
 
     /**
      * Test method for {@link Plane#getNormal(Point)}.
@@ -102,5 +110,147 @@ class PlaneTests {
         assertThrows(IllegalArgumentException.class,
             () -> new Plane(new Point(0, 0, 0), new Point(1, 1, 1), new Point(2, 2, 2)),
             ERROR_PLANE);
+    }
+
+    /**
+     * Test method for {@link Plane#findIntersections(Ray)}.
+     */
+    @Test
+    void testFindIntersectionsEP01RayIntersectsPlane() {
+        // Arrange
+        Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
+        Ray ray = new Ray(new Point(1, 0, 0), new Vector(0, 1, 1));
+
+        // Act
+        var result = plane.findIntersections(ray);
+
+        // Assert
+        // ============ Equivalence Partitions Tests ==============
+        // EP01: Ray intersects the plane (1 point)
+        assertNotNull(result, ERROR_PLANE_INTERSECTION);
+        assertEquals(1, result.size(), ERROR_PLANE_INTERSECTION);
+        assertPointEquals(new Point(1, 1, 1), result.get(0), ERROR_PLANE_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsEP02RayDoesNotIntersectPlane() {
+        // Arrange
+        Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
+        Ray ray = new Ray(new Point(1, 0, 2), new Vector(0, 1, 1));
+
+        // Act
+        var result = plane.findIntersections(ray);
+
+        // Assert
+        // ============ Equivalence Partitions Tests ==============
+        // EP02: Ray does not intersect the plane (0 points)
+        assertNull(result, ERROR_PLANE_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsBV01RayParallelIncluded() {
+        // Arrange
+        Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
+        Ray ray = new Ray(new Point(1, 0, 1), new Vector(1, 0, 0));
+
+        // Act
+        var result = plane.findIntersections(ray);
+
+        // Assert
+        // =============== Boundary Values Tests ==================
+        // BV01: Ray is parallel to the plane and included in the plane
+        assertNull(result, ERROR_PLANE_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsBV02RayParallelNotIncluded() {
+        // Arrange
+        Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
+        Ray ray = new Ray(new Point(1, 0, 2), new Vector(1, 0, 0));
+
+        // Act
+        var result = plane.findIntersections(ray);
+
+        // Assert
+        // =============== Boundary Values Tests ==================
+        // BV02: Ray is parallel to the plane and not included in the plane
+        assertNull(result, ERROR_PLANE_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsBV03RayOrthogonalBeforePlane() {
+        // Arrange
+        Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
+        Ray ray = new Ray(new Point(1, 0, 0), new Vector(0, 0, 1));
+
+        // Act
+        var result = plane.findIntersections(ray);
+
+        // Assert
+        // =============== Boundary Values Tests ==================
+        // BV03: Ray is orthogonal to the plane and starts before the plane (1 point)
+        assertNotNull(result, ERROR_PLANE_INTERSECTION);
+        assertEquals(1, result.size(), ERROR_PLANE_INTERSECTION);
+        assertPointEquals(new Point(1, 0, 1), result.get(0), ERROR_PLANE_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsBV04RayOrthogonalStartsInPlane() {
+        // Arrange
+        Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
+        Ray ray = new Ray(new Point(1, 0, 1), new Vector(0, 0, 1));
+
+        // Act
+        var result = plane.findIntersections(ray);
+
+        // Assert
+        // =============== Boundary Values Tests ==================
+        // BV04: Ray is orthogonal to the plane and starts in the plane (0 points)
+        assertNull(result, ERROR_PLANE_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsBV05RayOrthogonalAfterPlane() {
+        // Arrange
+        Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
+        Ray ray = new Ray(new Point(1, 0, 2), new Vector(0, 0, 1));
+
+        // Act
+        var result = plane.findIntersections(ray);
+
+        // Assert
+        // =============== Boundary Values Tests ==================
+        // BV05: Ray is orthogonal to the plane and starts after the plane (0 points)
+        assertNull(result, ERROR_PLANE_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsBV06RayBeginsOnPlaneNotOrthogonalOrParallel() {
+        // Arrange
+        Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
+        Ray ray = new Ray(new Point(1, 0, 1), new Vector(0, 1, 1));
+
+        // Act
+        var result = plane.findIntersections(ray);
+
+        // Assert
+        // =============== Boundary Values Tests ==================
+        // BV06: Ray is neither orthogonal nor parallel to the plane and begins on the plane (0 points)
+        assertNull(result, ERROR_PLANE_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsBV07RayBeginsAtPlaneReferencePointQ() {
+        // Arrange
+        Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
+        Ray ray = new Ray(new Point(0, 0, 1), new Vector(0, 1, 1));
+
+        // Act
+        var result = plane.findIntersections(ray);
+
+        // Assert
+        // =============== Boundary Values Tests ==================
+        // BV07: Ray begins at the reference point of the plane (Q) (0 points)
+        assertNull(result, ERROR_PLANE_INTERSECTION);
     }
 }
