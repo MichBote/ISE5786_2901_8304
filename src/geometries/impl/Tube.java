@@ -47,6 +47,85 @@ public class Tube extends RadialGeometry {
 
     @Override
     public List<Point> findIntersections(Ray ray) {
+        Point p0 = ray.origin();
+        Vector v = ray.direction();
+
+        Point pa = _axis.origin();
+        Vector va = _axis.direction();
+
+        // Ray direction component orthogonal to the axis
+        double vVa = v.dotProduct(va);
+        if (isZero(1d - Math.abs(vVa))) {
+            // Parallel to axis => 0 intersections or infinite (if on surface). Return null.
+            return null;
+        }
+
+        Vector vPerp;
+        try {
+            vPerp = v.add(va.scale(-vVa));
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
+
+        double a = alignZero(vPerp.lengthSquared());
+        if (isZero(a)) {
+            // Ray is parallel to axis (or direction projects fully on axis)
+            // Either 0 intersections, or infinite intersections (ray on the surface) -> return null
+            return null;
+        }
+
+        // Vector from axis origin to ray origin: deltaP = P0 - Pa
+        Vector deltaP = null;
+        if (!p0.equals(pa)) {
+            deltaP = p0.subtract(pa);
+        }
+
+        // deltaP component orthogonal to the axis
+        double b;
+        double c;
+
+        if (deltaP == null) {
+            // Ray origin is exactly on axis origin => deltaPerp is zero
+            b = 0;
+            c = -_radiusSquared;
+        } else {
+            double dpVa = deltaP.dotProduct(va);
+            Vector deltaPerp;
+            try {
+                deltaPerp = deltaP.add(va.scale(-dpVa));
+            } catch (IllegalArgumentException ex) {
+                // Ray origin is on the axis line => deltaPerp is zero
+                deltaPerp = null;
+            }
+
+            if (deltaPerp == null) {
+                b = 0;
+                c = -_radiusSquared;
+            } else {
+                b = alignZero(2d * vPerp.dotProduct(deltaPerp));
+                c = alignZero(deltaPerp.lengthSquared() - _radiusSquared);
+            }
+        }
+
+        double discriminant = alignZero(b * b - 4d * a * c);
+
+        // Tangency (discriminant == 0) is excluded by project rules
+        if (discriminant <= 0) return null;
+
+        double sqrtD = Math.sqrt(discriminant);
+        double t1 = alignZero((-b - sqrtD) / (2d * a));
+        double t2 = alignZero((-b + sqrtD) / (2d * a));
+
+        boolean t1Positive = t1 > 0;
+        boolean t2Positive = t2 > 0;
+
+        if (t1Positive && t2Positive) {
+            return t1 < t2
+                ? List.of(ray.getPoint(t1), ray.getPoint(t2))
+                : List.of(ray.getPoint(t2), ray.getPoint(t1));
+        }
+        if (t1Positive) return List.of(ray.getPoint(t1));
+        if (t2Positive) return List.of(ray.getPoint(t2));
         return null;
     }
 
