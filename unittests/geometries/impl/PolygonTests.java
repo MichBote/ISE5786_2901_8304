@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import primitives.Point;
+import primitives.Ray;
 import primitives.Vector;
 
 /**
@@ -42,6 +43,20 @@ class PolygonTests {
     private static final String ERROR_POLYGON = "ERROR: wrong polygon";
     /** Error message for wrong normal */
     private static final String ERROR_NORMAL = "ERROR: wrong normal";
+
+    /** Error message for wrong polygon intersection */
+    private static final String ERROR_POLYGON_INTERSECTION = "ERROR: wrong Polygon intersection result";
+
+    /** Polygon used in intersection tests */
+    private static final Polygon POLYGON_INTERSECTIONS = new Polygon(
+        new Point(1, 1, 1),
+        new Point(3, 1, 1),
+        new Point(3, 3, 1),
+        new Point(1, 3, 1));
+
+    private static void assertPointEquals(Point expected, Point actual, String message) {
+        assertEquals(0d, expected.distance(actual), DELTA, message);
+    }
 
     /**
      * Test method for {@link Polygon#Polygon(Point...)}.
@@ -108,5 +123,157 @@ class PolygonTests {
             previous = point;
             assertEquals(0d, result.dotProduct(edge), DELTA, ERROR_NORMAL);
         }
+    }
+
+    /**
+     * Test method for {@link Polygon#findIntersections(primitives.Ray)}.
+     */
+    @Test
+    void testFindIntersectionsInside() {
+        // Arrange
+        Ray ray = new Ray(new Point(2, 2, 0), new Vector(0, 0, 1));
+
+        // Act
+        var result = POLYGON_INTERSECTIONS.findIntersections(ray);
+
+        // Assert
+        // ============ Equivalence Partitions Tests ==============
+        // EP01: Intersection point is inside the polygon (1 point)
+        assertNotNull(result, ERROR_POLYGON_INTERSECTION);
+        assertEquals(1, result.size(), ERROR_POLYGON_INTERSECTION);
+        assertPointEquals(new Point(2, 2, 1), result.get(0), ERROR_POLYGON_INTERSECTION);
+    }
+
+    /**
+     * Test method for {@link Polygon#findIntersections(primitives.Ray)}.
+     */
+    @Test
+    void testFindIntersectionsOutsideEdge() {
+        // Arrange
+        Ray ray = new Ray(new Point(0.5, 2, 0), new Vector(0, 0, 1));
+
+        // Act
+        var result = POLYGON_INTERSECTIONS.findIntersections(ray);
+
+        // Assert
+        // ============ Equivalence Partitions Tests ==============
+        // EP02: Intersection point is outside the polygon against an edge (0 points)
+        assertNull(result, ERROR_POLYGON_INTERSECTION);
+    }
+
+    /**
+     * Test method for {@link Polygon#findIntersections(primitives.Ray)}.
+     */
+    @Test
+    void testFindIntersectionsOutsideVertex() {
+        // Arrange
+        Ray ray = new Ray(new Point(0.5, 0.5, 0), new Vector(0, 0, 1));
+
+        // Act
+        var result = POLYGON_INTERSECTIONS.findIntersections(ray);
+
+        // Assert
+        // ============ Equivalence Partitions Tests ==============
+        // EP03: Intersection point is outside the polygon against a vertex (0 points)
+        assertNull(result, ERROR_POLYGON_INTERSECTION);
+    }
+
+    /**
+     * Test method for {@link Polygon#findIntersections(primitives.Ray)}.
+     */
+    @Test
+    void testFindIntersectionsOnEdge() {
+        // Arrange
+        Ray ray = new Ray(new Point(1, 2, 0), new Vector(0, 0, 1));
+
+        // Act
+        var result = POLYGON_INTERSECTIONS.findIntersections(ray);
+
+        // Assert
+        // =============== Boundary Values Tests ==================
+        // BV01: Intersection point is on an edge (0 points)
+        assertNull(result, ERROR_POLYGON_INTERSECTION);
+    }
+
+    /**
+     * Test method for {@link Polygon#findIntersections(primitives.Ray)}.
+     */
+    @Test
+    void testFindIntersectionsOnVertex() {
+        // Arrange
+        Ray ray = new Ray(new Point(1, 1, 0), new Vector(0, 0, 1));
+
+        // Act
+        var result = POLYGON_INTERSECTIONS.findIntersections(ray);
+
+        // Assert
+        // =============== Boundary Values Tests ==================
+        // BV02: Intersection point is on a vertex (0 points)
+        assertNull(result, ERROR_POLYGON_INTERSECTION);
+    }
+
+    /**
+     * Test method for {@link Polygon#findIntersections(primitives.Ray)}.
+     */
+    @Test
+    void testFindIntersectionsOnEdgeContinuation() {
+        // Arrange
+        Ray ray = new Ray(new Point(1, 4, 0), new Vector(0, 0, 1));
+
+        // Act
+        var result = POLYGON_INTERSECTIONS.findIntersections(ray);
+
+        // Assert
+        // =============== Boundary Values Tests ==================
+        // BV03: Intersection point is on an edge continuation (0 points)
+        assertNull(result, ERROR_POLYGON_INTERSECTION);
+    }
+
+    /**
+     * Test method for {@link Polygon#findIntersections(primitives.Ray)}.
+     */
+    @Test
+    void testFindIntersectionsParallelIncluded() {
+        // Arrange
+        Ray ray = new Ray(new Point(2, 2, 1), new Vector(1, 0, 0));
+
+        // Act
+        var result = POLYGON_INTERSECTIONS.findIntersections(ray);
+
+        // Assert
+        // Plane-related no-intersection case: parallel and included in the plane
+        assertNull(result, ERROR_POLYGON_INTERSECTION);
+    }
+
+    /**
+     * Test method for {@link Polygon#findIntersections(primitives.Ray)}.
+     */
+    @Test
+    void testFindIntersectionsParallelNotIncluded() {
+        // Arrange
+        Ray ray = new Ray(new Point(2, 2, 2), new Vector(1, 0, 0));
+
+        // Act
+        var result = POLYGON_INTERSECTIONS.findIntersections(ray);
+
+        // Assert
+        // Plane-related no-intersection case: parallel and not included in the plane
+        assertNull(result, ERROR_POLYGON_INTERSECTION);
+    }
+
+    /**
+     * Test method for {@link Polygon#findIntersections(primitives.Ray)}.
+     */
+    @Test
+    void testFindIntersectionsBeginsOnPlane() {
+        // Arrange
+        Ray ray = new Ray(new Point(2, 2, 1), new Vector(0, 0, 1));
+
+        // Act
+        var result = POLYGON_INTERSECTIONS.findIntersections(ray);
+
+        // Assert
+        // Plane-related no-intersection case: ray begins in the plane (t=0 excluded)
+        assertNull(result, ERROR_POLYGON_INTERSECTION);
     }
 }

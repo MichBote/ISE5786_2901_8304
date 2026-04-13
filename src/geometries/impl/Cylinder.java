@@ -4,6 +4,11 @@ import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+import static primitives.Util.alignZero;
 import static primitives.Util.isZero;
 
 /**
@@ -55,6 +60,63 @@ public final class Cylinder extends Tube {
             return v;
         }
         return super.getNormal(point);
+    }
+
+    @Override
+    public List<Point> findIntersections(Ray ray) {
+        Point pBase = _axis.origin();
+        Vector va = _axis.direction();
+        Point pTop = pBase.add(va.scale(_height));
+
+        List<Point> intersections = null;
+
+        // ---- Lateral surface (infinite tube) intersections, filtered by height ----
+        List<Point> tubePoints = super.findIntersections(ray);
+        if (tubePoints != null) {
+            for (Point p : tubePoints) {
+                double s = alignZero(va.dotProduct(p.subtract(pBase)));
+                if (s < 0 || s > _height) continue;
+                intersections = addUnique(intersections, p);
+            }
+        }
+
+        // ---- Caps (disks) intersections ----
+        double nv = alignZero(va.dotProduct(ray.direction()));
+        if (!isZero(nv)) {
+            intersections = addCapIntersection(intersections, ray, pBase, va, nv);
+            intersections = addCapIntersection(intersections, ray, pTop, va, nv);
+        }
+
+        if (intersections == null) return null;
+        intersections.sort(Comparator.comparingDouble(p -> p.distanceSquared(ray.origin())));
+        return intersections;
+    }
+
+    private List<Point> addCapIntersection(List<Point> intersections, Ray ray, Point center, Vector normal, double nv) {
+        if (center.equals(ray.origin())) return intersections;
+
+        double numerator = normal.dotProduct(center.subtract(ray.origin()));
+        double t = alignZero(numerator / nv);
+        if (t <= 0) return intersections;
+
+        Point p = ray.getPoint(t);
+        // Include points on the rim (join between base and shell)
+        if (alignZero(p.distanceSquared(center) - _radiusSquared) > 0) return intersections;
+        return addUnique(intersections, p);
+    }
+
+    private static List<Point> addUnique(List<Point> intersections, Point p) {
+        if (intersections == null) {
+            intersections = new ArrayList<>();
+            intersections.add(p);
+            return intersections;
+        }
+
+        for (Point existing : intersections) {
+            if (isZero(existing.distanceSquared(p))) return intersections;
+        }
+        intersections.add(p);
+        return intersections;
     }
 
     @Override
