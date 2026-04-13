@@ -217,4 +217,80 @@ class CylinderTests {
         assertPointEquals(new Point(0, 2, 5), result.get(0), ERROR_CYLINDER_INTERSECTION);
         assertPointEquals(new Point(2, 2, 5), result.get(1), ERROR_CYLINDER_INTERSECTION);
     }
+
+    @Test
+    void testFindIntersectionsAxisFromInsideOnePoint() {
+        // Arrange
+        Cylinder cylinder = createTestCylinder();
+        Ray ray = new Ray(new Point(1, 2, 4), new Vector(0, 0, 1));
+
+        // Act
+        var result = cylinder.findIntersections(ray);
+
+        // Assert
+        assertIntersectionsCount(result, 1, ERROR_CYLINDER_INTERSECTION);
+        assertPointEquals(new Point(1, 2, 5), result.get(0), ERROR_CYLINDER_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsAxisFromBottomCenterOnePoint() {
+        // =============== Boundary Values Tests ==================
+        // Arrange
+        Cylinder cylinder = createTestCylinder();
+        Ray ray = new Ray(new Point(1, 2, 3), new Vector(0, 0, 1));
+
+        // Act
+        var result = cylinder.findIntersections(ray);
+
+        // Assert
+        // Base point is at t=0 and excluded; only the top cap intersection remains
+        assertIntersectionsCount(result, 1, ERROR_CYLINDER_INTERSECTION);
+        assertPointEquals(new Point(1, 2, 5), result.get(0), ERROR_CYLINDER_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsRimsDedupSideAndCapsTwoPoints() {
+        // Arrange
+        Cylinder cylinder = createTestCylinder();
+        Ray ray = new Ray(new Point(-1, 2, 2), new Vector(1, 0, 1));
+
+        // Act
+        var result = cylinder.findIntersections(ray);
+
+        // Assert
+        // Each rim point may be found both by the side and the cap logic; result must be unique
+        assertIntersectionsCount(result, 2, ERROR_CYLINDER_INTERSECTION);
+        assertPointEquals(new Point(0, 2, 3), result.get(0), ERROR_CYLINDER_INTERSECTION);
+        assertPointEquals(new Point(2, 2, 5), result.get(1), ERROR_CYLINDER_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsSideAndTopCapTwoPoints() {
+        // Arrange
+        Cylinder cylinder = createTestCylinder();
+        Ray ray = new Ray(new Point(-1, 2, 2.5), new Vector(1, 0, 1));
+
+        // Act
+        var result = cylinder.findIntersections(ray);
+
+        // Assert
+        assertIntersectionsCount(result, 2, ERROR_CYLINDER_INTERSECTION);
+        assertPointEquals(new Point(0, 2, 3.5), result.get(0), ERROR_CYLINDER_INTERSECTION);
+        assertPointEquals(new Point(1.5, 2, 5), result.get(1), ERROR_CYLINDER_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsOnBottomPlaneTwoRimPoints() {
+        // Arrange
+        Cylinder cylinder = createTestCylinder();
+        Ray ray = new Ray(new Point(1, 0, 3), new Vector(0, 1, 0));
+
+        // Act
+        var result = cylinder.findIntersections(ray);
+
+        // Assert
+        assertIntersectionsCount(result, 2, ERROR_CYLINDER_INTERSECTION);
+        assertPointEquals(new Point(1, 1, 3), result.get(0), ERROR_CYLINDER_INTERSECTION);
+        assertPointEquals(new Point(1, 3, 3), result.get(1), ERROR_CYLINDER_INTERSECTION);
+    }
 }
