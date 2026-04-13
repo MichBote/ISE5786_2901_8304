@@ -51,6 +51,21 @@ public final class Ray {
         return _direction;
     }
 
+    /**
+     * Computes a point on the ray's line at distance {@code t} from the origin:
+     * {@code P = P0 + t * v}.
+     * <p>
+     * Note: the method accepts any {@code t} (positive/negative/zero). For
+     * intersection computations we typically use only {@code t > 0}.
+     * </p>
+     * <p>
+     * If scaling the direction by {@code t} creates a near-zero vector (which is
+     * forbidden by {@link Vector}), the method returns the ray origin.
+     * </p>
+     *
+     * @param t distance parameter
+     * @return point on the ray's line
+     */
     public Point getPoint(double t) {
         return _origin;
     }
@@ -73,4 +88,5 @@ public final class Ray {
         return "Ray:" + _origin + _direction;
     }
 }
+
 

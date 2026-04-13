@@ -7,13 +7,30 @@ import primitives.Ray;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A composite of intersectable geometries.
+ * <p>
+ * The class aggregates multiple {@link Intersectable} objects and delegates
+ * intersection computations to them.
+ * </p>
+ */
 public final class Geometries extends Intersectable {
     private final List<Intersectable> geometries = new ArrayList<>();
 
+    /**
+     * Constructs a collection of geometries.
+     *
+     * @param geometries geometries to add
+     */
     public Geometries(Intersectable... geometries) {
         add(geometries);
     }
 
+    /**
+     * Adds geometries to the collection.
+     *
+     * @param geometries geometries to add
+     */
     public void add(Intersectable... geometries) {
         if (geometries == null || geometries.length == 0) return;
         this.geometries.addAll(List.of(geometries));

@@ -10,7 +10,7 @@ import java.util.List;
  * Base abstract class for all geometric shapes.
  * <p>
  * At this stage the class exposes only a normal computation API.
- * Intersection-related APIs will be added in later stages.
+ * Intersection-related APIs are introduced via {@link Intersectable}.
  * </p>
  *
  * @author Michal Berdugo &amp; Bina Cohen
@@ -29,9 +29,19 @@ public abstract class Geometry extends Intersectable {
      */
     public abstract Vector getNormal(Point point);
 
+    /**
+     * Finds intersection points between a ray and the geometry.
+     * <p>
+     * Concrete geometries should override this method.
+     * </p>
+     *
+     * @param ray the intersecting ray
+     * @return a list of intersection points, or {@code null} if there are none
+     */
     @Override
     public List<Point> findIntersections(Ray ray) {
         return null;
     }
 }
+
 
