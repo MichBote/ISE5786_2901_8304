@@ -7,7 +7,6 @@ import primitives.Vector;
 import java.util.List;
 
 import static primitives.Util.alignZero;
-import static primitives.Util.compareSign;
 import static primitives.Util.isZero;
 
 /**
@@ -33,34 +32,42 @@ public final class Triangle extends Polygon {
 
     @Override
     public List<Point> findIntersections(Ray ray) {
-        List<Point> planeIntersections = _plane.findIntersections(ray);
-        if (planeIntersections == null) return null;
+        // Möller–Trumbore algorithm (direct ray-triangle intersection)
+        Point v0 = _vertices.get(0);
+        Point v1 = _vertices.get(1);
+        Point v2 = _vertices.get(2);
 
+        // If ray starts at a vertex, the only intersection is at t=0 (excluded)
         Point p0 = ray.origin();
-        Vector v = ray.direction();
+        if (p0.equals(v0) || p0.equals(v1) || p0.equals(v2)) return null;
 
-        Vector v1;
-        Vector v2;
-        Vector v3;
+        Vector dir = ray.direction();
+
+        Vector edge1 = v1.subtract(v0);
+        Vector edge2 = v2.subtract(v0);
+
+        Vector pvec = dir.crossProduct(edge2);
+        double det = alignZero(edge1.dotProduct(pvec));
+        if (isZero(det)) return null; // ray is parallel to triangle plane
+
+        double invDet = 1d / det;
+
+        Vector tvec;
         try {
-            v1 = _vertices.get(0).subtract(p0);
-            v2 = _vertices.get(1).subtract(p0);
-            v3 = _vertices.get(2).subtract(p0);
+            tvec = p0.subtract(v0);
         } catch (IllegalArgumentException ex) {
-            // Ray starts at a vertex => intersection at origin is excluded
             return null;
         }
 
-        double s1 = alignZero(v.dotProduct(v1.crossProduct(v2)));
-        if (isZero(s1)) return null;
+        double u = alignZero(tvec.dotProduct(pvec) * invDet);
+        if (u <= 0 || u >= 1) return null; // exclude edges/vertices
 
-        double s2 = alignZero(v.dotProduct(v2.crossProduct(v3)));
-        if (isZero(s2)) return null;
+        Vector qvec = tvec.crossProduct(edge1);
+        double v = alignZero(dir.dotProduct(qvec) * invDet);
+        if (v <= 0 || u + v >= 1) return null; // exclude edges/vertices
 
-        double s3 = alignZero(v.dotProduct(v3.crossProduct(v1)));
-        if (isZero(s3)) return null;
-
-        return compareSign(s1, s2) && compareSign(s1, s3) ? planeIntersections : null;
+        double t = alignZero(edge2.dotProduct(qvec) * invDet);
+        return t <= 0 ? null : List.of(ray.getPoint(t));
     }
 }
 
