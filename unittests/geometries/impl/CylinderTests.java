@@ -293,4 +293,105 @@ class CylinderTests {
         assertPointEquals(new Point(1, 1, 3), result.get(0), ERROR_CYLINDER_INTERSECTION);
         assertPointEquals(new Point(1, 3, 3), result.get(1), ERROR_CYLINDER_INTERSECTION);
     }
+
+    @Test
+    void testFindIntersectionsCapsReverseDirectionTwoPoints() {
+        // Arrange
+        Cylinder cylinder = createTestCylinder();
+        Ray ray = new Ray(new Point(1.5, 2, 6), new Vector(0, 0, -1));
+
+        // Act
+        var result = cylinder.findIntersections(ray);
+
+        // Assert
+        assertIntersectionsCount(result, 2, ERROR_CYLINDER_INTERSECTION);
+        assertPointEquals(new Point(1.5, 2, 5), result.get(0), ERROR_CYLINDER_INTERSECTION);
+        assertPointEquals(new Point(1.5, 2, 3), result.get(1), ERROR_CYLINDER_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsCapsRimTwoPoints() {
+        // Arrange
+        Cylinder cylinder = createTestCylinder();
+        Ray ray = new Ray(new Point(2, 2, 0), new Vector(0, 0, 1));
+
+        // Act
+        var result = cylinder.findIntersections(ray);
+
+        // Assert
+        // Rim points are included by the bonus requirement
+        assertIntersectionsCount(result, 2, ERROR_CYLINDER_INTERSECTION);
+        assertPointEquals(new Point(2, 2, 3), result.get(0), ERROR_CYLINDER_INTERSECTION);
+        assertPointEquals(new Point(2, 2, 5), result.get(1), ERROR_CYLINDER_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsStartsOnRimGoesOutNoPoints() {
+        // Arrange
+        Cylinder cylinder = createTestCylinder();
+        Ray ray = new Ray(new Point(2, 2, 3), new Vector(1, 0, 0));
+
+        // Act
+        var result = cylinder.findIntersections(ray);
+
+        // Assert
+        assertIntersectionsCount(result, 0, ERROR_CYLINDER_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsStartsOnRimGoesInOnePoint() {
+        // Arrange
+        Cylinder cylinder = createTestCylinder();
+        Ray ray = new Ray(new Point(2, 2, 3), new Vector(-1, 0, 0));
+
+        // Act
+        var result = cylinder.findIntersections(ray);
+
+        // Assert
+        assertIntersectionsCount(result, 1, ERROR_CYLINDER_INTERSECTION);
+        assertPointEquals(new Point(0, 2, 3), result.get(0), ERROR_CYLINDER_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsTangentToSideNoPoints() {
+        // Arrange
+        Cylinder cylinder = createTestCylinder();
+        Ray ray = new Ray(new Point(-1, 3, 4), new Vector(1, 0, 0));
+
+        // Act
+        var result = cylinder.findIntersections(ray);
+
+        // Assert
+        assertIntersectionsCount(result, 0, ERROR_CYLINDER_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsBottomCapThenSideTwoPoints() {
+        // Arrange
+        Cylinder cylinder = createTestCylinder();
+        Ray ray = new Ray(new Point(1.5, 2, 2), new Vector(1, 0, 3));
+
+        // Act
+        var result = cylinder.findIntersections(ray);
+
+        // Assert
+        assertIntersectionsCount(result, 2, ERROR_CYLINDER_INTERSECTION);
+        assertPointEquals(new Point(11d / 6d, 2, 3), result.get(0), ERROR_CYLINDER_INTERSECTION);
+        assertPointEquals(new Point(2, 2, 3.5), result.get(1), ERROR_CYLINDER_INTERSECTION);
+    }
+
+    @Test
+    void testFindIntersectionsTopCapThenSideTwoPoints() {
+        // Arrange
+        Cylinder cylinder = createTestCylinder();
+        Ray ray = new Ray(new Point(1.5, 2, 6), new Vector(1, 0, -3));
+
+        // Act
+        var result = cylinder.findIntersections(ray);
+
+        // Assert
+        assertIntersectionsCount(result, 2, ERROR_CYLINDER_INTERSECTION);
+        assertPointEquals(new Point(11d / 6d, 2, 5), result.get(0), ERROR_CYLINDER_INTERSECTION);
+        assertPointEquals(new Point(2, 2, 4.5), result.get(1), ERROR_CYLINDER_INTERSECTION);
+    }
 }
