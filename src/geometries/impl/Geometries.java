@@ -13,8 +13,11 @@ import java.util.List;
  * The class aggregates multiple {@link Intersectable} objects and delegates
  * intersection computations to them.
  * </p>
+ *
+ * @author Michal Berdugo &amp; Bina Cohen
  */
 public final class Geometries extends Intersectable {
+    /** Internal list of geometries */
     private final List<Intersectable> geometries = new ArrayList<>();
 
     /**
@@ -38,6 +41,16 @@ public final class Geometries extends Intersectable {
 
     @Override
     public List<Point> findIntersections(Ray ray) {
-        return null;
+        List<Point> intersections = null;
+        for (var geometry : geometries) {
+            var points = geometry.findIntersections(ray);
+            if (points != null) {
+                if (intersections == null) {
+                    intersections = new ArrayList<>();
+                }
+                intersections.addAll(points);
+            }
+        }
+        return intersections;
     }
 }
