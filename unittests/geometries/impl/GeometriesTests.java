@@ -22,7 +22,7 @@ class GeometriesTests {
      * Test method for {@link Geometries#findIntersections(Ray)}.
      */
     @Test
-    void testFindIntersectionsSomeGeometriesIntersected() {
+    void testFindIntersectionsSome() {
         // Arrange
         Sphere sphere1 = new Sphere(new Point(2, 0, 0), 1d);
         Plane plane = new Plane(new Point(4, 0, 0), new Vector(1, 0, 0));
@@ -43,7 +43,7 @@ class GeometriesTests {
      * Test method for {@link Geometries#findIntersections(Ray)}.
      */
     @Test
-    void testFindIntersectionsNoGeometryIntersected() {
+    void testFindIntersectionsNone() {
         // Arrange
         Sphere sphere1 = new Sphere(new Point(2, 0, 0), 1d);
         Sphere sphere2 = new Sphere(new Point(6, 0, 0), 1d);
@@ -63,7 +63,7 @@ class GeometriesTests {
      * Test method for {@link Geometries#findIntersections(Ray)}.
      */
     @Test
-    void testFindIntersectionsOnlyOneGeometryIntersected() {
+    void testFindIntersectionsOne() {
         // Arrange
         Sphere sphere1 = new Sphere(new Point(2, 0, 0), 1d);
         Sphere sphere2 = new Sphere(new Point(6, 0, 0), 1d);
@@ -84,7 +84,7 @@ class GeometriesTests {
      * Test method for {@link Geometries#findIntersections(Ray)}.
      */
     @Test
-    void testFindIntersectionsAllGeometriesIntersected() {
+    void testFindIntersectionsAll() {
         // Arrange
         Sphere sphere1 = new Sphere(new Point(2, 0, 0), 1d);
         Sphere sphere2 = new Sphere(new Point(6, 0, 0), 1d);

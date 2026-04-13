@@ -48,7 +48,7 @@ class RayTests {
      * Test method for {@link Ray#getPoint(double)}.
      */
     @Test
-    void testGetPointPositiveT() {
+    void testGetPointPositive() {
         // Arrange
         Ray ray = new Ray(new Point(1, 2, 3), new Vector(0, 0, 1));
 
@@ -65,7 +65,7 @@ class RayTests {
      * Test method for {@link Ray#getPoint(double)}.
      */
     @Test
-    void testGetPointNegativeT() {
+    void testGetPointNegative() {
         // Arrange
         Ray ray = new Ray(new Point(1, 2, 3), new Vector(0, 0, 1));
 
@@ -82,7 +82,7 @@ class RayTests {
      * Test method for {@link Ray#getPoint(double)}.
      */
     @Test
-    void testGetPointZeroT() {
+    void testGetPointZero() {
         // Arrange
         Ray ray = new Ray(new Point(1, 2, 3), new Vector(0, 0, 1));
 

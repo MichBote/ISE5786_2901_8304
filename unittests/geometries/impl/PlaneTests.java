@@ -116,7 +116,7 @@ class PlaneTests {
      * Test method for {@link Plane#findIntersections(Ray)}.
      */
     @Test
-    void testFindIntersectionsEP01RayIntersectsPlane() {
+    void testFindIntersectionsIntersect() {
         // Arrange
         Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
         Ray ray = new Ray(new Point(1, 0, 0), new Vector(0, 1, 1));
@@ -133,7 +133,7 @@ class PlaneTests {
     }
 
     @Test
-    void testFindIntersectionsEP02RayDoesNotIntersectPlane() {
+    void testFindIntersectionsNoIntersect() {
         // Arrange
         Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
         Ray ray = new Ray(new Point(1, 0, 2), new Vector(0, 1, 1));
@@ -148,7 +148,7 @@ class PlaneTests {
     }
 
     @Test
-    void testFindIntersectionsBV01RayParallelIncluded() {
+    void testFindIntersectionsParallelIncluded() {
         // Arrange
         Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
         Ray ray = new Ray(new Point(1, 0, 1), new Vector(1, 0, 0));
@@ -163,7 +163,7 @@ class PlaneTests {
     }
 
     @Test
-    void testFindIntersectionsBV02RayParallelNotIncluded() {
+    void testFindIntersectionsParallelNotIncluded() {
         // Arrange
         Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
         Ray ray = new Ray(new Point(1, 0, 2), new Vector(1, 0, 0));
@@ -178,7 +178,7 @@ class PlaneTests {
     }
 
     @Test
-    void testFindIntersectionsBV03RayOrthogonalBeforePlane() {
+    void testFindIntersectionsOrthogonalBefore() {
         // Arrange
         Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
         Ray ray = new Ray(new Point(1, 0, 0), new Vector(0, 0, 1));
@@ -195,7 +195,7 @@ class PlaneTests {
     }
 
     @Test
-    void testFindIntersectionsBV04RayOrthogonalStartsInPlane() {
+    void testFindIntersectionsOrthogonalOnPlane() {
         // Arrange
         Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
         Ray ray = new Ray(new Point(1, 0, 1), new Vector(0, 0, 1));
@@ -210,7 +210,7 @@ class PlaneTests {
     }
 
     @Test
-    void testFindIntersectionsBV05RayOrthogonalAfterPlane() {
+    void testFindIntersectionsOrthogonalAfter() {
         // Arrange
         Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
         Ray ray = new Ray(new Point(1, 0, 2), new Vector(0, 0, 1));
@@ -225,7 +225,7 @@ class PlaneTests {
     }
 
     @Test
-    void testFindIntersectionsBV06RayBeginsOnPlaneNotOrthogonalOrParallel() {
+    void testFindIntersectionsBeginsOnPlane() {
         // Arrange
         Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
         Ray ray = new Ray(new Point(1, 0, 1), new Vector(0, 1, 1));
@@ -240,7 +240,7 @@ class PlaneTests {
     }
 
     @Test
-    void testFindIntersectionsBV07RayBeginsAtPlaneReferencePointQ() {
+    void testFindIntersectionsBeginsAtQ() {
         // Arrange
         Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
         Ray ray = new Ray(new Point(0, 0, 1), new Vector(0, 1, 1));

@@ -63,7 +63,7 @@ class TriangleTests {
      * Test method for {@link Triangle#findIntersections(Ray)}.
      */
     @Test
-    void testFindIntersectionsEP01InsideTriangle() {
+    void testFindIntersectionsInside() {
         // Arrange
         Triangle triangle = new Triangle(new Point(1, 0, 1), new Point(0, 2, 1), new Point(2, 2, 1));
         Ray ray = new Ray(new Point(1, 1.5, 0), new Vector(0, 0, 1));
@@ -80,7 +80,7 @@ class TriangleTests {
     }
 
     @Test
-    void testFindIntersectionsEP02OutsideAgainstEdge() {
+    void testFindIntersectionsOutsideEdge() {
         // Arrange
         Triangle triangle = new Triangle(new Point(1, 0, 1), new Point(0, 2, 1), new Point(2, 2, 1));
         Ray ray = new Ray(new Point(1, -0.5, 0), new Vector(0, 0, 1));
@@ -95,7 +95,7 @@ class TriangleTests {
     }
 
     @Test
-    void testFindIntersectionsEP03OutsideAgainstVertex() {
+    void testFindIntersectionsOutsideVertex() {
         // Arrange
         Triangle triangle = new Triangle(new Point(1, 0, 1), new Point(0, 2, 1), new Point(2, 2, 1));
         Ray ray = new Ray(new Point(-1, 2, 0), new Vector(0, 0, 1));
@@ -110,7 +110,7 @@ class TriangleTests {
     }
 
     @Test
-    void testFindIntersectionsBV01OnEdge() {
+    void testFindIntersectionsOnEdge() {
         // Arrange
         Triangle triangle = new Triangle(new Point(1, 0, 1), new Point(0, 2, 1), new Point(2, 2, 1));
         Ray ray = new Ray(new Point(0.5, 1, 0), new Vector(0, 0, 1));
@@ -125,7 +125,7 @@ class TriangleTests {
     }
 
     @Test
-    void testFindIntersectionsBV02OnVertex() {
+    void testFindIntersectionsOnVertex() {
         // Arrange
         Triangle triangle = new Triangle(new Point(1, 0, 1), new Point(0, 2, 1), new Point(2, 2, 1));
         Ray ray = new Ray(new Point(1, 0, 0), new Vector(0, 0, 1));
@@ -140,7 +140,7 @@ class TriangleTests {
     }
 
     @Test
-    void testFindIntersectionsBV03OnEdgeContinuation() {
+    void testFindIntersectionsOnEdgeContinuation() {
         // Arrange
         Triangle triangle = new Triangle(new Point(1, 0, 1), new Point(0, 2, 1), new Point(2, 2, 1));
         Ray ray = new Ray(new Point(1.5, -1, 0), new Vector(0, 0, 1));
@@ -155,7 +155,7 @@ class TriangleTests {
     }
 
     @Test
-    void testFindIntersectionsBV04ParallelIncluded() {
+    void testFindIntersectionsParallelIncluded() {
         // Arrange
         Triangle triangle = new Triangle(new Point(1, 0, 1), new Point(0, 2, 1), new Point(2, 2, 1));
         Ray ray = new Ray(new Point(1, 1, 1), new Vector(1, 0, 0));
@@ -170,7 +170,7 @@ class TriangleTests {
     }
 
     @Test
-    void testFindIntersectionsBV05ParallelNotIncluded() {
+    void testFindIntersectionsParallelNotIncluded() {
         // Arrange
         Triangle triangle = new Triangle(new Point(1, 0, 1), new Point(0, 2, 1), new Point(2, 2, 1));
         Ray ray = new Ray(new Point(1, 1, 2), new Vector(1, 0, 0));
@@ -185,7 +185,7 @@ class TriangleTests {
     }
 
     @Test
-    void testFindIntersectionsBV06RayBeginsOnPlane() {
+    void testFindIntersectionsBeginsOnPlane() {
         // Arrange
         Triangle triangle = new Triangle(new Point(1, 0, 1), new Point(0, 2, 1), new Point(2, 2, 1));
         Ray ray = new Ray(new Point(1, 1.5, 1), new Vector(0, 0, 1));

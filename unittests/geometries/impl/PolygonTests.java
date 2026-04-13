@@ -129,7 +129,7 @@ class PolygonTests {
      * Test method for {@link Polygon#findIntersections(primitives.Ray)}.
      */
     @Test
-    void testFindIntersectionsEP01InsidePolygon() {
+    void testFindIntersectionsInside() {
         // Arrange
         Ray ray = new Ray(new Point(2, 2, 0), new Vector(0, 0, 1));
 
@@ -148,7 +148,7 @@ class PolygonTests {
      * Test method for {@link Polygon#findIntersections(primitives.Ray)}.
      */
     @Test
-    void testFindIntersectionsEP02OutsideAgainstEdge() {
+    void testFindIntersectionsOutsideEdge() {
         // Arrange
         Ray ray = new Ray(new Point(0.5, 2, 0), new Vector(0, 0, 1));
 
@@ -165,7 +165,7 @@ class PolygonTests {
      * Test method for {@link Polygon#findIntersections(primitives.Ray)}.
      */
     @Test
-    void testFindIntersectionsEP03OutsideAgainstVertex() {
+    void testFindIntersectionsOutsideVertex() {
         // Arrange
         Ray ray = new Ray(new Point(0.5, 0.5, 0), new Vector(0, 0, 1));
 
@@ -182,7 +182,7 @@ class PolygonTests {
      * Test method for {@link Polygon#findIntersections(primitives.Ray)}.
      */
     @Test
-    void testFindIntersectionsBV01OnEdge() {
+    void testFindIntersectionsOnEdge() {
         // Arrange
         Ray ray = new Ray(new Point(1, 2, 0), new Vector(0, 0, 1));
 
@@ -199,7 +199,7 @@ class PolygonTests {
      * Test method for {@link Polygon#findIntersections(primitives.Ray)}.
      */
     @Test
-    void testFindIntersectionsBV02OnVertex() {
+    void testFindIntersectionsOnVertex() {
         // Arrange
         Ray ray = new Ray(new Point(1, 1, 0), new Vector(0, 0, 1));
 
@@ -216,7 +216,7 @@ class PolygonTests {
      * Test method for {@link Polygon#findIntersections(primitives.Ray)}.
      */
     @Test
-    void testFindIntersectionsBV03OnEdgeContinuation() {
+    void testFindIntersectionsOnEdgeContinuation() {
         // Arrange
         Ray ray = new Ray(new Point(1, 4, 0), new Vector(0, 0, 1));
 
@@ -233,7 +233,7 @@ class PolygonTests {
      * Test method for {@link Polygon#findIntersections(primitives.Ray)}.
      */
     @Test
-    void testFindIntersectionsRayParallelToPlaneIncluded() {
+    void testFindIntersectionsParallelIncluded() {
         // Arrange
         Ray ray = new Ray(new Point(2, 2, 1), new Vector(1, 0, 0));
 
@@ -249,7 +249,7 @@ class PolygonTests {
      * Test method for {@link Polygon#findIntersections(primitives.Ray)}.
      */
     @Test
-    void testFindIntersectionsRayParallelToPlaneNotIncluded() {
+    void testFindIntersectionsParallelNotIncluded() {
         // Arrange
         Ray ray = new Ray(new Point(2, 2, 2), new Vector(1, 0, 0));
 
@@ -265,7 +265,7 @@ class PolygonTests {
      * Test method for {@link Polygon#findIntersections(primitives.Ray)}.
      */
     @Test
-    void testFindIntersectionsRayBeginsOnPlane() {
+    void testFindIntersectionsBeginsOnPlane() {
         // Arrange
         Ray ray = new Ray(new Point(2, 2, 1), new Vector(0, 0, 1));
 

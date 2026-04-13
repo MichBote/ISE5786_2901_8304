@@ -55,7 +55,7 @@ class SphereTests {
      * Test method for {@link Sphere#findIntersections(Ray)}.
      */
     @Test
-    void testFindIntersectionsEP01RayOutsideSphere() {
+    void testFindIntersectionsOutside() {
         // Arrange
         Ray ray = new Ray(new Point(-2, 2, 0), new Vector(1, 0, 0));
 
@@ -69,7 +69,7 @@ class SphereTests {
     }
 
     @Test
-    void testFindIntersectionsEP02RayCrossesSphereTwoPoints() {
+    void testFindIntersectionsCrosses() {
         // Arrange
         Ray ray = new Ray(new Point(-2, 0, 0), new Vector(1, 0, 0));
 
@@ -86,7 +86,7 @@ class SphereTests {
     }
 
     @Test
-    void testFindIntersectionsEP03RayStartsInsideSphere() {
+    void testFindIntersectionsStartsInside() {
         // Arrange
         Ray ray = new Ray(new Point(2.5, 0, 0), new Vector(1, 0, 0));
 
@@ -102,7 +102,7 @@ class SphereTests {
     }
 
     @Test
-    void testFindIntersectionsEP04RayStartsAfterSphere() {
+    void testFindIntersectionsStartsAfter() {
         // Arrange
         Ray ray = new Ray(new Point(4, 0, 0), new Vector(1, 0, 0));
 
@@ -116,7 +116,7 @@ class SphereTests {
     }
 
     @Test
-    void testFindIntersectionsBV11RayStartsOnSphereGoesInside() {
+    void testFindIntersectionsStartOnSphereGoInside() {
         // Arrange
         Point p1 = new Point(2 - Math.sqrt(0.75), 0, 0.5);
         Point p2 = new Point(2 + Math.sqrt(0.75), 0, 0.5);
@@ -134,7 +134,7 @@ class SphereTests {
     }
 
     @Test
-    void testFindIntersectionsBV12RayStartsOnSphereGoesOutside() {
+    void testFindIntersectionsStartOnSphereGoOutside() {
         // Arrange
         Point p1 = new Point(2 - Math.sqrt(0.75), 0, 0.5);
         Ray ray = new Ray(p1, new Vector(-1, 0, 0));
@@ -149,7 +149,7 @@ class SphereTests {
     }
 
     @Test
-    void testFindIntersectionsBV21RayLineThroughCenterStartsBefore() {
+    void testFindIntersectionsThroughCenterBefore() {
         // Arrange
         Ray ray = new Ray(new Point(-2, 0, 0), new Vector(1, 0, 0));
 
@@ -166,7 +166,7 @@ class SphereTests {
     }
 
     @Test
-    void testFindIntersectionsBV22RayStartsOnSphereGoesInsideThroughCenter() {
+    void testFindIntersectionsThroughCenterFromSurfaceIn() {
         // Arrange
         Ray ray = new Ray(new Point(1, 0, 0), new Vector(1, 0, 0));
 
@@ -182,7 +182,7 @@ class SphereTests {
     }
 
     @Test
-    void testFindIntersectionsBV23RayStartsInsideThroughCenter() {
+    void testFindIntersectionsThroughCenterStartsInside() {
         // Arrange
         Ray ray = new Ray(new Point(2.5, 0, 0), new Vector(1, 0, 0));
 
@@ -198,7 +198,7 @@ class SphereTests {
     }
 
     @Test
-    void testFindIntersectionsBV24RayStartsAtCenter() {
+    void testFindIntersectionsStartsAtCenter() {
         // Arrange
         Ray ray = new Ray(new Point(2, 0, 0), new Vector(1, 0, 0));
 
@@ -214,7 +214,7 @@ class SphereTests {
     }
 
     @Test
-    void testFindIntersectionsBV25RayStartsOnSphereGoesOutsideThroughCenter() {
+    void testFindIntersectionsThroughCenterFromSurfaceOut() {
         // Arrange
         Ray ray = new Ray(new Point(3, 0, 0), new Vector(1, 0, 0));
 
@@ -228,7 +228,7 @@ class SphereTests {
     }
 
     @Test
-    void testFindIntersectionsBV26RayStartsAfterSphereThroughCenter() {
+    void testFindIntersectionsThroughCenterStartsAfter() {
         // Arrange
         Ray ray = new Ray(new Point(4, 0, 0), new Vector(1, 0, 0));
 
@@ -242,7 +242,7 @@ class SphereTests {
     }
 
     @Test
-    void testFindIntersectionsBV31TangentRayStartsBeforeTangentPoint() {
+    void testFindIntersectionsTangentBefore() {
         // Arrange
         Ray ray = new Ray(new Point(0, 1, 0), new Vector(1, 0, 0));
 
@@ -256,7 +256,7 @@ class SphereTests {
     }
 
     @Test
-    void testFindIntersectionsBV32TangentRayStartsAtTangentPoint() {
+    void testFindIntersectionsTangentAtPoint() {
         // Arrange
         Ray ray = new Ray(new Point(2, 1, 0), new Vector(1, 0, 0));
 
@@ -270,7 +270,7 @@ class SphereTests {
     }
 
     @Test
-    void testFindIntersectionsBV33TangentRayStartsAfterTangentPoint() {
+    void testFindIntersectionsTangentAfter() {
         // Arrange
         Ray ray = new Ray(new Point(3, 1, 0), new Vector(1, 0, 0));
 
@@ -284,7 +284,7 @@ class SphereTests {
     }
 
     @Test
-    void testFindIntersectionsBV41RayLineOutsideOrthogonalToCenterLine() {
+    void testFindIntersectionsOrthogonalOutside() {
         // Arrange
         Ray ray = new Ray(new Point(2, 2, 0), new Vector(1, 0, 0));
 
@@ -298,7 +298,7 @@ class SphereTests {
     }
 
     @Test
-    void testFindIntersectionsBV42RayStartsInsideOrthogonalToCenterLine() {
+    void testFindIntersectionsOrthogonalInside() {
         // Arrange
         Ray ray = new Ray(new Point(2, 0.5, 0), new Vector(1, 0, 0));
 
