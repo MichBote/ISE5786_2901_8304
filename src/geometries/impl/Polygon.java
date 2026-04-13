@@ -113,7 +113,13 @@ public class Polygon extends Geometry {
                 return null;
             }
 
-            double s = alignZero(v1.crossProduct(v2).dotProduct(n));
+            double s;
+            try {
+                s = alignZero(v1.crossProduct(v2).dotProduct(n));
+            } catch (IllegalArgumentException ex) {
+                // v1 and v2 are collinear => crossProduct is zero => on edge/continuation => excluded
+                return null;
+            }
             if (isZero(s)) return null; // on an edge or on its continuation => excluded
 
             if (i == 0) {
