@@ -1,5 +1,7 @@
 package primitives;
 
+import static primitives.Util.isZero;
+
 import java.util.Objects;
 
 /**
@@ -67,7 +69,12 @@ public final class Ray {
      * @return point on the ray's line
      */
     public Point getPoint(double t) {
-        return _origin;
+        if (isZero(t)) return _origin;
+        try {
+            return _origin.add(_direction.scale(t));
+        } catch (IllegalArgumentException ex) {
+            return _origin;
+        }
     }
 
     @Override
@@ -88,5 +95,4 @@ public final class Ray {
         return "Ray:" + _origin + _direction;
     }
 }
-
 
