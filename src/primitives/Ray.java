@@ -51,6 +51,10 @@ public final class Ray {
         return _direction;
     }
 
+    public Point getPoint(double t) {
+        return _origin;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
@@ -69,3 +73,4 @@ public final class Ray {
         return "Ray:" + _origin + _direction;
     }
 }
+

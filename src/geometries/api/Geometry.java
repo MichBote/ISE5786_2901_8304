@@ -1,7 +1,10 @@
 package geometries.api;
 
 import primitives.Point;
+import primitives.Ray;
 import primitives.Vector;
+
+import java.util.List;
 
 /**
  * Base abstract class for all geometric shapes.
@@ -12,7 +15,7 @@ import primitives.Vector;
  *
  * @author Michal Berdugo &amp; Bina Cohen
  */
-public abstract class Geometry {
+public abstract class Geometry extends Intersectable {
     /**
      * Default constructor to satisfy JavaDoc generator
      */
@@ -25,4 +28,10 @@ public abstract class Geometry {
      * @return the geometry normal at {@code point}
      */
     public abstract Vector getNormal(Point point);
+
+    @Override
+    public List<Point> findIntersections(Ray ray) {
+        return null;
+    }
 }
+

@@ -2,7 +2,10 @@ package geometries.impl;
 
 import geometries.api.Geometry;
 import primitives.Point;
+import primitives.Ray;
 import primitives.Vector;
+
+import java.util.List;
 
 /**
  * Represents a plane in 3D space.
@@ -56,7 +59,13 @@ public final class Plane extends Geometry {
     }
 
     @Override
+    public List<Point> findIntersections(Ray ray) {
+        return null;
+    }
+
+    @Override
     public String toString() {
         return "Plane(point=" + _point + ", normal=" + _normal + ")";
     }
 }
+
