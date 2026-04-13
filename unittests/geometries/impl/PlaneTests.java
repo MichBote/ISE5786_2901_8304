@@ -28,6 +28,9 @@ class PlaneTests {
     /** Error message for wrong plane */
     private static final String ERROR_PLANE = "ERROR: wrong Plane behavior";
 
+    /** Error message for valid constructor not throwing */
+    private static final String ERROR_VALID_CONSTRUCTOR_THREW = "ERROR: valid plane constructor must not throw";
+
     /**
      * Test method for {@link Plane#getNormal(Point)}.
      */
@@ -65,13 +68,16 @@ class PlaneTests {
         // ============ Equivalence Partitions Tests ==============
         // EP01: Three non-collinear points
         assertDoesNotThrow(() -> new Plane(new Point(0, 0, 1), new Point(1, 0, 0), new Point(0, 1, 0)),
-                "ERROR: valid plane constructor must not throw");
+            ERROR_VALID_CONSTRUCTOR_THREW);
+        }
 
+        @Test
+        void testConstructorThreePointsCoincidingPointsThrow() {
         // =============== Boundary Values Tests ==================
         // BV01: Two points coincide
         assertThrows(IllegalArgumentException.class,
-                () -> new Plane(new Point(0, 0, 1), new Point(0, 0, 1), new Point(0, 1, 0)),
-                ERROR_PLANE);
+            () -> new Plane(new Point(0, 0, 1), new Point(0, 0, 1), new Point(0, 1, 0)),
+            ERROR_PLANE);
 
         // BV01.1: Two points coincide (p1 == p3)
         assertThrows(IllegalArgumentException.class,
@@ -85,12 +91,16 @@ class PlaneTests {
 
         // BV02: All three points coincide
         assertThrows(IllegalArgumentException.class,
-                () -> new Plane(new Point(1, 1, 1), new Point(1, 1, 1), new Point(1, 1, 1)),
-                ERROR_PLANE);
+            () -> new Plane(new Point(1, 1, 1), new Point(1, 1, 1), new Point(1, 1, 1)),
+            ERROR_PLANE);
+        }
 
+        @Test
+        void testConstructorThreePointsCollinearPointsThrow() {
+        // =============== Boundary Values Tests ==================
         // BV03: Three points are collinear
         assertThrows(IllegalArgumentException.class,
-                () -> new Plane(new Point(0, 0, 0), new Point(1, 1, 1), new Point(2, 2, 2)),
-                ERROR_PLANE);
+            () -> new Plane(new Point(0, 0, 0), new Point(1, 1, 1), new Point(2, 2, 2)),
+            ERROR_PLANE);
     }
 }

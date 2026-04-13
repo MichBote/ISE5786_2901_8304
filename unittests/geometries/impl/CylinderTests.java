@@ -27,39 +27,57 @@ class CylinderTests {
     /** Error message for wrong cylinder */
     private static final String ERROR_CYLINDER = "ERROR: wrong Cylinder normal";
 
-    /**
-     * Test method for {@link Cylinder#getNormal(Point)}.
-     */
-    @Test
-    void testGetNormal() {
+    private static Cylinder createTestCylinder() {
         Ray axis = new Ray(new Point(0, 0, 0), new Vector(0, 0, 1));
-        Cylinder cylinder = new Cylinder(1d, axis, 2d);
+        return new Cylinder(1d, axis, 2d);
+    }
 
+    @Test
+    void testGetNormalLateralSurface() {
         // ============ Equivalence Partitions Tests ==============
-        // EP01: Normal on the lateral surface
-        assertEquals(new Vector(1, 0, 0), cylinder.getNormal(new Point(1, 0, 1)), ERROR_CYLINDER);
+        // Arrange
+        Cylinder cylinder = createTestCylinder();
 
-        // EP02: Normal on the bottom base (interior point)
-        assertEquals(new Vector(0, 0, -1), cylinder.getNormal(new Point(0.5, 0, 0)), ERROR_CYLINDER);
+        // Act
+        Vector normal = cylinder.getNormal(new Point(1, 0, 1));
 
-        // EP03: Normal on the top base (interior point)
-        assertEquals(new Vector(0, 0, 1), cylinder.getNormal(new Point(0, 0.5, 2)), ERROR_CYLINDER);
+        // Assert
+        assertEquals(new Vector(1, 0, 0), normal, ERROR_CYLINDER);
+    }
 
+    @Test
+    void testGetNormalBottomBase() {
         // =============== Boundary Values Tests ==================
-        // BV01: Normal on the bottom base at the center
-        Vector nBottomCenter = cylinder.getNormal(new Point(0, 0, 0));
-        assertEquals(1d, nBottomCenter.length(), DELTA, ERROR_CYLINDER);
-        assertEquals(new Vector(0, 0, -1), nBottomCenter, ERROR_CYLINDER);
+        // Arrange
+        Cylinder cylinder = createTestCylinder();
 
-        // BV02: Normal on the top base at the center
-        Vector nTopCenter = cylinder.getNormal(new Point(0, 0, 2));
-        assertEquals(1d, nTopCenter.length(), DELTA, ERROR_CYLINDER);
-        assertEquals(new Vector(0, 0, 1), nTopCenter, ERROR_CYLINDER);
+        // Act
+        Vector nInterior = cylinder.getNormal(new Point(0.5, 0, 0));
+        Vector nCenter = cylinder.getNormal(new Point(0, 0, 0));
+        Vector nRim = cylinder.getNormal(new Point(1, 0, 0));
 
-        // BV03: Normal on the bottom rim (classified as base)
-        assertEquals(new Vector(0, 0, -1), cylinder.getNormal(new Point(1, 0, 0)), ERROR_CYLINDER);
+        // Assert
+        assertEquals(new Vector(0, 0, -1), nInterior, ERROR_CYLINDER);
+        assertEquals(1d, nCenter.length(), DELTA, ERROR_CYLINDER);
+        assertEquals(new Vector(0, 0, -1), nCenter, ERROR_CYLINDER);
+        assertEquals(new Vector(0, 0, -1), nRim, ERROR_CYLINDER);
+    }
 
-        // BV04: Normal on the top rim (classified as base)
-        assertEquals(new Vector(0, 0, 1), cylinder.getNormal(new Point(0, 1, 2)), ERROR_CYLINDER);
+    @Test
+    void testGetNormalTopBase() {
+        // =============== Boundary Values Tests ==================
+        // Arrange
+        Cylinder cylinder = createTestCylinder();
+
+        // Act
+        Vector nInterior = cylinder.getNormal(new Point(0, 0.5, 2));
+        Vector nCenter = cylinder.getNormal(new Point(0, 0, 2));
+        Vector nRim = cylinder.getNormal(new Point(0, 1, 2));
+
+        // Assert
+        assertEquals(new Vector(0, 0, 1), nInterior, ERROR_CYLINDER);
+        assertEquals(1d, nCenter.length(), DELTA, ERROR_CYLINDER);
+        assertEquals(new Vector(0, 0, 1), nCenter, ERROR_CYLINDER);
+        assertEquals(new Vector(0, 0, 1), nRim, ERROR_CYLINDER);
     }
 }

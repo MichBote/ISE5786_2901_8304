@@ -41,26 +41,55 @@ class VectorTests {
     /** Error message for wrong vector */
     private static final String ERROR_VECTOR = "ERROR: wrong Vector operation";
 
-    /**
-     * Test method for {@link Vector#add(Vector)} and {@link Vector#subtract(Point)}.
-     */
+    /** Error message for expected exception */
+    private static final String ERROR_EXPECTED_EXCEPTION = "ERROR: expected IllegalArgumentException";
+
     @Test
-    void testAddSubtract() {
+    void testAddVectors() {
         // ============ Equivalence Partitions Tests ==============
-        // EP01: Vector + Vector
-        assertEquals(V123_NEG, V123.add(V246_NEG), ERROR_VECTOR);
+        // Arrange
+        Vector v1 = V123;
+        Vector v2 = V246_NEG;
 
-        // EP02: Vector - Vector
-        assertEquals(new Vector(3, 6, 9), V123.subtract(V246_NEG), ERROR_VECTOR);
+        // Act
+        Vector result = v1.add(v2);
 
+        // Assert
+        assertEquals(V123_NEG, result, ERROR_VECTOR);
+    }
+
+    @Test
+    void testAddOppositeVectorsThrows() {
         // =============== Boundary Values Tests ==================
-        // BV01: Add opposite vector should throw (zero vector forbidden)
-        assertThrows(IllegalArgumentException.class, () -> V123.add(V123_NEG),
-                "ERROR: adding opposite vectors must throw IllegalArgumentException");
+        // Arrange
+        Vector v = V123;
 
-        // BV02: Subtract itself should throw (zero vector forbidden)
-        assertThrows(IllegalArgumentException.class, () -> V123.subtract(V123),
-                "ERROR: subtracting identical vectors must throw IllegalArgumentException");
+        // Act + Assert
+        assertThrows(IllegalArgumentException.class, () -> v.add(V123_NEG), ERROR_EXPECTED_EXCEPTION);
+    }
+
+    @Test
+    void testSubtractVectors() {
+        // ============ Equivalence Partitions Tests ==============
+        // Arrange
+        Vector v1 = V123;
+        Vector v2 = V246_NEG;
+
+        // Act
+        Vector result = v1.subtract(v2);
+
+        // Assert
+        assertEquals(new Vector(3, 6, 9), result, ERROR_VECTOR);
+    }
+
+    @Test
+    void testSubtractSameVectorThrows() {
+        // =============== Boundary Values Tests ==================
+        // Arrange
+        Vector v = V123;
+
+        // Act + Assert
+        assertThrows(IllegalArgumentException.class, () -> v.subtract(v), ERROR_EXPECTED_EXCEPTION);
     }
 
     /**
@@ -69,76 +98,152 @@ class VectorTests {
     @Test
     void testScale() {
         // ============ Equivalence Partitions Tests ==============
-        // EP01: Scale by a non-zero scalar
-        assertEquals(new Vector(2, 4, 6), V123.scale(2), ERROR_VECTOR);
+        // Arrange
+        Vector v = V123;
 
+        // Act
+        Vector result = v.scale(2);
+
+        // Assert
+        assertEquals(new Vector(2, 4, 6), result, ERROR_VECTOR);
+    }
+
+    @Test
+    void testScaleByZeroThrows() {
         // =============== Boundary Values Tests ==================
-        // BV01: Scale by zero should throw (zero vector forbidden)
-        assertThrows(IllegalArgumentException.class, () -> V123.scale(0),
-                "ERROR: scale(0) must throw IllegalArgumentException");
+        // Arrange
+        Vector v = V123;
+
+        // Act + Assert
+        assertThrows(IllegalArgumentException.class, () -> v.scale(0), ERROR_EXPECTED_EXCEPTION);
     }
 
     /**
      * Test method for {@link Vector#dotProduct(Vector)}.
      */
     @Test
-    void testDotProduct() {
+    void testDotProductOrthogonalIsZero() {
         // ============ Equivalence Partitions Tests ==============
-        // EP01: Dot product of orthogonal vectors is zero
-        assertEquals(0d, V123.dotProduct(V03_2), DELTA, ERROR_VECTOR);
+        // Arrange
+        Vector v1 = V123;
+        Vector v2 = V03_2;
 
-        // EP02: Dot product value check
-        assertEquals(-28d, V123.dotProduct(V246_NEG), DELTA, ERROR_VECTOR);
+        // Act
+        double result = v1.dotProduct(v2);
 
+        // Assert
+        assertEquals(0d, result, DELTA, ERROR_VECTOR);
+    }
+
+    @Test
+    void testDotProductValue() {
+        // ============ Equivalence Partitions Tests ==============
+        // Arrange
+        Vector v1 = V123;
+        Vector v2 = V246_NEG;
+
+        // Act
+        double result = v1.dotProduct(v2);
+
+        // Assert
+        assertEquals(-28d, result, DELTA, ERROR_VECTOR);
+    }
+
+    @Test
+    void testDotProductWithSelfEqualsLengthSquared() {
         // =============== Boundary Values Tests ==================
-        // BV01: v · v == |v|^2
-        assertEquals(V123.lengthSquared(), V123.dotProduct(V123), DELTA, ERROR_VECTOR);
+        // Arrange
+        Vector v = V123;
+
+        // Act
+        double dot = v.dotProduct(v);
+        double len2 = v.lengthSquared();
+
+        // Assert
+        assertEquals(len2, dot, DELTA, ERROR_VECTOR);
     }
 
     /**
      * Test method for {@link Vector#crossProduct(Vector)}.
      */
     @Test
-    void testCrossProduct() {
+    void testCrossProductOrthogonalityAndLength() {
         // ============ Equivalence Partitions Tests ==============
-        // EP01: Cross product yields a vector orthogonal to both operands
-        Vector vr = V123.crossProduct(V03_2);
-        assertEquals(0d, vr.dotProduct(V123), DELTA, ERROR_VECTOR);
-        assertEquals(0d, vr.dotProduct(V03_2), DELTA, ERROR_VECTOR);
-        assertEquals(V123.length() * V03_2.length(), vr.length(), DELTA, ERROR_VECTOR);
+        // Arrange
+        Vector v1 = V123;
+        Vector v2 = V03_2;
 
-        // EP02: Anti-commutativity a x b = -(b x a)
-        Vector a = V123.crossProduct(V03_2);
-        Vector b = V03_2.crossProduct(V123);
+        // Act
+        Vector result = v1.crossProduct(v2);
+
+        // Assert
+        assertEquals(0d, result.dotProduct(v1), DELTA, ERROR_VECTOR);
+        assertEquals(0d, result.dotProduct(v2), DELTA, ERROR_VECTOR);
+        assertEquals(v1.length() * v2.length(), result.length(), DELTA, ERROR_VECTOR);
+    }
+
+    @Test
+    void testCrossProductAntiCommutativity() {
+        // ============ Equivalence Partitions Tests ==============
+        // Arrange
+        Vector v1 = V123;
+        Vector v2 = V03_2;
+
+        // Act
+        Vector a = v1.crossProduct(v2);
+        Vector b = v2.crossProduct(v1);
+
+        // Assert
         assertEquals(a, b.scale(-1), ERROR_VECTOR);
+    }
 
+    @Test
+    void testCrossProductParallelVectorsThrows() {
         // =============== Boundary Values Tests ==================
-        // BV01: Cross product for parallel vectors should throw (zero vector forbidden)
-        assertThrows(IllegalArgumentException.class, () -> V123.crossProduct(V246_NEG),
-                "ERROR: crossProduct of parallel vectors must throw IllegalArgumentException");
+        // Arrange
+        Vector v1 = V123;
+
+        // Act + Assert
+        assertThrows(IllegalArgumentException.class, () -> v1.crossProduct(V246_NEG), ERROR_EXPECTED_EXCEPTION);
     }
 
     /**
      * Test method for {@link Vector#lengthSquared()}, {@link Vector#length()} and {@link Vector#normalize()}.
      */
     @Test
-    void testLengthAndNormalize() {
+    void testLengthAndLengthSquared() {
         // ============ Equivalence Partitions Tests ==============
-        // EP01: length and lengthSquared
-        assertEquals(9d, V122.lengthSquared(), DELTA, ERROR_VECTOR);
-        assertEquals(3d, V122.length(), DELTA, ERROR_VECTOR);
+        // Arrange
+        Vector v = V122;
 
-        // EP02: Normalize a vector
-        Vector n = V123.normalize();
+        // Act
+        double len2 = v.lengthSquared();
+        double len = v.length();
+
+        // Assert
+        assertEquals(9d, len2, DELTA, ERROR_VECTOR);
+        assertEquals(3d, len, DELTA, ERROR_VECTOR);
+    }
+
+    @Test
+    void testNormalizeReturnsUnitVectorSameDirection() {
+        // ============ Equivalence Partitions Tests ==============
+        // Arrange
+        Vector v = V123;
+
+        // Act
+        Vector n = v.normalize();
+
+        // Assert
         assertEquals(1d, n.length(), DELTA, ERROR_VECTOR);
-        assertTrue(V123.dotProduct(n) > 0, ERROR_VECTOR);
-        assertThrows(IllegalArgumentException.class, () -> V123.crossProduct(n), ERROR_VECTOR);
+        assertTrue(v.dotProduct(n) > 0, ERROR_VECTOR);
+    }
 
+    @Test
+    void testZeroVectorCreationThrows() {
         // =============== Boundary Values Tests ==================
-        // BV01: Zero vector creation must throw
-        assertThrows(IllegalArgumentException.class, () -> new Vector(0, 0, 0),
-                "ERROR: zero vector must throw IllegalArgumentException");
-        assertThrows(IllegalArgumentException.class, () -> new Vector(Double3.ZERO),
-                "ERROR: zero vector must throw IllegalArgumentException");
+        // Act + Assert
+        assertThrows(IllegalArgumentException.class, () -> new Vector(0, 0, 0), ERROR_EXPECTED_EXCEPTION);
+        assertThrows(IllegalArgumentException.class, () -> new Vector(Double3.ZERO), ERROR_EXPECTED_EXCEPTION);
     }
 }

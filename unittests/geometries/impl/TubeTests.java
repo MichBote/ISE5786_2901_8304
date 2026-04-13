@@ -27,29 +27,39 @@ class TubeTests {
     /** Error message for wrong tube */
     private static final String ERROR_TUBE = "ERROR: wrong Tube normal";
 
-    /**
-     * Test method for {@link Tube#getNormal(Point)}.
-     */
-    @Test
-    void testGetNormal() {
+    private static Tube createTestTube() {
         Ray axis = new Ray(new Point(0, 0, 0), new Vector(0, 0, 1));
-        Tube tube = new Tube(1d, axis);
+        return new Tube(1d, axis);
+    }
 
+    @Test
+    void testGetNormalProjectionNotAtOrigin() {
         // ============ Equivalence Partitions Tests ==============
-        // EP01: Point on tube surface with projection on axis in front of origin
-        Vector n1 = tube.getNormal(new Point(1, 0, 5));
-        assertEquals(1d, n1.length(), DELTA, ERROR_TUBE);
-        assertEquals(new Vector(1, 0, 0), n1, ERROR_TUBE);
+        // Arrange
+        Tube tube = createTestTube();
 
-        // EP02: Point on tube surface with projection on axis behind origin
-        Vector n2 = tube.getNormal(new Point(1, 0, -2));
-        assertEquals(1d, n2.length(), DELTA, ERROR_TUBE);
-        assertEquals(new Vector(1, 0, 0), n2, ERROR_TUBE);
+        // Act
+        Vector nFront = tube.getNormal(new Point(1, 0, 5));
+        Vector nBack = tube.getNormal(new Point(1, 0, -2));
 
+        // Assert
+        assertEquals(1d, nFront.length(), DELTA, ERROR_TUBE);
+        assertEquals(new Vector(1, 0, 0), nFront, ERROR_TUBE);
+        assertEquals(1d, nBack.length(), DELTA, ERROR_TUBE);
+        assertEquals(new Vector(1, 0, 0), nBack, ERROR_TUBE);
+    }
+
+    @Test
+    void testGetNormalProjectionAtOrigin() {
         // =============== Boundary Values Tests ==================
-        // BV01: Point on tube surface with projection exactly at axis origin
-        Vector n3 = tube.getNormal(new Point(0, 1, 0));
-        assertEquals(1d, n3.length(), DELTA, ERROR_TUBE);
-        assertEquals(new Vector(0, 1, 0), n3, ERROR_TUBE);
+        // Arrange
+        Tube tube = createTestTube();
+
+        // Act
+        Vector n = tube.getNormal(new Point(0, 1, 0));
+
+        // Assert
+        assertEquals(1d, n.length(), DELTA, ERROR_TUBE);
+        assertEquals(new Vector(0, 1, 0), n, ERROR_TUBE);
     }
 }

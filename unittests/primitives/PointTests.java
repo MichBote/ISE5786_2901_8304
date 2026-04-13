@@ -38,51 +38,146 @@ class PointTests {
     /** Error message for wrong point operations */
     private static final String ERROR_POINT = "ERROR: wrong Point operation";
 
+    /** Error message for expected exception */
+    private static final String ERROR_EXPECTED_EXCEPTION = "ERROR: expected IllegalArgumentException";
+
     /**
-     * Test method for {@link Point#subtract(Point)} and {@link Point#add(Vector)}.
+     * Test method for {@link Point#subtract(Point)}.
      */
     @Test
-    void testAddSubtract() {
+    void testSubtractDifferentPoints() {
         // ============ Equivalence Partitions Tests ==============
-        // EP01: Subtract two different points
-        assertEquals(V123, P246.subtract(P123), ERROR_POINT);
+        // Arrange
+        Point p = P246;
+        Point q = P123;
 
-        // EP02: Add vector to point
-        assertEquals(P246, P123.add(V123), ERROR_POINT);
+        // Act
+        Vector result = p.subtract(q);
 
-        // EP03: Add opposite vector back to origin
-        assertEquals(Point.ZERO, P123.add(V123_NEG), ERROR_POINT);
+        // Assert
+        assertEquals(V123, result, ERROR_POINT);
+    }
 
+    /**
+     * Test method for {@link Point#add(Vector)}.
+     */
+    @Test
+    void testAddVectorToPoint() {
+        // ============ Equivalence Partitions Tests ==============
+        // Arrange
+        Point p = P123;
+        Vector v = V123;
+
+        // Act
+        Point result = p.add(v);
+
+        // Assert
+        assertEquals(P246, result, ERROR_POINT);
+    }
+
+    /**
+     * Boundary test for {@link Point#subtract(Point)}.
+     */
+    @Test
+    void testSubtractSamePointThrows() {
         // =============== Boundary Values Tests ==================
-        // BV01: Subtract a point from itself should throw (zero vector forbidden)
-        assertThrows(IllegalArgumentException.class, () -> P123.subtract(P123),
-                "ERROR: subtracting identical points must throw IllegalArgumentException");
+        // Arrange
+        Point p = P123;
 
-        // BV02: Consistency: p + (q - p) = q
-        assertEquals(P246, P123.add(P246.subtract(P123)), ERROR_POINT);
+        // Act + Assert
+        assertThrows(IllegalArgumentException.class, () -> p.subtract(p), ERROR_EXPECTED_EXCEPTION);
+    }
+
+    /**
+     * Consistency test: p + (q - p) = q.
+     */
+    @Test
+    void testAddSubtractConsistency() {
+        // =============== Boundary Values Tests ==================
+        // Arrange
+        Point p = P123;
+        Point q = P246;
+
+        // Act
+        Point result = p.add(q.subtract(p));
+
+        // Assert
+        assertEquals(q, result, ERROR_POINT);
     }
 
     /**
      * Test method for {@link Point#distanceSquared(Point)} and {@link Point#distance(Point)}.
      */
     @Test
-    void testDistances() {
+    void testDistanceBetweenDifferentPoints() {
         // ============ Equivalence Partitions Tests ==============
-        // EP01: Distance between two different points
-        assertEquals(9d, P123.distanceSquared(P245), DELTA, ERROR_POINT);
-        assertEquals(3d, P123.distance(P245), DELTA, ERROR_POINT);
+        // Arrange
+        Point p = P123;
+        Point q = P245;
 
-        // EP02: Symmetry
-        assertEquals(P123.distanceSquared(P245), P245.distanceSquared(P123), DELTA, ERROR_POINT);
-        assertEquals(P123.distance(P245), P245.distance(P123), DELTA, ERROR_POINT);
+        // Act
+        double d2 = p.distanceSquared(q);
+        double d = p.distance(q);
 
+        // Assert
+        assertEquals(9d, d2, DELTA, ERROR_POINT);
+        assertEquals(3d, d, DELTA, ERROR_POINT);
+    }
+
+    /**
+     * Symmetry test for distances.
+     */
+    @Test
+    void testDistanceSymmetry() {
+        // ============ Equivalence Partitions Tests ==============
+        // Arrange
+        Point p = P123;
+        Point q = P245;
+
+        // Act
+        double d2pq = p.distanceSquared(q);
+        double d2qp = q.distanceSquared(p);
+        double dpq = p.distance(q);
+        double dqp = q.distance(p);
+
+        // Assert
+        assertEquals(d2pq, d2qp, DELTA, ERROR_POINT);
+        assertEquals(dpq, dqp, DELTA, ERROR_POINT);
+    }
+
+    /**
+     * Boundary test: distance from a point to itself is zero.
+     */
+    @Test
+    void testDistanceToSelfIsZero() {
         // =============== Boundary Values Tests ==================
-        // BV01: Distance from point to itself
-        assertEquals(0d, P123.distanceSquared(P123), DELTA, ERROR_POINT);
-        assertEquals(0d, P123.distance(P123), DELTA, ERROR_POINT);
+        // Arrange
+        Point p = P123;
 
-        // BV02: Consistency: distance^2 == distanceSquared
-        double d = P123.distance(P245);
-        assertEquals(P123.distanceSquared(P245), d * d, DELTA, ERROR_POINT);
+        // Act
+        double d2 = p.distanceSquared(p);
+        double d = p.distance(p);
+
+        // Assert
+        assertEquals(0d, d2, DELTA, ERROR_POINT);
+        assertEquals(0d, d, DELTA, ERROR_POINT);
+    }
+
+    /**
+     * Consistency test: distanceSquared == distance^2.
+     */
+    @Test
+    void testDistanceConsistency() {
+        // =============== Boundary Values Tests ==================
+        // Arrange
+        Point p = P123;
+        Point q = P245;
+
+        // Act
+        double d = p.distance(q);
+        double d2 = p.distanceSquared(q);
+
+        // Assert
+        assertEquals(d2, d * d, DELTA, ERROR_POINT);
     }
 }

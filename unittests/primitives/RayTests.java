@@ -28,8 +28,12 @@ class RayTests {
      */
     @Test
     void testConstructorNormalizesDirection() {
+        // Arrange
         Point origin = new Point(1, 2, 3);
-        Ray ray = new Ray(origin, new Vector(2, 4, 6));
+        Vector direction = new Vector(2, 4, 6);
+
+        // Act
+        Ray ray = new Ray(origin, direction);
 
         // ============ Equivalence Partitions Tests ==============
         // EP01: Direction vector is normalized
@@ -37,6 +41,6 @@ class RayTests {
 
         // =============== Boundary Values Tests ==================
         // BV01: Normalized direction keeps same orientation
-        assertTrue(new Vector(2, 4, 6).dotProduct(ray.direction()) > 0, ERROR_RAY);
+        assertTrue(direction.dotProduct(ray.direction()) > 0, ERROR_RAY);
     }
 }
