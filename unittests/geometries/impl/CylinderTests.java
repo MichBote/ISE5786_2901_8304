@@ -307,14 +307,14 @@ class CylinderTests {
                     assertPointEquals(new Point(1, 2, 5), result.get(0), ERROR_CYLINDER_INTERSECTION);
                 },
                 // Rims: dedup side and caps (two points)
-                // () -> {
-                //     Cylinder cylinder = createTestCylinder();
-                //     Ray ray = new Ray(new Point(-1, 2, 2), new Vector(1, 0, 1));
-                //     var result = cylinder.findIntersections(ray);
-                //     assertIntersectionsCount(result, 2, ERROR_CYLINDER_INTERSECTION);
-                //     assertPointEquals(new Point(0, 2, 3), result.get(0), ERROR_CYLINDER_INTERSECTION);
-                //     assertPointEquals(new Point(2, 2, 5), result.get(1), ERROR_CYLINDER_INTERSECTION);
-                // },
+                () -> {
+                    Cylinder cylinder = createTestCylinder();
+                    Ray ray = new Ray(new Point(-1, 2, 2), new Vector(1, 0, 1));
+                    var result = cylinder.findIntersections(ray);
+                    assertIntersectionsCount(result, 2, ERROR_CYLINDER_INTERSECTION);
+                    assertPointEquals(new Point(0, 2, 3), result.get(0), ERROR_CYLINDER_INTERSECTION);
+                    assertPointEquals(new Point(2, 2, 5), result.get(1), ERROR_CYLINDER_INTERSECTION);
+                },
                 // Side and top cap (two points)
                 () -> {
                     Cylinder cylinder = createTestCylinder();
