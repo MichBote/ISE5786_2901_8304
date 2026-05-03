@@ -63,140 +63,76 @@ class TriangleTests {
      * Test method for {@link Triangle#findIntersections(Ray)}.
      */
     @Test
-    void testFindIntersectionsInside() {
-        // Arrange
+    void testFindIntersections() {
         Triangle triangle = new Triangle(new Point(1, 0, 1), new Point(0, 2, 1), new Point(2, 2, 1));
-        Ray ray = new Ray(new Point(1, 1.5, 0), new Vector(0, 0, 1));
 
-        // Act
-        var result = triangle.findIntersections(ray);
-
-        // Assert
         // ============ Equivalence Partitions Tests ==============
         // EP01: Ray intersects inside the triangle (1 point)
-        assertNotNull(result, ERROR_TRIANGLE_INTERSECTION);
-        assertEquals(1, result.size(), ERROR_TRIANGLE_INTERSECTION);
-        assertPointEquals(new Point(1, 1.5, 1), result.get(0), ERROR_TRIANGLE_INTERSECTION);
-    }
+        {
+            Ray ray = new Ray(new Point(1, 1.5, 0), new Vector(0, 0, 1));
+            var result = triangle.findIntersections(ray);
+            assertNotNull(result, ERROR_TRIANGLE_INTERSECTION);
+            assertEquals(1, result.size(), ERROR_TRIANGLE_INTERSECTION);
+            assertPointEquals(new Point(1, 1.5, 1), result.get(0), ERROR_TRIANGLE_INTERSECTION);
+        }
 
-    @Test
-    void testFindIntersectionsOutsideEdge() {
-        // Arrange
-        Triangle triangle = new Triangle(new Point(1, 0, 1), new Point(0, 2, 1), new Point(2, 2, 1));
-        Ray ray = new Ray(new Point(1, -0.5, 0), new Vector(0, 0, 1));
-
-        // Act
-        var result = triangle.findIntersections(ray);
-
-        // Assert
-        // ============ Equivalence Partitions Tests ==============
         // EP02: Ray intersects the plane outside the triangle against an edge (0 points)
-        assertNull(result, ERROR_TRIANGLE_INTERSECTION);
-    }
+        {
+            Ray ray = new Ray(new Point(1, -0.5, 0), new Vector(0, 0, 1));
+            var result = triangle.findIntersections(ray);
+            assertNull(result, ERROR_TRIANGLE_INTERSECTION);
+        }
 
-    @Test
-    void testFindIntersectionsOutsideVertex() {
-        // Arrange
-        Triangle triangle = new Triangle(new Point(1, 0, 1), new Point(0, 2, 1), new Point(2, 2, 1));
-        Ray ray = new Ray(new Point(-1, 2, 0), new Vector(0, 0, 1));
-
-        // Act
-        var result = triangle.findIntersections(ray);
-
-        // Assert
-        // ============ Equivalence Partitions Tests ==============
         // EP03: Ray intersects the plane outside the triangle against a vertex (0 points)
-        assertNull(result, ERROR_TRIANGLE_INTERSECTION);
-    }
+        {
+            Ray ray = new Ray(new Point(-1, 2, 0), new Vector(0, 0, 1));
+            var result = triangle.findIntersections(ray);
+            assertNull(result, ERROR_TRIANGLE_INTERSECTION);
+        }
 
-    @Test
-    void testFindIntersectionsOnEdge() {
-        // Arrange
-        Triangle triangle = new Triangle(new Point(1, 0, 1), new Point(0, 2, 1), new Point(2, 2, 1));
-        Ray ray = new Ray(new Point(0.5, 1, 0), new Vector(0, 0, 1));
-
-        // Act
-        var result = triangle.findIntersections(ray);
-
-        // Assert
         // =============== Boundary Values Tests ==================
         // BV01: Intersection point is on an edge (0 points)
-        assertNull(result, ERROR_TRIANGLE_INTERSECTION);
-    }
+        {
+            Ray ray = new Ray(new Point(0.5, 1, 0), new Vector(0, 0, 1));
+            var result = triangle.findIntersections(ray);
+            assertNull(result, ERROR_TRIANGLE_INTERSECTION);
+        }
 
-    @Test
-    void testFindIntersectionsOnVertex() {
-        // Arrange
-        Triangle triangle = new Triangle(new Point(1, 0, 1), new Point(0, 2, 1), new Point(2, 2, 1));
-        Ray ray = new Ray(new Point(1, 0, 0), new Vector(0, 0, 1));
-
-        // Act
-        var result = triangle.findIntersections(ray);
-
-        // Assert
-        // =============== Boundary Values Tests ==================
         // BV02: Intersection point is in a vertex (0 points)
-        assertNull(result, ERROR_TRIANGLE_INTERSECTION);
-    }
+        {
+            Ray ray = new Ray(new Point(1, 0, 0), new Vector(0, 0, 1));
+            var result = triangle.findIntersections(ray);
+            assertNull(result, ERROR_TRIANGLE_INTERSECTION);
+        }
 
-    @Test
-    void testFindIntersectionsOnEdgeContinuation() {
-        // Arrange
-        Triangle triangle = new Triangle(new Point(1, 0, 1), new Point(0, 2, 1), new Point(2, 2, 1));
-        Ray ray = new Ray(new Point(1.5, -1, 0), new Vector(0, 0, 1));
-
-        // Act
-        var result = triangle.findIntersections(ray);
-
-        // Assert
-        // =============== Boundary Values Tests ==================
         // BV03: Intersection point is on an edge continuation (0 points)
-        assertNull(result, ERROR_TRIANGLE_INTERSECTION);
-    }
+        {
+            Ray ray = new Ray(new Point(1.5, -1, 0), new Vector(0, 0, 1));
+            var result = triangle.findIntersections(ray);
+            assertNull(result, ERROR_TRIANGLE_INTERSECTION);
+        }
 
-    @Test
-    void testFindIntersectionsParallelIncluded() {
-        // Arrange
-        Triangle triangle = new Triangle(new Point(1, 0, 1), new Point(0, 2, 1), new Point(2, 2, 1));
-        Ray ray = new Ray(new Point(1, 1, 1), new Vector(1, 0, 0));
-
-        // Act
-        var result = triangle.findIntersections(ray);
-
-        // Assert
         // ---- Plane-related cases (must include plane "no intersection" cases) ----
         // BV04: Ray is parallel to the triangle plane and included in the plane
-        assertNull(result, ERROR_TRIANGLE_INTERSECTION);
-    }
+        {
+            Ray ray = new Ray(new Point(1, 1, 1), new Vector(1, 0, 0));
+            var result = triangle.findIntersections(ray);
+            assertNull(result, ERROR_TRIANGLE_INTERSECTION);
+        }
 
-    @Test
-    void testFindIntersectionsParallelNotIncluded() {
-        // Arrange
-        Triangle triangle = new Triangle(new Point(1, 0, 1), new Point(0, 2, 1), new Point(2, 2, 1));
-        Ray ray = new Ray(new Point(1, 1, 2), new Vector(1, 0, 0));
-
-        // Act
-        var result = triangle.findIntersections(ray);
-
-        // Assert
-        // ---- Plane-related cases (must include plane "no intersection" cases) ----
         // BV05: Ray is parallel to the triangle plane and not included in the plane
-        assertNull(result, ERROR_TRIANGLE_INTERSECTION);
-    }
+        {
+            Ray ray = new Ray(new Point(1, 1, 2), new Vector(1, 0, 0));
+            var result = triangle.findIntersections(ray);
+            assertNull(result, ERROR_TRIANGLE_INTERSECTION);
+        }
 
-    @Test
-    void testFindIntersectionsBeginsOnPlane() {
-        // Arrange
-        Triangle triangle = new Triangle(new Point(1, 0, 1), new Point(0, 2, 1), new Point(2, 2, 1));
-        Ray ray = new Ray(new Point(1, 1.5, 1), new Vector(0, 0, 1));
-
-        // Act
-        var result = triangle.findIntersections(ray);
-
-        // Assert
-        // ---- Plane-related cases (must include plane "no intersection" cases) ----
         // BV06: Ray begins on the plane (0 points)
-        assertNull(result, ERROR_TRIANGLE_INTERSECTION);
+        {
+            Ray ray = new Ray(new Point(1, 1.5, 1), new Vector(0, 0, 1));
+            var result = triangle.findIntersections(ray);
+            assertNull(result, ERROR_TRIANGLE_INTERSECTION);
+        }
     }
 }
 

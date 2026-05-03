@@ -77,10 +77,7 @@ class PlaneTests {
         // EP01: Three non-collinear points
         assertDoesNotThrow(() -> new Plane(new Point(0, 0, 1), new Point(1, 0, 0), new Point(0, 1, 0)),
             ERROR_VALID_CONSTRUCTOR_THREW);
-        }
 
-        @Test
-        void testConstructorThreePointsCoincidingPointsThrow() {
         // =============== Boundary Values Tests ==================
         // BV01: Two points coincide
         assertThrows(IllegalArgumentException.class,
@@ -101,11 +98,7 @@ class PlaneTests {
         assertThrows(IllegalArgumentException.class,
             () -> new Plane(new Point(1, 1, 1), new Point(1, 1, 1), new Point(1, 1, 1)),
             ERROR_PLANE);
-        }
 
-        @Test
-        void testConstructorThreePointsCollinearPointsThrow() {
-        // =============== Boundary Values Tests ==================
         // BV03: Three points are collinear
         assertThrows(IllegalArgumentException.class,
             () -> new Plane(new Point(0, 0, 0), new Point(1, 1, 1), new Point(2, 2, 2)),
@@ -116,141 +109,76 @@ class PlaneTests {
      * Test method for {@link Plane#findIntersections(Ray)}.
      */
     @Test
-    void testFindIntersectionsIntersect() {
-        // Arrange
+    void testFindIntersections() {
         Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
-        Ray ray = new Ray(new Point(1, 0, 0), new Vector(0, 1, 1));
 
-        // Act
-        var result = plane.findIntersections(ray);
-
-        // Assert
         // ============ Equivalence Partitions Tests ==============
         // EP01: Ray intersects the plane (1 point)
-        assertNotNull(result, ERROR_PLANE_INTERSECTION);
-        assertEquals(1, result.size(), ERROR_PLANE_INTERSECTION);
-        assertPointEquals(new Point(1, 1, 1), result.get(0), ERROR_PLANE_INTERSECTION);
-    }
+        {
+            Ray ray = new Ray(new Point(1, 0, 0), new Vector(0, 1, 1));
+            var result = plane.findIntersections(ray);
+            assertNotNull(result, ERROR_PLANE_INTERSECTION);
+            assertEquals(1, result.size(), ERROR_PLANE_INTERSECTION);
+            assertPointEquals(new Point(1, 1, 1), result.get(0), ERROR_PLANE_INTERSECTION);
+        }
 
-    @Test
-    void testFindIntersectionsNoIntersect() {
-        // Arrange
-        Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
-        Ray ray = new Ray(new Point(1, 0, 2), new Vector(0, 1, 1));
-
-        // Act
-        var result = plane.findIntersections(ray);
-
-        // Assert
-        // ============ Equivalence Partitions Tests ==============
         // EP02: Ray does not intersect the plane (0 points)
-        assertNull(result, ERROR_PLANE_INTERSECTION);
-    }
+        {
+            Ray ray = new Ray(new Point(1, 0, 2), new Vector(0, 1, 1));
+            var result = plane.findIntersections(ray);
+            assertNull(result, ERROR_PLANE_INTERSECTION);
+        }
 
-    @Test
-    void testFindIntersectionsParallelIncluded() {
-        // Arrange
-        Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
-        Ray ray = new Ray(new Point(1, 0, 1), new Vector(1, 0, 0));
-
-        // Act
-        var result = plane.findIntersections(ray);
-
-        // Assert
         // =============== Boundary Values Tests ==================
         // BV01: Ray is parallel to the plane and included in the plane
-        assertNull(result, ERROR_PLANE_INTERSECTION);
-    }
+        {
+            Ray ray = new Ray(new Point(1, 0, 1), new Vector(1, 0, 0));
+            var result = plane.findIntersections(ray);
+            assertNull(result, ERROR_PLANE_INTERSECTION);
+        }
 
-    @Test
-    void testFindIntersectionsParallelNotIncluded() {
-        // Arrange
-        Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
-        Ray ray = new Ray(new Point(1, 0, 2), new Vector(1, 0, 0));
-
-        // Act
-        var result = plane.findIntersections(ray);
-
-        // Assert
-        // =============== Boundary Values Tests ==================
         // BV02: Ray is parallel to the plane and not included in the plane
-        assertNull(result, ERROR_PLANE_INTERSECTION);
-    }
+        {
+            Ray ray = new Ray(new Point(1, 0, 2), new Vector(1, 0, 0));
+            var result = plane.findIntersections(ray);
+            assertNull(result, ERROR_PLANE_INTERSECTION);
+        }
 
-    @Test
-    void testFindIntersectionsOrthogonalBefore() {
-        // Arrange
-        Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
-        Ray ray = new Ray(new Point(1, 0, 0), new Vector(0, 0, 1));
-
-        // Act
-        var result = plane.findIntersections(ray);
-
-        // Assert
-        // =============== Boundary Values Tests ==================
         // BV03: Ray is orthogonal to the plane and starts before the plane (1 point)
-        assertNotNull(result, ERROR_PLANE_INTERSECTION);
-        assertEquals(1, result.size(), ERROR_PLANE_INTERSECTION);
-        assertPointEquals(new Point(1, 0, 1), result.get(0), ERROR_PLANE_INTERSECTION);
-    }
+        {
+            Ray ray = new Ray(new Point(1, 0, 0), new Vector(0, 0, 1));
+            var result = plane.findIntersections(ray);
+            assertNotNull(result, ERROR_PLANE_INTERSECTION);
+            assertEquals(1, result.size(), ERROR_PLANE_INTERSECTION);
+            assertPointEquals(new Point(1, 0, 1), result.get(0), ERROR_PLANE_INTERSECTION);
+        }
 
-    @Test
-    void testFindIntersectionsOrthogonalOnPlane() {
-        // Arrange
-        Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
-        Ray ray = new Ray(new Point(1, 0, 1), new Vector(0, 0, 1));
-
-        // Act
-        var result = plane.findIntersections(ray);
-
-        // Assert
-        // =============== Boundary Values Tests ==================
         // BV04: Ray is orthogonal to the plane and starts in the plane (0 points)
-        assertNull(result, ERROR_PLANE_INTERSECTION);
-    }
+        {
+            Ray ray = new Ray(new Point(1, 0, 1), new Vector(0, 0, 1));
+            var result = plane.findIntersections(ray);
+            assertNull(result, ERROR_PLANE_INTERSECTION);
+        }
 
-    @Test
-    void testFindIntersectionsOrthogonalAfter() {
-        // Arrange
-        Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
-        Ray ray = new Ray(new Point(1, 0, 2), new Vector(0, 0, 1));
-
-        // Act
-        var result = plane.findIntersections(ray);
-
-        // Assert
-        // =============== Boundary Values Tests ==================
         // BV05: Ray is orthogonal to the plane and starts after the plane (0 points)
-        assertNull(result, ERROR_PLANE_INTERSECTION);
-    }
+        {
+            Ray ray = new Ray(new Point(1, 0, 2), new Vector(0, 0, 1));
+            var result = plane.findIntersections(ray);
+            assertNull(result, ERROR_PLANE_INTERSECTION);
+        }
 
-    @Test
-    void testFindIntersectionsBeginsOnPlane() {
-        // Arrange
-        Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
-        Ray ray = new Ray(new Point(1, 0, 1), new Vector(0, 1, 1));
-
-        // Act
-        var result = plane.findIntersections(ray);
-
-        // Assert
-        // =============== Boundary Values Tests ==================
         // BV06: Ray is neither orthogonal nor parallel to the plane and begins on the plane (0 points)
-        assertNull(result, ERROR_PLANE_INTERSECTION);
-    }
+        {
+            Ray ray = new Ray(new Point(1, 0, 1), new Vector(0, 1, 1));
+            var result = plane.findIntersections(ray);
+            assertNull(result, ERROR_PLANE_INTERSECTION);
+        }
 
-    @Test
-    void testFindIntersectionsBeginsAtQ() {
-        // Arrange
-        Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
-        Ray ray = new Ray(new Point(0, 0, 1), new Vector(0, 1, 1));
-
-        // Act
-        var result = plane.findIntersections(ray);
-
-        // Assert
-        // =============== Boundary Values Tests ==================
         // BV07: Ray begins at the reference point of the plane (Q) (0 points)
-        assertNull(result, ERROR_PLANE_INTERSECTION);
+        {
+            Ray ray = new Ray(new Point(0, 0, 1), new Vector(0, 1, 1));
+            var result = plane.findIntersections(ray);
+            assertNull(result, ERROR_PLANE_INTERSECTION);
+        }
     }
 }
