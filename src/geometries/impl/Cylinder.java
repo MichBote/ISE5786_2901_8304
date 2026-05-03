@@ -22,6 +22,12 @@ import static primitives.Util.isZero;
  */
 public final class Cylinder extends Tube {
     /**
+     * Tolerance used for de-duplicating intersection points found by different
+     * parts of the algorithm (tube vs caps). Unit tests compare points with a
+     * ~1e-6 delta, so we use the same magnitude here.
+     */
+    private static final double UNIQUE_POINT_EPS = 1e-6;
+    /**
      * Cylinder height
      */
     private final double _height;
@@ -112,8 +118,9 @@ public final class Cylinder extends Tube {
             return intersections;
         }
 
+        final double eps2 = UNIQUE_POINT_EPS * UNIQUE_POINT_EPS;
         for (Point existing : intersections) {
-            if (isZero(existing.distanceSquared(p))) return intersections;
+            if (existing.distanceSquared(p) <= eps2) return intersections;
         }
         intersections.add(p);
         return intersections;
