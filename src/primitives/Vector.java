@@ -1,5 +1,7 @@
 package primitives;
 
+import static primitives.Util.alignZero;
+
 /**
  * Represents a 3D vector in a Cartesian coordinate system.
  * <p>
@@ -133,15 +135,34 @@ public final class Vector extends Point {
      * @return rotated vector
      */
     public Vector rotateAround(Vector axis, double angleRadians) {
+        // Implement using component arithmetic to avoid creating forbidden zero vectors
+        // for intermediate terms (e.g., v*cos when cos=0, or k x v when parallel).
+
         Vector k = axis.normalize();
         double cos = Math.cos(angleRadians);
         double sin = Math.sin(angleRadians);
 
-        // v_rot = v*cos + (k x v)*sin + k*(k·v)*(1-cos)
-        Vector vCos = this.scale(cos);
-        Vector kCrossVSin = k.crossProduct(this).scale(sin);
-        Vector kKV = k.scale(k.dotProduct(this) * (1d - cos));
-        return vCos.add(kCrossVSin).add(kKV);
+        double vx = _xyz._d1();
+        double vy = _xyz._d2();
+        double vz = _xyz._d3();
+
+        double kx = k._xyz._d1();
+        double ky = k._xyz._d2();
+        double kz = k._xyz._d3();
+
+        double kDotV = kx * vx + ky * vy + kz * vz;
+
+        // cross = k x v
+        double cx = ky * vz - kz * vy;
+        double cy = kz * vx - kx * vz;
+        double cz = kx * vy - ky * vx;
+
+        double oneMinusCos = 1d - cos;
+        double rx = vx * cos + cx * sin + kx * kDotV * oneMinusCos;
+        double ry = vy * cos + cy * sin + ky * kDotV * oneMinusCos;
+        double rz = vz * cos + cz * sin + kz * kDotV * oneMinusCos;
+
+        return new Vector(alignZero(rx), alignZero(ry), alignZero(rz));
     }
 
     @Override
