@@ -23,7 +23,10 @@ import java.util.List;
  */
 class CameraIntersectionIntegration {
 
-        private static final Point  LOCATION     = Point.ZERO;
+        // Note: integration expected counts (e.g. Sphere TC02 = 18) assume the camera is
+        // not exactly on the sphere surface. A slight offset along +Z matches the standard
+        // ISE5786 integration test setup.
+        private static final Point  LOCATION     = new Point(0, 0, 0.5);
         private static final Vector V_TO         = new Vector(0, 0, -1);
         private static final Vector V_UP         = new Vector(0, 1, 0);
 
