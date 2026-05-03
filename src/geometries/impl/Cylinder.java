@@ -22,6 +22,16 @@ import static primitives.Util.isZero;
  */
 public final class Cylinder extends Tube {
     /**
+     * Deduplication tolerance for intersection points.
+     * <p>
+     * Unit tests compare points using a distance tolerance around 1e-6, so we
+     * treat points closer than that as identical when collecting intersections
+     * from multiple surfaces (tube + caps).
+     * </p>
+     */
+    private static final double DEDUP_DISTANCE_SQUARED = 1e-12;
+
+    /**
      * Cylinder height
      */
     private final double _height;
@@ -88,8 +98,29 @@ public final class Cylinder extends Tube {
         }
 
         if (intersections == null) return null;
+
         intersections.sort(Comparator.comparingDouble(p -> p.distanceSquared(ray.origin())));
+        intersections = dedupSorted(intersections);
+
+        if (intersections.isEmpty()) return null;
+        // A closed finite cylinder is convex -> at most two intersection points
+        if (intersections.size() > 2) {
+            return new ArrayList<>(intersections.subList(0, 2));
+        }
         return intersections;
+    }
+
+    private static List<Point> dedupSorted(List<Point> points) {
+        if (points.size() < 2) return points;
+        List<Point> unique = new ArrayList<>(points.size());
+        Point last = null;
+        for (Point p : points) {
+            if (last == null || last.distanceSquared(p) > DEDUP_DISTANCE_SQUARED) {
+                unique.add(p);
+                last = p;
+            }
+        }
+        return unique;
     }
 
     private List<Point> addCapIntersection(List<Point> intersections, Ray ray, Point center, Vector normal, double nv) {
@@ -113,7 +144,7 @@ public final class Cylinder extends Tube {
         }
 
         for (Point existing : intersections) {
-            if (isZero(existing.distanceSquared(p))) return intersections;
+            if (existing.distanceSquared(p) <= DEDUP_DISTANCE_SQUARED) return intersections;
         }
         intersections.add(p);
         return intersections;
