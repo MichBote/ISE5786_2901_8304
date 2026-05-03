@@ -24,12 +24,16 @@ public final class Cylinder extends Tube {
     /**
      * Deduplication tolerance for intersection points.
      * <p>
-     * Unit tests compare points using a distance tolerance around 1e-6, so we
-     * treat points closer than that as identical when collecting intersections
-     * from multiple surfaces (tube + caps).
+     * Intersections may be computed independently from the tube and from the
+     * caps, and when a ray hits exactly on a rim the same geometric point can
+     * be produced twice with small numeric differences.
+     * <p>
+     * Unit tests compare points using a distance tolerance around 1e-6, but we
+     * use a slightly larger tolerance for de-duplication to be robust across
+     * JVM/CPU floating-point differences.
      * </p>
      */
-    private static final double DEDUP_DISTANCE_SQUARED = 1e-12;
+    private static final double DEDUP_DISTANCE_SQUARED = 1e-10; // (1e-5)^2
 
     /**
      * Cylinder height
@@ -103,10 +107,6 @@ public final class Cylinder extends Tube {
         intersections = dedupSorted(intersections);
 
         if (intersections.isEmpty()) return null;
-        // A closed finite cylinder is convex -> at most two intersection points
-        if (intersections.size() > 2) {
-            return new ArrayList<>(intersections.subList(0, 2));
-        }
         return intersections;
     }
 
