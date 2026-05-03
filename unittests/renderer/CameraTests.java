@@ -271,4 +271,28 @@ class CameraTests {
       Ray rayBV06 = camera3x3.constructRay(0, 0);
       assertEquals(new Ray(LOCATION, new Vector(-2, 2, -10)), rayBV06, ERROR_CONSTRUCT_RAY);
    }
+
+   /**
+    * Test method for {@link Camera#rotateYawPitchRoll(double, double, double)}.
+    */
+   @Test
+   void testRotateYawPitchRoll() {
+      Camera base = baseBuilder()
+         .setDirection(new Vector(0, 0, -1), Vector.AXIS_Y)
+         .setVpSize(6, 6)
+         .setResolution(3, 3)
+         .build();
+
+      // Yaw +90° around vUp: vTo (0,0,-1) -> (-1,0,0)
+      Camera yaw90 = base.rotateYawPitchRoll(Math.PI / 2d, 0d, 0d);
+      assertEquals(new Ray(LOCATION, new Vector(-10, 0, 0)), yaw90.constructRay(1, 1), "Yaw rotation is incorrect");
+
+      // Pitch +90° around vRight: vTo (0,0,-1) -> (0,1,0)
+      Camera pitch90 = base.rotateYawPitchRoll(0d, Math.PI / 2d, 0d);
+      assertEquals(new Ray(LOCATION, new Vector(0, 10, 0)), pitch90.constructRay(1, 1), "Pitch rotation is incorrect");
+
+      // Roll +90° around vTo: top-left pixel direction should rotate from (-2,2,-10) -> (2,2,-10)
+      Camera roll90 = base.rotateYawPitchRoll(0d, 0d, Math.PI / 2d);
+      assertEquals(new Ray(LOCATION, new Vector(2, 2, -10)), roll90.constructRay(0, 0), "Roll rotation is incorrect");
+   }
 }
