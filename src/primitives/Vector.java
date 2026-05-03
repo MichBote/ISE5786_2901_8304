@@ -124,6 +124,26 @@ public final class Vector extends Point {
         return scale(1d / length());
     }
 
+    /**
+     * Rotates this vector around the given axis by the given angle (in radians),
+     * using Rodrigues' rotation formula.
+     *
+     * @param axis         rotation axis (does not have to be normalized)
+     * @param angleRadians rotation angle in radians (right-hand rule)
+     * @return rotated vector
+     */
+    public Vector rotateAround(Vector axis, double angleRadians) {
+        Vector k = axis.normalize();
+        double cos = Math.cos(angleRadians);
+        double sin = Math.sin(angleRadians);
+
+        // v_rot = v*cos + (k x v)*sin + k*(k·v)*(1-cos)
+        Vector vCos = this.scale(cos);
+        Vector kCrossVSin = k.crossProduct(this).scale(sin);
+        Vector kKV = k.scale(k.dotProduct(this) * (1d - cos));
+        return vCos.add(kCrossVSin).add(kKV);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;

@@ -93,6 +93,73 @@ public class Camera implements Cloneable {
         return new Ray(_p0, pIJ.subtract(_p0));
     }
 
+    /**
+     * Returns a new camera rotated around its own local axes.
+     * <ul>
+     *   <li>Yaw:   rotation around {@code vUp}</li>
+     *   <li>Pitch: rotation around {@code vRight}</li>
+     *   <li>Roll:  rotation around {@code vTo}</li>
+     * </ul>
+     * Angles are in radians and follow the right-hand rule.
+     *
+     * @param yawRadians   angle around {@code vUp}
+     * @param pitchRadians angle around {@code vRight}
+     * @param rollRadians  angle around {@code vTo}
+     * @return rotated camera (original is unchanged)
+     */
+    public Camera rotateYawPitchRoll(double yawRadians, double pitchRadians, double rollRadians) {
+        Camera rotated;
+        try {
+            rotated = (Camera) this.clone();
+        } catch (CloneNotSupportedException ex) {
+            return null;
+        }
+
+        // Start from the current orthonormal basis
+        Vector vTo = rotated._vTo;
+        Vector vUp = rotated._vUp;
+        Vector vRight = rotated._vRight;
+
+        // Yaw around vUp
+        if (!isZero(yawRadians)) {
+            vTo = vTo.rotateAround(vUp, yawRadians).normalize();
+            vRight = vTo.crossProduct(vUp).normalize();
+            vUp = vRight.crossProduct(vTo).normalize();
+        }
+
+        // Pitch around vRight
+        if (!isZero(pitchRadians)) {
+            vTo = vTo.rotateAround(vRight, pitchRadians).normalize();
+            vUp = vUp.rotateAround(vRight, pitchRadians).normalize();
+            vRight = vTo.crossProduct(vUp).normalize();
+            vUp = vRight.crossProduct(vTo).normalize();
+        }
+
+        // Roll around vTo
+        if (!isZero(rollRadians)) {
+            vUp = vUp.rotateAround(vTo, rollRadians).normalize();
+            vRight = vRight.rotateAround(vTo, rollRadians).normalize();
+            vRight = vTo.crossProduct(vUp).normalize();
+            vUp = vRight.crossProduct(vTo).normalize();
+        }
+
+        rotated._vTo = vTo;
+        rotated._vUp = vUp;
+        rotated._vRight = vRight;
+
+        // Update derived view-plane center (pixel sizes remain unchanged)
+        if (rotated._vpDistance > 0) {
+            rotated._vpCenter = rotated._p0.add(rotated._vTo.scale(rotated._vpDistance));
+        }
+
+        return rotated;
+    }
+
+    /** Convenience overload: degrees input. */
+    public Camera rotateYawPitchRollDegrees(double yawDegrees, double pitchDegrees, double rollDegrees) {
+        return rotateYawPitchRoll(Math.toRadians(yawDegrees), Math.toRadians(pitchDegrees), Math.toRadians(rollDegrees));
+    }
+
     @Override
     protected Object clone() throws CloneNotSupportedException {
         return super.clone();
