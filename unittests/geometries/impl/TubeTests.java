@@ -52,592 +52,387 @@ class TubeTests {
     }
 
     @Test
-    void testGetNormalProjectionNotAtOrigin() {
+    void testGetNormal() {
         // ============ Equivalence Partitions Tests ==============
-        // Arrange
-        Tube tube = createTestTube();
+        {
+            Tube tube = createTestTube();
 
-        // Act
-        Vector nFront = tube.getNormal(new Point(2, 2, 8));
-        Vector nBack = tube.getNormal(new Point(2, 2, 1));
+            Vector nFront = tube.getNormal(new Point(2, 2, 8));
+            Vector nBack = tube.getNormal(new Point(2, 2, 1));
 
-        // Assert
-        assertEquals(1d, nFront.length(), DELTA, ERROR_TUBE);
-        assertEquals(new Vector(1, 0, 0), nFront, ERROR_TUBE);
-        assertEquals(1d, nBack.length(), DELTA, ERROR_TUBE);
-        assertEquals(new Vector(1, 0, 0), nBack, ERROR_TUBE);
-    }
+            assertEquals(1d, nFront.length(), DELTA, ERROR_TUBE);
+            assertEquals(new Vector(1, 0, 0), nFront, ERROR_TUBE);
+            assertEquals(1d, nBack.length(), DELTA, ERROR_TUBE);
+            assertEquals(new Vector(1, 0, 0), nBack, ERROR_TUBE);
+        }
 
-    @Test
-    void testGetNormalProjectionAtOrigin() {
         // =============== Boundary Values Tests ==================
-        // Arrange
-        Tube tube = createTestTube();
+        {
+            Tube tube = createTestTube();
 
-        // Act
-        Vector n = tube.getNormal(new Point(1, 3, 3));
+            Vector n = tube.getNormal(new Point(1, 3, 3));
 
-        // Assert
-        assertEquals(1d, n.length(), DELTA, ERROR_TUBE);
-        assertEquals(new Vector(0, 1, 0), n, ERROR_TUBE);
+            assertEquals(1d, n.length(), DELTA, ERROR_TUBE);
+            assertEquals(new Vector(0, 1, 0), n, ERROR_TUBE);
+        }
     }
 
     /**
      * Test method for {@link Tube#findIntersections(Ray)}.
      */
     @Test
-    void testFindIntersectionsOutside() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(-1, 4, 4), new Vector(1, 0, 0));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsCrossesTwoPoints() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(-1, 2, 4), new Vector(1, 0, 0));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(0, 2, 4), result.get(0), ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(2, 2, 4), result.get(1), ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsStartsInside() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(1.5, 2, 4), new Vector(1, 0, 0));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 1, ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(2, 2, 4), result.get(0), ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsStartsOnSurfaceGoesIn() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(0, 2, 4), new Vector(1, 0, 0));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 1, ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(2, 2, 4), result.get(0), ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsStartsOnSurfaceGoesOut() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(0, 2, 4), new Vector(-1, 0, 0));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsTangent() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(-1, 3, 4), new Vector(1, 0, 0));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsParallelToAxisOutside() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(3, 2, 0), new Vector(0, 0, 1));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsParallelToAxisInside() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(1.5, 2, 0), new Vector(0, 0, 1));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsParallelToAxisOnSurface() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(0, 2, 0), new Vector(0, 0, 1));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        // Ray lies on the tube surface (infinite intersections) => treated as no intersections
-        assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsSkewRayTwoPoints() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(-1, 1, 4), new Vector(1, 1, 0));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsSkewRayNoPoints() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(-1, 4, 4), new Vector(1, 1, 0));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsOrthogonalToAxisTwoPoints() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(1, 0, 4), new Vector(0, 1, 0));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(1, 1, 4), result.get(0), ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(1, 3, 4), result.get(1), ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsOrthogonalToAxisTangent() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(1, 1, 4), new Vector(1, 0, 0));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsDiagonalThroughTubeTwoPoints() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(-2, -1, 4), new Vector(1, 1, 0));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsDiagonalMissesTube() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(-2, -1, 4), new Vector(-1, -1, 0));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsFromAxisOnePoint() {
-        // ============ Equivalence Partitions Tests ==============
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(1, 2, 0), new Vector(1, 0, 0));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 1, ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(2, 2, 0), result.get(0), ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsFromAxisOriginOnePoint() {
-        // =============== Boundary Values Tests ==================
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(1, 2, 3), new Vector(1, 0, 0));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 1, ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(2, 2, 3), result.get(0), ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsFromAxisSkewOnePoint() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(1, 2, 0), new Vector(1, 0, 1));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 1, ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(2, 2, 1), result.get(0), ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsSkewWithAxisComponentTwoPoints() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(-1, 2, 0), new Vector(1, 0, 1));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(0, 2, 1), result.get(0), ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(2, 2, 3), result.get(1), ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsOrthogonalStartsOnSurfaceGoesIn() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(1, 1, 4), new Vector(0, 1, 0));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 1, ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(1, 3, 4), result.get(0), ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsOrthogonalStartsOnSurfaceGoesOut() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(1, 1, 4), new Vector(0, -1, 0));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsOrthogonalOutsideTwoPointsReverseDirection() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(1, 4, 4), new Vector(0, -1, 0));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(1, 3, 4), result.get(0), ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(1, 1, 4), result.get(1), ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsParallelOnAxisNoPoints() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(1, 2, 0), new Vector(0, 0, 1));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsSkewXZTwoPoints() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(-1, 2, 10), new Vector(1, 0, -1));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(0, 2, 9), result.get(0), ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(2, 2, 7), result.get(1), ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsSkewYZTwoPoints() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(1, 0, 10), new Vector(0, 1, -1));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(1, 1, 9), result.get(0), ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(1, 3, 7), result.get(1), ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsStartsInsideSkewOnePoint() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(1.5, 2, 10), new Vector(1, 0, 1));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 1, ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(2, 2, 10.5), result.get(0), ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsStartsInsideSkewOnePointOtherSide() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(1.5, 2, 10), new Vector(-1, 0, 1));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 1, ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(0, 2, 11.5), result.get(0), ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsStartsOnSurfaceSkewGoesInOnePoint() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(0, 2, 10), new Vector(1, 0, 1));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 1, ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(2, 2, 12), result.get(0), ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsStartsOnSurfaceSkewGoesOutNoPoints() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(0, 2, 10), new Vector(-1, 0, 1));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsStartsOnSurfaceTangentWithAxisComponentNoPoints() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(0, 2, 10), new Vector(0, 1, 1));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsSkewOutsideNoPoints() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(-1, 4, 10), new Vector(1, 0, 1));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsSkewFromOutsideTwoPoints() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(3, 2, 10), new Vector(-1, 0, 1));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(2, 2, 11), result.get(0), ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(0, 2, 13), result.get(1), ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsCrossesTwoPointsReverseDirection() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(3, 2, 4), new Vector(-1, 0, 0));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(2, 2, 4), result.get(0), ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(0, 2, 4), result.get(1), ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsFromAxisReverseOnePoint() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(1, 2, 0), new Vector(-1, 0, 0));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 1, ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(0, 2, 0), result.get(0), ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsFromAxisOriginReverseOnePoint() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(1, 2, 3), new Vector(-1, 0, 0));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 1, ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(0, 2, 3), result.get(0), ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsStartsOnOtherSurfaceGoesOut() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(2, 2, 4), new Vector(1, 0, 0));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsDiagonalXYTwoPoints() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(0, 0, 4), new Vector(1, 1, 0));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(1, 1, 4), result.get(0), ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(2, 2, 4), result.get(1), ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsDiagonalXYReverseTwoPoints() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(3, 3, 4), new Vector(-1, -1, 0));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(2, 2, 4), result.get(0), ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(1, 1, 4), result.get(1), ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsDiagonalXYZTwoPoints() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(0, 0, 0), new Vector(1, 1, 1));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(1, 1, 1), result.get(0), ERROR_TUBE_INTERSECTION);
-        assertPointEquals(new Point(2, 2, 2), result.get(1), ERROR_TUBE_INTERSECTION);
-    }
-
-    @Test
-    void testFindIntersectionsTangentYDirection() {
-        // Arrange
-        Tube tube = createTestTube();
-        Ray ray = new Ray(new Point(2, 0, 4), new Vector(0, 1, 0));
-
-        // Act
-        var result = tube.findIntersections(ray);
-
-        // Assert
-        assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
+    void testFindIntersections() {
+        // Outside (0)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(-1, 4, 4), new Vector(1, 0, 0));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
+        }
+
+        // Crosses (2)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(-1, 2, 4), new Vector(1, 0, 0));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(0, 2, 4), result.get(0), ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(2, 2, 4), result.get(1), ERROR_TUBE_INTERSECTION);
+        }
+
+        // Starts inside (1)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(1.5, 2, 4), new Vector(1, 0, 0));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 1, ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(2, 2, 4), result.get(0), ERROR_TUBE_INTERSECTION);
+        }
+
+        // Starts on surface -> in (1)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(0, 2, 4), new Vector(1, 0, 0));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 1, ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(2, 2, 4), result.get(0), ERROR_TUBE_INTERSECTION);
+        }
+
+        // Starts on surface -> out (0)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(0, 2, 4), new Vector(-1, 0, 0));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
+        }
+
+        // Tangent (0)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(-1, 3, 4), new Vector(1, 0, 0));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
+        }
+
+        // Parallel to axis - outside (0)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(3, 2, 0), new Vector(0, 0, 1));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
+        }
+
+        // Parallel to axis - inside (0)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(1.5, 2, 0), new Vector(0, 0, 1));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
+        }
+
+        // Parallel to axis - on surface (treated as 0)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(0, 2, 0), new Vector(0, 0, 1));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
+        }
+
+        // Skew ray (2)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(-1, 1, 4), new Vector(1, 1, 0));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
+        }
+
+        // Skew ray (0)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(-1, 4, 4), new Vector(1, 1, 0));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
+        }
+
+        // Orthogonal to axis (2)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(1, 0, 4), new Vector(0, 1, 0));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(1, 1, 4), result.get(0), ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(1, 3, 4), result.get(1), ERROR_TUBE_INTERSECTION);
+        }
+
+        // Orthogonal to axis tangent (0)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(1, 1, 4), new Vector(1, 0, 0));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
+        }
+
+        // Diagonal through tube (2)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(-2, -1, 4), new Vector(1, 1, 0));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
+        }
+
+        // Diagonal misses (0)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(-2, -1, 4), new Vector(-1, -1, 0));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
+        }
+
+        // From axis (1)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(1, 2, 0), new Vector(1, 0, 0));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 1, ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(2, 2, 0), result.get(0), ERROR_TUBE_INTERSECTION);
+        }
+
+        // From axis origin (1)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(1, 2, 3), new Vector(1, 0, 0));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 1, ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(2, 2, 3), result.get(0), ERROR_TUBE_INTERSECTION);
+        }
+
+        // From axis skew (1)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(1, 2, 0), new Vector(1, 0, 1));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 1, ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(2, 2, 1), result.get(0), ERROR_TUBE_INTERSECTION);
+        }
+
+        // Skew with axis component (2)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(-1, 2, 0), new Vector(1, 0, 1));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(0, 2, 1), result.get(0), ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(2, 2, 3), result.get(1), ERROR_TUBE_INTERSECTION);
+        }
+
+        // Orthogonal starts on surface -> in (1)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(1, 1, 4), new Vector(0, 1, 0));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 1, ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(1, 3, 4), result.get(0), ERROR_TUBE_INTERSECTION);
+        }
+
+        // Orthogonal starts on surface -> out (0)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(1, 1, 4), new Vector(0, -1, 0));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
+        }
+
+        // Orthogonal outside (2) reverse direction
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(1, 4, 4), new Vector(0, -1, 0));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(1, 3, 4), result.get(0), ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(1, 1, 4), result.get(1), ERROR_TUBE_INTERSECTION);
+        }
+
+        // Parallel on axis (0)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(1, 2, 0), new Vector(0, 0, 1));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
+        }
+
+        // Skew XZ (2)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(-1, 2, 10), new Vector(1, 0, -1));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(0, 2, 9), result.get(0), ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(2, 2, 7), result.get(1), ERROR_TUBE_INTERSECTION);
+        }
+
+        // Skew YZ (2)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(1, 0, 10), new Vector(0, 1, -1));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(1, 1, 9), result.get(0), ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(1, 3, 7), result.get(1), ERROR_TUBE_INTERSECTION);
+        }
+
+        // Starts inside skew (1)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(1.5, 2, 10), new Vector(1, 0, 1));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 1, ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(2, 2, 10.5), result.get(0), ERROR_TUBE_INTERSECTION);
+        }
+
+        // Starts inside skew other side (1)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(1.5, 2, 10), new Vector(-1, 0, 1));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 1, ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(0, 2, 11.5), result.get(0), ERROR_TUBE_INTERSECTION);
+        }
+
+        // Starts on surface skew -> in (1)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(0, 2, 10), new Vector(1, 0, 1));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 1, ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(2, 2, 12), result.get(0), ERROR_TUBE_INTERSECTION);
+        }
+
+        // Starts on surface skew -> out (0)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(0, 2, 10), new Vector(-1, 0, 1));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
+        }
+
+        // Starts on surface tangent with axis component (0)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(0, 2, 10), new Vector(0, 1, 1));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
+        }
+
+        // Skew outside (0)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(-1, 4, 10), new Vector(1, 0, 1));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
+        }
+
+        // Skew from outside (2)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(3, 2, 10), new Vector(-1, 0, 1));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(2, 2, 11), result.get(0), ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(0, 2, 13), result.get(1), ERROR_TUBE_INTERSECTION);
+        }
+
+        // Crosses (2) reverse direction
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(3, 2, 4), new Vector(-1, 0, 0));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(2, 2, 4), result.get(0), ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(0, 2, 4), result.get(1), ERROR_TUBE_INTERSECTION);
+        }
+
+        // From axis reverse (1)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(1, 2, 0), new Vector(-1, 0, 0));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 1, ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(0, 2, 0), result.get(0), ERROR_TUBE_INTERSECTION);
+        }
+
+        // From axis origin reverse (1)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(1, 2, 3), new Vector(-1, 0, 0));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 1, ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(0, 2, 3), result.get(0), ERROR_TUBE_INTERSECTION);
+        }
+
+        // Starts on other surface -> out (0)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(2, 2, 4), new Vector(1, 0, 0));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
+        }
+
+        // Diagonal XY (2)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(0, 0, 4), new Vector(1, 1, 0));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(1, 1, 4), result.get(0), ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(2, 2, 4), result.get(1), ERROR_TUBE_INTERSECTION);
+        }
+
+        // Diagonal XY reverse (2)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(3, 3, 4), new Vector(-1, -1, 0));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(2, 2, 4), result.get(0), ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(1, 1, 4), result.get(1), ERROR_TUBE_INTERSECTION);
+        }
+
+        // Diagonal XYZ (2)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(0, 0, 0), new Vector(1, 1, 1));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 2, ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(1, 1, 1), result.get(0), ERROR_TUBE_INTERSECTION);
+            assertPointEquals(new Point(2, 2, 2), result.get(1), ERROR_TUBE_INTERSECTION);
+        }
+
+        // Tangent in Y direction (0)
+        {
+            Tube tube = createTestTube();
+            Ray ray = new Ray(new Point(2, 0, 4), new Vector(0, 1, 0));
+            var result = tube.findIntersections(ray);
+            assertIntersectionsCount(result, 0, ERROR_TUBE_INTERSECTION);
+        }
     }
 }
