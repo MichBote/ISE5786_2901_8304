@@ -2,9 +2,11 @@ package renderer;
 
 import java.util.MissingResourceException;
 
+import primitives.Color;
 import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
+import scene.Scene;
 
 import static primitives.Util.alignZero;
 import static primitives.Util.isZero;
@@ -45,6 +47,12 @@ public class Camera implements Cloneable {
 
     /** Vertical resolution (number of rows). */
     private int _nY = 1;
+
+    /** Image writer used to paint pixels. */
+    private ImageWriter _imageWriter;
+
+    /** Ray tracer used to compute pixel colors. */
+    private RayTracerBase _rayTracer;
 
     /** Precomputed view-plane center point. */
     private Point _vpCenter;
@@ -94,9 +102,52 @@ public class Camera implements Cloneable {
         return new Ray(_p0, pIJ.subtract(_p0));
     }
 
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    /**
+     * Renders the image by casting rays through all pixels.
+     *
+     * @return this camera (for chaining)
+     */
+    public Camera renderImage() {
+        for (int yIndex = 0; yIndex < _nY; yIndex++) {
+            for (int xIndex = 0; xIndex < _nX; xIndex++) {
+                castRay(xIndex, yIndex);
+            }
+        }
+        return this;
+    }
+
+    /** Casts a single ray through pixel (xIndex,yIndex) and writes its color. */
+    private void castRay(int xIndex, int yIndex) {
+        Ray ray = constructRay(xIndex, yIndex);
+        Color color = _rayTracer.traceRay(ray);
+        _imageWriter.writePixel(xIndex, yIndex, color);
+    }
+
+    /**
+     * Draws a grid on top of the rendered image.
+     *
+     * @param interval grid cell size in pixels
+     * @param color    grid line color
+     * @return this camera (for chaining)
+     */
+    public Camera printGrid(int interval, Color color) {
+        for (int yIndex = 0; yIndex < _nY; yIndex++) {
+            for (int xIndex = 0; xIndex < _nX; xIndex++) {
+                if (xIndex % interval == 0 || yIndex % interval == 0) {
+                    _imageWriter.writePixel(xIndex, yIndex, color);
+                }
+            }
+        }
+        return this;
+    }
+
+    /**
+     * Writes the rendered image to a PNG file under the project's images folder.
+     *
+     * @param fileName output file name (without extension)
+     */
+    public void writeToImage(String fileName) {
+        _imageWriter.writeToImage(fileName);
     }
 
     /**
@@ -121,7 +172,7 @@ public class Camera implements Cloneable {
         // Temporary direction inputs (resolved during build)
         private Vector _toVector;
         private Point _targetPoint;
-        private Vector _generalUp = Vector.AXIS_Y;
+        private Vector _generalUp;
 
         // Optional roll (rotation around viewing direction) applied during build
         private double _rollRadians = 0d;
@@ -216,6 +267,22 @@ public class Camera implements Cloneable {
         }
 
         /**
+         * Sets the ray tracer implementation for the camera.
+         *
+         * @param scene scene to render
+         * @param type  ray tracer type
+         * @return this builder
+         */
+        public Builder setRayTracer(Scene scene, RayTracerType type) {
+            if (type == RayTracerType.SIMPLE) {
+                _camera._rayTracer = new SimpleRayTracer(scene);
+            } else {
+                throw new IllegalArgumentException("Unsupported ray tracer type: " + type);
+            }
+            return this;
+        }
+
+        /**
          * Rotates the camera around its viewing direction ({@code vTo}).
          * <p>
          * The angle is given in <b>degrees</b> and is defined as <b>clockwise</b>
@@ -241,6 +308,11 @@ public class Camera implements Cloneable {
             checkResolution();
             checkLocationAndDirection();
             checkViewPlane();
+
+            if (_camera._rayTracer == null) {
+                setRayTracer(new Scene("test"), RayTracerType.SIMPLE);
+            }
+
             try {
                 return (Camera) _camera.clone();
             } catch (CloneNotSupportedException ex) {
@@ -252,16 +324,12 @@ public class Camera implements Cloneable {
             if (_camera._nX <= 0 || _camera._nY <= 0) {
                 throw new IllegalArgumentException("View-plane resolution must be positive");
             }
+            _camera._imageWriter = new ImageWriter(_camera._nX, _camera._nY);
         }
 
         private void checkLocationAndDirection() {
-            if (_camera._p0 == null) {
-                throw new MissingResourceException("Camera location is missing", "Camera", "location");
-            }
-
-            if (_generalUp == null) {
-                throw new MissingResourceException("Camera up direction is missing", "Camera", "up");
-            }
+            if (_camera._p0 == null) throw new MissingResourceException("Camera location is missing", "Camera", "location");
+            if (_generalUp == null) throw new MissingResourceException("Camera up direction is missing", "Camera", "up");
 
             Vector vTo;
             if (_toVector != null) {
@@ -273,45 +341,30 @@ public class Camera implements Cloneable {
             }
 
             // Normalize forward vector
-            vTo = vTo.normalize();
-            _camera._vTo = vTo;
+            _camera._vTo = vTo.normalize();
 
             // Build orthonormal basis using provided general-up
-            Vector vRight;
             try {
-                vRight = vTo.crossProduct(_generalUp).normalize();
+                _camera._vRight = vTo.crossProduct(_generalUp).normalize();
             } catch (IllegalArgumentException ex) {
                 throw new IllegalArgumentException("Camera direction vectors are parallel", ex);
             }
 
-            Vector vUp = vRight.crossProduct(vTo).normalize();
-
             // Optional roll around vTo (clockwise in degrees, applied as a right-hand rotation around vTo)
             if (!isZero(_rollRadians)) {
-                vUp = vUp.rotateAround(vTo, _rollRadians).normalize();
-                vRight = vTo.crossProduct(vUp).normalize();
-                vUp = vRight.crossProduct(vTo).normalize();
+                _camera._vRight = _camera._vRight.rotateAround(_camera._vTo, _rollRadians).normalize();
             }
 
-            _camera._vRight = vRight;
-            _camera._vUp = vUp;
+            _camera._vUp = _camera._vRight.crossProduct(_camera._vTo).normalize();
         }
 
         private void checkViewPlane() {
-            double vpWidth = alignZero(_camera._vpWidth);
-            double vpHeight = alignZero(_camera._vpHeight);
-            double vpDistance = alignZero(_camera._vpDistance);
-
-            if (vpWidth <= 0 || vpHeight <= 0) {
+            if (alignZero(_camera._vpWidth) <= 0 ||  alignZero(_camera._vpHeight) <= 0) {
                 throw new IllegalArgumentException("View-plane size must be positive");
             }
-            if (vpDistance <= 0) {
+            if (alignZero(_camera._vpDistance)<= 0) {
                 throw new IllegalArgumentException("View-plane distance must be positive");
             }
-
-            _camera._vpWidth = vpWidth;
-            _camera._vpHeight = vpHeight;
-            _camera._vpDistance = vpDistance;
 
             _camera._vpCenter = _camera._p0.add(_camera._vTo.scale(_camera._vpDistance));
             _camera._pixelWidth = _camera._vpWidth / _camera._nX;
