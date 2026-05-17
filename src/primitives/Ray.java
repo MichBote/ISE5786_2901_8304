@@ -3,6 +3,7 @@ package primitives;
 import static primitives.Util.isZero;
 
 import java.util.Objects;
+import java.util.List;
 
 /**
  * Represents a ray (half-line) in 3D space.
@@ -75,6 +76,34 @@ public final class Ray {
         } catch (IllegalArgumentException ex) {
             return _origin;
         }
+    }
+
+    /**
+     * Finds the closest point to the ray origin from a given list of points.
+     * <p>
+     * The method is intended for intersection results. If there are no
+     * intersections, the caller is expected to pass {@code null}.
+     * </p>
+     *
+     * @param points list of points (may be {@code null})
+     * @return the closest point to the ray origin, or {@code null} if the list
+     *         is {@code null}
+     */
+    public Point findClosestPoint(List<Point> points) {
+        if (points == null) return null;
+
+        Point closestPoint = null;
+        double closestDistanceSquared = Double.POSITIVE_INFINITY;
+
+        for (Point point : points) {
+            double distanceSquared = point.distanceSquared(_origin);
+            if (distanceSquared < closestDistanceSquared) {
+                closestDistanceSquared = distanceSquared;
+                closestPoint = point;
+            }
+        }
+
+        return closestPoint;
     }
 
     @Override
