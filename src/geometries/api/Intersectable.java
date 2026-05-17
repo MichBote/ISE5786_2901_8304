@@ -16,6 +16,15 @@ import java.util.List;
  * </p>
  */
 public abstract class Intersectable {
+
+    /**
+     * Default constructor.
+     * <p>
+     * Exists to avoid relying on an undocumented implicit default constructor.
+     * </p>
+     */
+    protected Intersectable() {
+    }
     /**
      * Finds intersection points between a ray and the geometry.
      *

@@ -46,8 +46,8 @@ public final class Triangle extends Polygon {
         Vector edge1 = v1.subtract(v0);
         Vector edge2 = v2.subtract(v0);
 
-        Vector pvec = dir.crossProduct(edge2);
-        double det = alignZero(edge1.dotProduct(pvec));
+        Vector pVec = dir.crossProduct(edge2);
+        double det = alignZero(edge1.dotProduct(pVec));
         if (isZero(det)) return null; // ray is parallel to triangle plane
 
         double invDet = 1d / det;
@@ -59,14 +59,14 @@ public final class Triangle extends Polygon {
             return null;
         }
 
-        double u = alignZero(tvec.dotProduct(pvec) * invDet);
+        double u = alignZero(tvec.dotProduct(pVec) * invDet);
         if (u <= 0 || u >= 1) return null; // exclude edges/vertices
 
-        Vector qvec = tvec.crossProduct(edge1);
-        double v = alignZero(dir.dotProduct(qvec) * invDet);
+        Vector qVec = tvec.crossProduct(edge1);
+        double v = alignZero(dir.dotProduct(qVec) * invDet);
         if (v <= 0 || u + v >= 1) return null; // exclude edges/vertices
 
-        double t = alignZero(edge2.dotProduct(qvec) * invDet);
+        double t = alignZero(edge2.dotProduct(qVec) * invDet);
         return t <= 0 ? null : List.of(ray.getPoint(t));
     }
 }

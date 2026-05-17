@@ -6,6 +6,7 @@ import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
 
+import static primitives.Util.alignZero;
 import static primitives.Util.isZero;
 
 /**
@@ -93,73 +94,6 @@ public class Camera implements Cloneable {
         return new Ray(_p0, pIJ.subtract(_p0));
     }
 
-    /**
-     * Returns a new camera rotated around its own local axes.
-     * <ul>
-     *   <li>Yaw:   rotation around {@code vUp}</li>
-     *   <li>Pitch: rotation around {@code vRight}</li>
-     *   <li>Roll:  rotation around {@code vTo}</li>
-     * </ul>
-     * Angles are in radians and follow the right-hand rule.
-     *
-     * @param yawRadians   angle around {@code vUp}
-     * @param pitchRadians angle around {@code vRight}
-     * @param rollRadians  angle around {@code vTo}
-     * @return rotated camera (original is unchanged)
-     */
-    public Camera rotateYawPitchRoll(double yawRadians, double pitchRadians, double rollRadians) {
-        Camera rotated;
-        try {
-            rotated = (Camera) this.clone();
-        } catch (CloneNotSupportedException ex) {
-            return null;
-        }
-
-        // Start from the current orthonormal basis
-        Vector vTo = rotated._vTo;
-        Vector vUp = rotated._vUp;
-        Vector vRight = rotated._vRight;
-
-        // Yaw around vUp
-        if (!isZero(yawRadians)) {
-            vTo = vTo.rotateAround(vUp, yawRadians).normalize();
-            vRight = vTo.crossProduct(vUp).normalize();
-            vUp = vRight.crossProduct(vTo).normalize();
-        }
-
-        // Pitch around vRight
-        if (!isZero(pitchRadians)) {
-            vTo = vTo.rotateAround(vRight, pitchRadians).normalize();
-            vUp = vUp.rotateAround(vRight, pitchRadians).normalize();
-            vRight = vTo.crossProduct(vUp).normalize();
-            vUp = vRight.crossProduct(vTo).normalize();
-        }
-
-        // Roll around vTo
-        if (!isZero(rollRadians)) {
-            vUp = vUp.rotateAround(vTo, rollRadians).normalize();
-            vRight = vRight.rotateAround(vTo, rollRadians).normalize();
-            vRight = vTo.crossProduct(vUp).normalize();
-            vUp = vRight.crossProduct(vTo).normalize();
-        }
-
-        rotated._vTo = vTo;
-        rotated._vUp = vUp;
-        rotated._vRight = vRight;
-
-        // Update derived view-plane center (pixel sizes remain unchanged)
-        if (rotated._vpDistance > 0) {
-            rotated._vpCenter = rotated._p0.add(rotated._vTo.scale(rotated._vpDistance));
-        }
-
-        return rotated;
-    }
-
-    /** Convenience overload: degrees input. */
-    public Camera rotateYawPitchRollDegrees(double yawDegrees, double pitchDegrees, double rollDegrees) {
-        return rotateYawPitchRoll(Math.toRadians(yawDegrees), Math.toRadians(pitchDegrees), Math.toRadians(rollDegrees));
-    }
-
     @Override
     protected Object clone() throws CloneNotSupportedException {
         return super.clone();
@@ -175,18 +109,41 @@ public class Camera implements Cloneable {
     public static class Builder {
         private final Camera _camera = new Camera();
 
+        /**
+         * Creates a new builder instance.
+         * <p>
+         * Prefer using {@link Camera#getBuilder()}.
+         * </p>
+         */
+        public Builder() {
+        }
+
         // Temporary direction inputs (resolved during build)
         private Vector _toVector;
         private Point _targetPoint;
         private Vector _generalUp = Vector.AXIS_Y;
 
-        /** Sets the camera location. */
+        // Optional roll (rotation around viewing direction) applied during build
+        private double _rollRadians = 0d;
+
+        /**
+         * Sets the camera location.
+         *
+         * @param location camera position (lens center)
+         * @return this builder
+         */
         public Builder setLocation(Point location) {
             _camera._p0 = location;
             return this;
         }
 
-        /** Sets the camera direction explicitly by vectors (to, up). */
+        /**
+         * Sets the camera direction explicitly by vectors (to, up).
+         *
+         * @param to forward direction vector
+         * @param up general up direction vector
+         * @return this builder
+         */
         public Builder setDirection(Vector to, Vector up) {
             _toVector = to;
             _targetPoint = null;
@@ -194,7 +151,13 @@ public class Camera implements Cloneable {
             return this;
         }
 
-        /** Sets the camera direction by target point and explicit up vector. */
+        /**
+         * Sets the camera direction by target point and explicit up vector.
+         *
+         * @param target a point the camera should look at
+         * @param up     general up direction vector
+         * @return this builder
+         */
         public Builder setDirection(Point target, Vector up) {
             _targetPoint = target;
             _toVector = null;
@@ -202,7 +165,12 @@ public class Camera implements Cloneable {
             return this;
         }
 
-        /** Sets the camera direction by target point only (up defaults to +Y axis). */
+        /**
+         * Sets the camera direction by target point only (up defaults to +Y axis).
+         *
+         * @param target a point the camera should look at
+         * @return this builder
+         */
         public Builder setDirection(Point target) {
             _targetPoint = target;
             _toVector = null;
@@ -210,23 +178,57 @@ public class Camera implements Cloneable {
             return this;
         }
 
-        /** Sets view-plane size. */
+        /**
+         * Sets view-plane size.
+         *
+         * @param width  view-plane width
+         * @param height view-plane height
+         * @return this builder
+         */
         public Builder setVpSize(double width, double height) {
             _camera._vpWidth = width;
             _camera._vpHeight = height;
             return this;
         }
 
-        /** Sets view-plane distance from the camera. */
+        /**
+         * Sets view-plane distance from the camera.
+         *
+         * @param distance view-plane distance
+         * @return this builder
+         */
         public Builder setVpDistance(double distance) {
             _camera._vpDistance = distance;
             return this;
         }
 
-        /** Sets view-plane resolution (number of pixels). */
+        /**
+         * Sets view-plane resolution (number of pixels).
+         *
+         * @param nX number of pixels horizontally (columns)
+         * @param nY number of pixels vertically (rows)
+         * @return this builder
+         */
         public Builder setResolution(int nX, int nY) {
             _camera._nX = nX;
             _camera._nY = nY;
+            return this;
+        }
+
+        /**
+         * Rotates the camera around its viewing direction ({@code vTo}).
+         * <p>
+         * The angle is given in <b>degrees</b> and is defined as <b>clockwise</b>
+         * when looking in the {@code vTo} direction.
+         * </p>
+         *
+         * @param angleDegreesClockwise rotation angle in degrees (clockwise)
+         * @return this builder for chaining
+         */
+        public Builder rotate(double angleDegreesClockwise) {
+            if (!isZero(angleDegreesClockwise)) {
+                _rollRadians += Math.toRadians(angleDegreesClockwise);
+            }
             return this;
         }
 
@@ -284,17 +286,32 @@ public class Camera implements Cloneable {
 
             Vector vUp = vRight.crossProduct(vTo).normalize();
 
+            // Optional roll around vTo (clockwise in degrees, applied as a right-hand rotation around vTo)
+            if (!isZero(_rollRadians)) {
+                vUp = vUp.rotateAround(vTo, _rollRadians).normalize();
+                vRight = vTo.crossProduct(vUp).normalize();
+                vUp = vRight.crossProduct(vTo).normalize();
+            }
+
             _camera._vRight = vRight;
             _camera._vUp = vUp;
         }
 
         private void checkViewPlane() {
-            if (_camera._vpWidth <= 0 || _camera._vpHeight <= 0) {
+            double vpWidth = alignZero(_camera._vpWidth);
+            double vpHeight = alignZero(_camera._vpHeight);
+            double vpDistance = alignZero(_camera._vpDistance);
+
+            if (vpWidth <= 0 || vpHeight <= 0) {
                 throw new IllegalArgumentException("View-plane size must be positive");
             }
-            if (_camera._vpDistance <= 0) {
+            if (vpDistance <= 0) {
                 throw new IllegalArgumentException("View-plane distance must be positive");
             }
+
+            _camera._vpWidth = vpWidth;
+            _camera._vpHeight = vpHeight;
+            _camera._vpDistance = vpDistance;
 
             _camera._vpCenter = _camera._p0.add(_camera._vTo.scale(_camera._vpDistance));
             _camera._pixelWidth = _camera._vpWidth / _camera._nX;

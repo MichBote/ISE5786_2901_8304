@@ -29,6 +29,13 @@ bin/
 ### Java build artifacts ###
 *.class
 
+### Project build output ###
+build/
+
 ### Mac OS ###
 .DS_Store
 /docs/
+
+### Local test tooling (course helpers) ###
+scripts/run-tests.sh
+.tools/junit-platform-console-standalone-*.jar

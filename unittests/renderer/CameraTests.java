@@ -273,26 +273,105 @@ class CameraTests {
    }
 
    /**
-    * Test method for {@link Camera#rotateYawPitchRoll(double, double, double)}.
+    * Test method for {@link renderer.Camera.Builder#rotate(double)}.
+    * <p>
+    * The test is indirect: it verifies the effect on constructed rays only,
+    * without using getters.
+    * </p>
     */
    @Test
-   void testRotateYawPitchRoll() {
+   void testBuilderRotate() {
       Camera base = baseBuilder()
          .setDirection(new Vector(0, 0, -1), Vector.AXIS_Y)
          .setVpSize(6, 6)
          .setResolution(3, 3)
          .build();
 
-      // Yaw +90° around vUp: vTo (0,0,-1) -> (-1,0,0)
-      Camera yaw90 = base.rotateYawPitchRoll(Math.PI / 2d, 0d, 0d);
-      assertEquals(new Ray(LOCATION, new Vector(-10, 0, 0)), yaw90.constructRay(1, 1), "Yaw rotation is incorrect");
+      // Sanity: same as the classic 3x3 setup
+      assertEquals(new Ray(LOCATION, new Vector(-2, 2, -10)), base.constructRay(0, 0),
+                   "Base camera ray is incorrect (precondition for rotate tests)");
 
-      // Pitch +90° around vRight: vTo (0,0,-1) -> (0,1,0)
-      Camera pitch90 = base.rotateYawPitchRoll(0d, Math.PI / 2d, 0d);
-      assertEquals(new Ray(LOCATION, new Vector(0, 10, 0)), pitch90.constructRay(1, 1), "Pitch rotation is incorrect");
+      // ============ Equivalence Partitions Tests ==============
 
-      // Roll +90° around vTo: top-left pixel direction should rotate from (-2,2,-10) -> (2,2,-10)
-      Camera roll90 = base.rotateYawPitchRoll(0d, 0d, Math.PI / 2d);
-      assertEquals(new Ray(LOCATION, new Vector(2, 2, -10)), roll90.constructRay(0, 0), "Roll rotation is incorrect");
+      // EP01: Positive clockwise rotation (+90°)
+      Camera rotated90 = baseBuilder()
+         .setDirection(new Vector(0, 0, -1), Vector.AXIS_Y)
+         .setVpSize(6, 6)
+         .setResolution(3, 3)
+         .rotate(90)
+         .build();
+      // After a +90° clockwise roll around vTo, the top-left pixel direction
+      // should rotate from (-2,2,-10) -> (2,2,-10)
+      assertEquals(new Ray(LOCATION, new Vector(2, 2, -10)), rotated90.constructRay(0, 0),
+                   "Builder.rotate(90) is incorrect");
+      // And the upper-middle pixel direction (0,2,-10) -> (2,0,-10)
+      assertEquals(new Ray(LOCATION, new Vector(2, 0, -10)), rotated90.constructRay(1, 0),
+                   "Builder.rotate(90) should rotate the up direction toward +X");
+
+      // EP02: Negative rotation (-90°)
+      Camera rotatedMinus90 = baseBuilder()
+         .setDirection(new Vector(0, 0, -1), Vector.AXIS_Y)
+         .setVpSize(6, 6)
+         .setResolution(3, 3)
+         .rotate(-90)
+         .build();
+      // (-2,2,-10) -> (-2,-2,-10)
+      assertEquals(new Ray(LOCATION, new Vector(-2, -2, -10)), rotatedMinus90.constructRay(0, 0),
+                   "Builder.rotate(-90) is incorrect");
+
+      // EP03: Accumulated rotations behave like a single rotation (30 + 60 == 90)
+      Camera rotated30Plus60 = baseBuilder()
+         .setDirection(new Vector(0, 0, -1), Vector.AXIS_Y)
+         .setVpSize(6, 6)
+         .setResolution(3, 3)
+         .rotate(30)
+         .rotate(60)
+         .build();
+      assertEquals(rotated90.constructRay(0, 0), rotated30Plus60.constructRay(0, 0),
+                   "Builder.rotate should accumulate angles");
+
+      // EP04: Rotation works with setDirection(Point) as well (indirectly validate same behavior)
+      Camera rotated90ByTarget = baseBuilder()
+         .setDirection(new Point(0, 0, -1))
+         .setVpSize(6, 6)
+         .setResolution(3, 3)
+         .rotate(90)
+         .build();
+      assertEquals(rotated90.constructRay(0, 0), rotated90ByTarget.constructRay(0, 0),
+                   "Builder.rotate should work with setDirection(Point)");
+
+      // =============== Boundary Values Tests ==================
+
+      // BV01: 0° should not change the rays
+      Camera rotated0 = baseBuilder()
+         .setDirection(new Vector(0, 0, -1), Vector.AXIS_Y)
+         .setVpSize(6, 6)
+         .setResolution(3, 3)
+         .rotate(0)
+         .build();
+      assertEquals(base.constructRay(0, 0), rotated0.constructRay(0, 0),
+                   "Builder.rotate(0) should not change rays");
+
+      // BV02: 180° around vTo: (-2,2,-10) -> (2,-2,-10)
+      Camera rotated180 = baseBuilder()
+         .setDirection(new Vector(0, 0, -1), Vector.AXIS_Y)
+         .setVpSize(6, 6)
+         .setResolution(3, 3)
+         .rotate(180)
+         .build();
+      assertEquals(new Ray(LOCATION, new Vector(2, -2, -10)), rotated180.constructRay(0, 0),
+                   "Builder.rotate(180) is incorrect");
+
+      // BV03: 360° should return to the original orientation
+      Camera rotated360 = baseBuilder()
+         .setDirection(new Vector(0, 0, -1), Vector.AXIS_Y)
+         .setVpSize(6, 6)
+         .setResolution(3, 3)
+         .rotate(360)
+         .build();
+      assertEquals(base.constructRay(0, 0), rotated360.constructRay(0, 0),
+                   "Builder.rotate(360) should not change rays");
+      assertEquals(base.constructRay(1, 0), rotated360.constructRay(1, 0),
+                   "Builder.rotate(360) should not change rays");
    }
 }

@@ -52,7 +52,6 @@ class TriangleTests {
         Vector n = triangle.getNormal(p);
         assertEquals(1d, n.length(), DELTA, ERROR_TRIANGLE);
 
-        // EP02: Normal is orthogonal to triangle edges
         Vector e1 = new Point(1, 0, 0).subtract(new Point(0, 0, 1));
         Vector e2 = new Point(0, 1, 0).subtract(new Point(0, 0, 1));
         assertEquals(0d, n.dotProduct(e1), DELTA, ERROR_TRIANGLE);
