@@ -8,8 +8,9 @@ JUNIT_JAR=".tools/junit-platform-console-standalone-1.14.4.jar"
 SRC_DIR="src"
 TEST_DIR="unittests"
 
-BIN_DIR="bin"
-BIN_TEST_DIR="bin_test"
+BUILD_DIR="build"
+BIN_DIR="$BUILD_DIR/classes"
+BIN_TEST_DIR="$BUILD_DIR/test-classes"
 
 usage() {
   cat <<'EOF'
@@ -19,7 +20,7 @@ Usage:
 
 Notes:
   - Requires .tools/junit-platform-console-standalone-1.14.4.jar
-  - Output folders: bin/ and bin_test/
+  - Output folders: build/classes/ and build/test-classes/
 EOF
 }
 
@@ -56,6 +57,10 @@ fi
 
 command -v java >/dev/null 2>&1 || { echo "ERROR: java not found in PATH" >&2; exit 2; }
 command -v javac >/dev/null 2>&1 || { echo "ERROR: javac not found in PATH" >&2; exit 2; }
+
+echo "==> Cleaning stray .class under $SRC_DIR (and $TEST_DIR)"
+find "$SRC_DIR" -name '*.class' -delete 2>/dev/null || true
+find "$TEST_DIR" -name '*.class' -delete 2>/dev/null || true
 
 rm -rf "$BIN_DIR" "$BIN_TEST_DIR"
 mkdir -p "$BIN_DIR" "$BIN_TEST_DIR"
