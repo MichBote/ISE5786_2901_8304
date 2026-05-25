@@ -47,6 +47,13 @@ class SphereTests {
         assertEquals(new Vector(0, 0, 1), n, ERROR_SPHERE);
     }
 
+    /**
+     * Asserts that two points are equal within the test tolerance.
+     *
+     * @param expected expected point
+     * @param actual actual point
+     * @param message assertion message
+     */
     private static void assertPointEquals(Point expected, Point actual, String message) {
         assertEquals(0d, expected.distance(actual), DELTA, message);
     }

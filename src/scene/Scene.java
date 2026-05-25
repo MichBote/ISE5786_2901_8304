@@ -33,19 +33,34 @@ public class Scene {
       this.name = name;
    }
 
-   /** Sets the background color (chaining). */
+   /**
+    * Sets the background color.
+    *
+    * @param background background color
+    * @return this scene, for chaining
+    */
    public Scene setBackground(Color background) {
       this.background = background;
       return this;
    }
 
-   /** Sets the ambient light (chaining). */
+   /**
+    * Sets the ambient light.
+    *
+    * @param ambientLight ambient light
+    * @return this scene, for chaining
+    */
    public Scene setAmbientLight(AmbientLight ambientLight) {
       this.ambientLight = ambientLight;
       return this;
    }
 
-   /** Sets the geometries collection (chaining). */
+   /**
+    * Sets the geometries collection.
+    *
+    * @param geometries geometries collection
+    * @return this scene, for chaining
+    */
    public Scene setGeometries(Geometries geometries) {
       this.geometries = geometries;
       return this;

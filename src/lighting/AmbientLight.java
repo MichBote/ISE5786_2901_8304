@@ -25,7 +25,11 @@ public class AmbientLight {
       _intensity = intensity;
    }
 
-   /** @return ambient light intensity */
+   /**
+    * Returns the ambient light intensity.
+    *
+    * @return ambient light intensity
+    */
    public Color getIntensity() {
       return _intensity;
    }

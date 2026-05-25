@@ -44,6 +44,9 @@ class VectorTests {
     /** Error message for expected exception */
     private static final String ERROR_EXPECTED_EXCEPTION = "ERROR: expected IllegalArgumentException";
 
+    /**
+     * Test method for {@link Vector#add(Vector)}.
+     */
     @Test
     void testAdd() {
         // ============ Equivalence Partitions Tests ==============
@@ -61,6 +64,9 @@ class VectorTests {
         }
     }
 
+    /**
+     * Test method for {@link Vector#subtract(Point)}.
+     */
     @Test
     void testSubtract() {
         // ============ Equivalence Partitions Tests ==============
@@ -163,6 +169,9 @@ class VectorTests {
         assertEquals(9d, v.lengthSquared(), DELTA, ERROR_VECTOR);
     }
 
+    /**
+     * Test method for {@link Vector#length()}.
+     */
     @Test
     void testLength() {
         // ============ Equivalence Partitions Tests ==============
@@ -170,6 +179,9 @@ class VectorTests {
         assertEquals(3d, v.length(), DELTA, ERROR_VECTOR);
     }
 
+    /**
+     * Test method for {@link Vector#normalize()}.
+     */
     @Test
     void testNormalize() {
         // ============ Equivalence Partitions Tests ==============
@@ -179,6 +191,9 @@ class VectorTests {
         assertTrue(v.dotProduct(n) > 0, ERROR_VECTOR);
     }
 
+    /**
+     * Test method for vector constructors.
+     */
     @Test
     void testConstructor() {
         // =============== Boundary Values Tests ==================

@@ -22,20 +22,30 @@ import java.util.List;
  * </p>
  */
 class CameraIntersectionIntegration {
+    /** Default constructor to satisfy documentation tools. */
+    CameraIntersectionIntegration() { /* Default constructor to satisfy documentation tools. */ }
 
         // Note: integration expected counts (e.g. Sphere TC02 = 18) assume the camera is
         // not exactly on the sphere surface. A slight offset along +Z matches the standard
         // ISE5786 integration test setup.
+        /** Camera location for integration tests. */
         private static final Point  LOCATION     = new Point(0, 0, 0.5);
+        /** Camera forward direction for integration tests. */
         private static final Vector V_TO         = new Vector(0, 0, -1);
+        /** Camera up direction for integration tests. */
         private static final Vector V_UP         = new Vector(0, 1, 0);
 
+    /** View-plane horizontal resolution. */
     private static final int    NX           = 3;
+    /** View-plane vertical resolution. */
     private static final int    NY           = 3;
+    /** View-plane distance from the camera. */
     private static final double VP_DISTANCE  = 1d;
+    /** View-plane width and height. */
     private static final double VP_SIZE      = 3d;
 
     // Cameras used by multiple test cases (don’t rebuild the same camera repeatedly)
+    /** Camera used by multiple test cases. */
     private static final Camera CAMERA = Camera.getBuilder()
             .setLocation(LOCATION)
             .setDirection(V_TO, V_UP)
@@ -44,6 +54,9 @@ class CameraIntersectionIntegration {
             .setResolution(NX, NY)
             .build();
 
+    /**
+     * Tests camera ray intersections with spheres.
+     */
     @Test
     void testCameraRaySphereIntegration() {
         // TC01: Small sphere in front of view plane (2 intersections per hit ray)
@@ -77,6 +90,9 @@ class CameraIntersectionIntegration {
                 "Sphere TC05");
     }
 
+    /**
+     * Tests camera ray intersections with planes.
+     */
     @Test
     void testCameraRayPlaneIntegration() {
         // TC01: Plane orthogonal to camera direction (one intersection per ray)
@@ -98,6 +114,9 @@ class CameraIntersectionIntegration {
                 "Plane TC03");
     }
 
+    /**
+     * Tests camera ray intersections with triangles.
+     */
     @Test
     void testCameraRayTriangleIntegration() {
         // TC01: Small triangle in front of camera (1 intersection)
@@ -115,6 +134,11 @@ class CameraIntersectionIntegration {
 
     /**
      * Helper that counts total intersections between rays through all pixels and a geometry.
+     *
+     * @param camera camera used to construct rays
+     * @param geometry geometry tested for intersections
+     * @param expected expected number of intersections
+     * @param testName test case name for assertion messages
      */
     private static void assertIntersectionsCount(Camera camera, Intersectable geometry, int expected, String testName) {
         int count = 0;

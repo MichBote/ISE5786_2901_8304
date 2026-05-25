@@ -1,12 +1,12 @@
 package renderer;
 
-import java.util.MissingResourceException;
-
 import primitives.Color;
 import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
 import scene.Scene;
+
+import java.util.MissingResourceException;
 
 import static primitives.Util.alignZero;
 import static primitives.Util.isZero;
@@ -21,46 +21,74 @@ import static primitives.Util.isZero;
  */
 public class Camera implements Cloneable {
 
-    /** Camera position (lens center). */
+    /**
+     * Camera position (lens center).
+     */
     private Point _p0;
 
-    /** Camera forward direction (normalized). */
+    /**
+     * Camera forward direction (normalized).
+     */
     private Vector _vTo;
 
-    /** Camera up direction (normalized, orthogonal to {@code _vTo}). */
+    /**
+     * Camera up direction (normalized, orthogonal to {@code _vTo}).
+     */
     private Vector _vUp;
 
-    /** Camera right direction (normalized, orthogonal to {@code _vTo} and {@code _vUp}). */
+    /**
+     * Camera right direction (normalized, orthogonal to {@code _vTo} and {@code _vUp}).
+     */
     private Vector _vRight;
 
-    /** View-plane width. */
+    /**
+     * View-plane width.
+     */
     private double _vpWidth;
 
-    /** View-plane height. */
+    /**
+     * View-plane height.
+     */
     private double _vpHeight;
 
-    /** View-plane distance from camera. */
+    /**
+     * View-plane distance from camera.
+     */
     private double _vpDistance;
 
-    /** Horizontal resolution (number of columns). */
+    /**
+     * Horizontal resolution (number of columns).
+     */
     private int _nX = 1;
 
-    /** Vertical resolution (number of rows). */
+    /**
+     * Vertical resolution (number of rows).
+     */
     private int _nY = 1;
 
-    /** Image writer used to paint pixels. */
+    /**
+     * Image writer used to paint pixels.
+     */
     private ImageWriter _imageWriter;
 
-    /** Ray tracer used to compute pixel colors. */
+    /**
+     * Ray tracer used to compute pixel colors.
+     */
     private RayTracerBase _rayTracer;
 
-    /** Precomputed view-plane center point. */
+    /**
+     * Precomputed view-plane center point.
+     */
     private Point _vpCenter;
 
-    /** Precomputed pixel width. */
+    /**
+     * Precomputed pixel width.
+     */
     private double _pixelWidth;
 
-    /** Precomputed pixel height. */
+    /**
+     * Precomputed pixel height.
+     */
     private double _pixelHeight;
 
     /**
@@ -116,7 +144,12 @@ public class Camera implements Cloneable {
         return this;
     }
 
-    /** Casts a single ray through pixel (xIndex,yIndex) and writes its color. */
+    /**
+     * Casts a single ray through a pixel (xIndex,yIndex) and writes its color.
+     *
+     * @param xIndex pixel column index
+     * @param yIndex pixel row index
+     */
     private void castRay(int xIndex, int yIndex) {
         Ray ray = constructRay(xIndex, yIndex);
         Color color = _rayTracer.traceRay(ray);
@@ -158,6 +191,9 @@ public class Camera implements Cloneable {
      * </p>
      */
     public static class Builder {
+        /**
+         * Camera instance being configured.
+         */
         private final Camera _camera = new Camera();
 
         /**
@@ -169,12 +205,22 @@ public class Camera implements Cloneable {
         public Builder() {
         }
 
-        // Temporary direction inputs (resolved during build)
+        /**
+         * Explicit forward direction input, resolved during build.
+         */
         private Vector _toVector;
+        /**
+         * Target point input, resolved during build.
+         */
         private Point _targetPoint;
+        /**
+         * General up direction input, resolved during build.
+         */
         private Vector _generalUp;
 
-        // Optional roll (rotation around viewing direction) applied during build
+        /**
+         * Optional roll around viewing direction, applied during build.
+         */
         private double _rollRadians = 0d;
 
         /**
@@ -320,6 +366,9 @@ public class Camera implements Cloneable {
             }
         }
 
+        /**
+         * Validates resolution settings and creates the image writer.
+         */
         private void checkResolution() {
             if (_camera._nX <= 0 || _camera._nY <= 0) {
                 throw new IllegalArgumentException("View-plane resolution must be positive");
@@ -327,9 +376,14 @@ public class Camera implements Cloneable {
             _camera._imageWriter = new ImageWriter(_camera._nX, _camera._nY);
         }
 
+        /**
+         * Validates location and direction settings, then computes the camera basis vectors.
+         */
         private void checkLocationAndDirection() {
-            if (_camera._p0 == null) throw new MissingResourceException("Camera location is missing", "Camera", "location");
-            if (_generalUp == null) throw new MissingResourceException("Camera up direction is missing", "Camera", "up");
+            if (_camera._p0 == null)
+                throw new MissingResourceException("Camera location is missing", "Camera", "location");
+            if (_generalUp == null)
+                throw new MissingResourceException("Camera up direction is missing", "Camera", "up");
 
             Vector vTo;
             if (_toVector != null) {
@@ -358,11 +412,14 @@ public class Camera implements Cloneable {
             _camera._vUp = _camera._vRight.crossProduct(_camera._vTo).normalize();
         }
 
+        /**
+         * Validates view-plane settings and precomputes view-plane geometry.
+         */
         private void checkViewPlane() {
-            if (alignZero(_camera._vpWidth) <= 0 ||  alignZero(_camera._vpHeight) <= 0) {
+            if (alignZero(_camera._vpWidth) <= 0 || alignZero(_camera._vpHeight) <= 0) {
                 throw new IllegalArgumentException("View-plane size must be positive");
             }
-            if (alignZero(_camera._vpDistance)<= 0) {
+            if (alignZero(_camera._vpDistance) <= 0) {
                 throw new IllegalArgumentException("View-plane distance must be positive");
             }
 

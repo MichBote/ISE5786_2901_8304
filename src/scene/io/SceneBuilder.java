@@ -10,8 +10,15 @@ import scene.Scene;
  * Converts parsed {@link SceneDescriptor} data into runtime {@link Scene} objects.
  */
 final class SceneBuilder {
+   /** Utility class constructor. */
    private SceneBuilder() { }
 
+   /**
+    * Builds a runtime scene from parsed scene data.
+    *
+    * @param descriptor parsed scene descriptor
+    * @return runtime scene
+    */
    static Scene build(SceneDescriptor descriptor) {
       Scene scene = new Scene(descriptor.name)
          .setBackground(descriptor.background)

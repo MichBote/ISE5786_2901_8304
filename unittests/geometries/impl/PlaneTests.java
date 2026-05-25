@@ -35,6 +35,13 @@ class PlaneTests {
     /** Error message for wrong plane intersection */
     private static final String ERROR_PLANE_INTERSECTION = "ERROR: wrong Plane intersection result";
 
+    /**
+     * Asserts that two points are equal within the test tolerance.
+     *
+     * @param expected expected point
+     * @param actual actual point
+     * @param message assertion message
+     */
     private static void assertPointEquals(Point expected, Point actual, String message) {
         assertEquals(0d, expected.distance(actual), DELTA, message);
     }

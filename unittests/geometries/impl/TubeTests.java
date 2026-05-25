@@ -32,11 +32,24 @@ class TubeTests {
     /** Error message for wrong tube intersection */
     private static final String ERROR_TUBE_INTERSECTION = "ERROR: wrong Tube intersection result";
 
-    /** Delta for point comparisons */
+    /**
+     * Asserts that two points are equal within the test tolerance.
+     *
+     * @param expected expected point
+     * @param actual actual point
+     * @param message assertion message
+     */
     private static void assertPointEquals(Point expected, Point actual, String message) {
         assertEquals(0d, expected.distance(actual), DELTA, message);
     }
 
+    /**
+     * Asserts the expected number of intersection points.
+     *
+     * @param result actual intersection list
+     * @param expectedCount expected number of intersections
+     * @param message assertion message
+     */
     private static void assertIntersectionsCount(List<Point> result, int expectedCount, String message) {
         if (expectedCount == 0) {
             assertNull(result, message);
@@ -46,11 +59,19 @@ class TubeTests {
         }
     }
 
+    /**
+     * Creates the tube shared by tube tests.
+     *
+     * @return test tube
+     */
     private static Tube createTestTube() {
         Ray axis = new Ray(new Point(1, 2, 3), new Vector(0, 0, 1));
         return new Tube(1d, axis);
     }
 
+    /**
+     * Test method for {@link Tube#getNormal(Point)}.
+     */
     @Test
     void testGetNormal() {
         // ============ Equivalence Partitions Tests ==============

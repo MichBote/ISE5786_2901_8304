@@ -98,6 +98,16 @@ public final class Cylinder extends Tube {
         return intersections;
     }
 
+    /**
+     * Adds an intersection with one cylinder cap when the ray hits the cap disk.
+     *
+     * @param intersections current intersection list, or {@code null}
+     * @param ray ray to test
+     * @param center cap center
+     * @param normal cap normal
+     * @param nv dot product between cap normal and ray direction
+     * @return updated intersection list, or the original list when there is no cap hit
+     */
     private List<Point> addCapIntersection(List<Point> intersections, Ray ray, Point center, Vector normal, double nv) {
         if (center.equals(ray.origin())) return intersections;
 
@@ -111,6 +121,13 @@ public final class Cylinder extends Tube {
         return addUnique(intersections, p);
     }
 
+    /**
+     * Adds a point to the list unless an equivalent point is already present.
+     *
+     * @param intersections current intersection list, or {@code null}
+     * @param p point to add
+     * @return updated intersection list
+     */
     private static List<Point> addUnique(List<Point> intersections, Point p) {
         if (intersections == null) {
             intersections = new ArrayList<>();

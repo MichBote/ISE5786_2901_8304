@@ -27,6 +27,9 @@ class ImageWriterTests {
    /** Grid color (choose high contrast). */
    private static final Color GRID_COLOR       = new Color(255, 0, 0);
 
+   /**
+    * Tests writing a colored grid image.
+    */
    @Test
    void testImageWriter() {
       ImageWriter imageWriter = new ImageWriter(IMAGE_WIDTH, IMAGE_HEIGHT);

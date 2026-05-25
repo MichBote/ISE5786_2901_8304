@@ -12,6 +12,7 @@ import scene.Scene;
  * </p>
  */
 public final class SceneLoader {
+   /** Utility class constructor. */
    private SceneLoader() { }
 
    /**

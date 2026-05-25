@@ -33,10 +33,24 @@ class CylinderTests {
     /** Error message for wrong cylinder intersection */
     private static final String ERROR_CYLINDER_INTERSECTION = "ERROR: wrong Cylinder intersection result";
 
+    /**
+     * Asserts that two points are equal within the test tolerance.
+     *
+     * @param expected expected point
+     * @param actual actual point
+     * @param message assertion message
+     */
     private static void assertPointEquals(Point expected, Point actual, String message) {
         assertEquals(0d, expected.distance(actual), DELTA, message);
     }
 
+    /**
+     * Asserts the expected number of intersection points.
+     *
+     * @param result actual intersection list
+     * @param expectedCount expected number of intersections
+     * @param message assertion message
+     */
     private static void assertIntersectionsCount(List<Point> result, int expectedCount, String message) {
         if (expectedCount == 0) {
             assertNull(result, message);
@@ -46,6 +60,11 @@ class CylinderTests {
         }
     }
 
+    /**
+     * Creates the cylinder shared by cylinder tests.
+     *
+     * @return test cylinder
+     */
     private static Cylinder createTestCylinder() {
         Ray axis = new Ray(new Point(1, 2, 3), new Vector(0, 0, 1));
         return new Cylinder(1d, axis, 2d);
