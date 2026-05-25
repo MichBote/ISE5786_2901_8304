@@ -2,15 +2,16 @@ package renderer;
 
 import java.util.List;
 
+import geometries.api.Intersectable.Intersection;
 import primitives.Color;
-import primitives.Point;
 import primitives.Ray;
 import scene.Scene;
 
 /**
  * A basic ray tracer implementation.
  * <p>
- * At this stage, the color is determined solely by ambient light.
+ * At this stage, the color is determined by geometry emission and attenuated
+ * ambient light.
  * </p>
  */
 class SimpleRayTracer extends RayTracerBase {
@@ -26,22 +27,45 @@ class SimpleRayTracer extends RayTracerBase {
 
    @Override
    Color traceRay(Ray ray) {
-      List<Point> intersections = _scene.geometries.findIntersections(ray);
+      List<Intersection> intersections = _scene.geometries.calcIntersections(ray);
       if (intersections == null) {
          return _scene.background;
       }
 
-      Point closest = ray.findClosestPoint(intersections);
+      Intersection closest = findClosestIntersection(ray, intersections);
       return calcColor(closest);
    }
 
    /**
     * Computes the color at an intersection point.
     *
-    * @param intersection intersection point
+    * @param intersection geometry-aware intersection point
     * @return computed color
     */
-   private Color calcColor(Point intersection) {
-      return _scene.ambientLight.getIntensity();
+   private Color calcColor(Intersection intersection) {
+      return intersection.geometry.getEmission()
+         .add(_scene.ambientLight.getIntensity().scale(intersection.material.kA));
+   }
+
+   /**
+    * Finds the closest geometry-aware intersection point to the ray origin.
+    *
+    * @param ray source ray
+    * @param intersections geometry-aware intersection points
+    * @return closest geometry-aware point
+    */
+   private Intersection findClosestIntersection(Ray ray, List<Intersection> intersections) {
+      Intersection closest = null;
+      double closestDistance = Double.POSITIVE_INFINITY;
+
+      for (Intersection intersection : intersections) {
+         double distance = intersection.point.distanceSquared(ray.origin());
+         if (distance < closestDistance) {
+            closestDistance = distance;
+            closest = intersection;
+         }
+      }
+
+      return closest;
    }
 }

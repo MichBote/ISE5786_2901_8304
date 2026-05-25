@@ -53,4 +53,19 @@ public final class Geometries extends Intersectable {
         }
         return intersections;
     }
+
+    @Override
+    public List<Intersection> calcIntersections(Ray ray) {
+        List<Intersection> intersections = null;
+        for (var geometry : geometries) {
+            var points = geometry.calcIntersections(ray);
+            if (points != null) {
+                if (intersections == null) {
+                    intersections = new ArrayList<>();
+                }
+                intersections.addAll(points);
+            }
+        }
+        return intersections;
+    }
 }
