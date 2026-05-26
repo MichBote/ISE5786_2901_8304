@@ -61,8 +61,32 @@ class TriangleTests {
 
         Vector e1 = new Point(1, 0, 0).subtract(new Point(0, 0, 1));
         Vector e2 = new Point(0, 1, 0).subtract(new Point(0, 0, 1));
+        Vector e3 = new Point(0, 1, 0).subtract(new Point(1, 0, 0));
         assertEquals(0d, n.dotProduct(e1), DELTA, ERROR_TRIANGLE);
         assertEquals(0d, n.dotProduct(e2), DELTA, ERROR_TRIANGLE);
+        assertEquals(0d, n.dotProduct(e3), DELTA, ERROR_TRIANGLE);
+    }
+
+    /**
+     * Test method for constructor {@link Triangle#Triangle(Point, Point, Point)}.
+     */
+    @Test
+    void testConstructor() {
+        // ============ Equivalence Partitions Tests ==============
+        // EP01: Three non-collinear points
+        assertDoesNotThrow(() -> new Triangle(new Point(0, 0, 1), new Point(1, 0, 0), new Point(0, 1, 0)),
+                ERROR_TRIANGLE);
+
+        // =============== Boundary Values Tests ==================
+        // BV01: Two points coincide
+        assertThrows(IllegalArgumentException.class,
+                () -> new Triangle(new Point(0, 0, 1), new Point(0, 0, 1), new Point(0, 1, 0)),
+                ERROR_TRIANGLE);
+
+        // BV02: Three points are collinear
+        assertThrows(IllegalArgumentException.class,
+                () -> new Triangle(new Point(0, 0, 1), new Point(1, 1, 1), new Point(2, 2, 1)),
+                ERROR_TRIANGLE);
     }
 
     /**
@@ -139,6 +163,19 @@ class TriangleTests {
             var result = triangle.findIntersections(ray);
             assertNull(result, ERROR_TRIANGLE_INTERSECTION);
         }
+
+        // BV07: Ray points away from the triangle plane (0 points)
+        {
+            Ray ray = new Ray(new Point(1, 1.5, 2), new Vector(0, 0, 1));
+            var result = triangle.findIntersections(ray);
+            assertNull(result, ERROR_TRIANGLE_INTERSECTION);
+        }
+
+        // BV08: Ray begins at a triangle vertex (0 points)
+        {
+            Ray ray = new Ray(new Point(1, 0, 1), new Vector(0, 0, 1));
+            var result = triangle.findIntersections(ray);
+            assertNull(result, ERROR_TRIANGLE_INTERSECTION);
+        }
     }
 }
-
