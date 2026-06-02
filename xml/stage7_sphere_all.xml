@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scene background-color="0 0 0">
+	<ambient-light color="30 30 30" />
+	<geometries>
+		<sphere center="0 0 -50" radius="50" emission="0 0 127.5" kD="0.5" kS="0.5" nShininess="301" />
+	</geometries>
+	<lights>
+		<directional-light intensity="300 200 100" direction="1 -1 -1" />
+		<point-light intensity="500 200 200" position="-50 -50 25" kl="0.001" kq="0.0002" />
+		<spot-light intensity="200 500 200" position="50 50 50" direction="-1 -1 -1" kl="0.001" kq="0.0001" />
+	</lights>
+</scene>

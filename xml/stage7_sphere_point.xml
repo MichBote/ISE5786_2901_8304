@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scene background-color="0 0 0">
+	<geometries>
+		<sphere center="0 0 -50" radius="50" emission="0 0 127.5" kD="0.5" kS="0.5" nShininess="301" />
+	</geometries>
+	<lights>
+		<point-light intensity="800 500 0" position="-50 -50 25" kl="0.001" kq="0.0002" />
+	</lights>
+</scene>

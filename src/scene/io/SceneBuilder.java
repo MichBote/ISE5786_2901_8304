@@ -4,6 +4,9 @@ import geometries.impl.Geometries;
 import geometries.impl.Sphere;
 import geometries.impl.Triangle;
 import lighting.AmbientLight;
+import lighting.DirectionalLight;
+import lighting.PointLight;
+import lighting.SpotLight;
 import primitives.Material;
 import scene.Scene;
 
@@ -32,22 +35,52 @@ final class SceneBuilder {
             if (sphere.emission() != null) {
                s.setEmission(sphere.emission());
             }
-            if (sphere.kA() != null) {
-               s.setMaterial(new Material().setKA(sphere.kA()));
-            }
+            applyMaterial(s, sphere.kA(), sphere.kD(), sphere.kS(), sphere.nShininess());
             scene.geometries.add(s);
          } else if (geometry instanceof TriangleDescriptor triangle) {
             Triangle t = new Triangle(triangle.p0(), triangle.p1(), triangle.p2());
             if (triangle.emission() != null) {
                t.setEmission(triangle.emission());
             }
-            if (triangle.kA() != null) {
-               t.setMaterial(new Material().setKA(triangle.kA()));
-            }
+            applyMaterial(t, triangle.kA(), triangle.kD(), triangle.kS(), triangle.nShininess());
             scene.geometries.add(t);
          }
       }
 
+      for (LightDescriptor light : descriptor.lights) {
+         if (light instanceof DirectionalLightDescriptor dl) {
+            scene.lights.add(new DirectionalLight(dl.intensity(), dl.direction()));
+         } else if (light instanceof PointLightDescriptor pl) {
+            PointLight pointLight = new PointLight(pl.intensity(), pl.position());
+            if (pl.kC() != null) pointLight.setKc(pl.kC());
+            if (pl.kL() != null) pointLight.setKl(pl.kL());
+            if (pl.kQ() != null) pointLight.setKq(pl.kQ());
+            scene.lights.add(pointLight);
+         } else if (light instanceof SpotLightDescriptor sl) {
+            SpotLight spotLight = new SpotLight(sl.intensity(), sl.position(), sl.direction());
+            if (sl.kC() != null) spotLight.setKc(sl.kC());
+            if (sl.kL() != null) spotLight.setKl(sl.kL());
+            if (sl.kQ() != null) spotLight.setKq(sl.kQ());
+            if (sl.narrowBeam() != null) spotLight.setNarrowBeam(sl.narrowBeam());
+            scene.lights.add(spotLight);
+         }
+      }
+
       return scene;
+   }
+
+   private static void applyMaterial(geometries.api.Geometry geometry,
+                                    primitives.Double3 kA,
+                                    primitives.Double3 kD,
+                                    primitives.Double3 kS,
+                                    Integer nShininess) {
+      if (kA == null && kD == null && kS == null && nShininess == null) return;
+
+      Material material = new Material();
+      if (kA != null) material.setKA(kA);
+      if (kD != null) material.setKD(kD);
+      if (kS != null) material.setKS(kS);
+      if (nShininess != null) material.setShininess(nShininess);
+      geometry.setMaterial(material);
    }
 }

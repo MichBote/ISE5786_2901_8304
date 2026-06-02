@@ -20,6 +20,7 @@ import org.xml.sax.SAXException;
 import primitives.Color;
 import primitives.Double3;
 import primitives.Point;
+import primitives.Vector;
 
 /**
  * XML parser that reads a scene definition into a {@link SceneDescriptor}.
@@ -71,7 +72,28 @@ final class XmlSceneParser {
          }
       }
 
-      return new SceneDescriptor(name, background, ambientColor, geometryDescriptors);
+      List<LightDescriptor> lightDescriptors = new ArrayList<>();
+      NodeList lightsNodes = sceneElement.getElementsByTagName("lights");
+      if (lightsNodes.getLength() > 0) {
+         Element lightsElement = (Element) lightsNodes.item(0);
+         NodeList children = lightsElement.getChildNodes();
+         for (int i = 0; i < children.getLength(); i++) {
+            Node node = children.item(i);
+            if (node.getNodeType() != Node.ELEMENT_NODE) continue;
+
+            Element element = (Element) node;
+            switch (element.getTagName()) {
+               case "directional-light" -> lightDescriptors.add(parseDirectionalLight(element));
+               case "point-light" -> lightDescriptors.add(parsePointLight(element));
+               case "spot-light" -> lightDescriptors.add(parseSpotLight(element));
+               default -> {
+                  // ignore unknown light types for forward compatibility
+               }
+            }
+         }
+      }
+
+      return new SceneDescriptor(name, background, ambientColor, geometryDescriptors, lightDescriptors);
    }
 
    /**
@@ -113,7 +135,10 @@ final class XmlSceneParser {
       double radius = parseDoubleAttribute(sphereElement, "radius");
       Color emission = parseColorAttribute(sphereElement, "emission", null);
       Double3 kA = parseDouble3Attribute(sphereElement, "kA");
-      return new SphereDescriptor(center, radius, emission, kA);
+      Double3 kD = parseDouble3Attribute(sphereElement, "kD");
+      Double3 kS = parseDouble3Attribute(sphereElement, "kS");
+      Integer nShininess = parseIntAttribute(sphereElement, "nShininess");
+      return new SphereDescriptor(center, radius, emission, kA, kD, kS, nShininess);
    }
 
    /**
@@ -128,7 +153,36 @@ final class XmlSceneParser {
       Point p2 = parsePointAttribute(triangleElement, "p2");
       Color emission = parseColorAttribute(triangleElement, "emission", null);
       Double3 kA = parseDouble3Attribute(triangleElement, "kA");
-      return new TriangleDescriptor(p0, p1, p2, emission, kA);
+      Double3 kD = parseDouble3Attribute(triangleElement, "kD");
+      Double3 kS = parseDouble3Attribute(triangleElement, "kS");
+      Integer nShininess = parseIntAttribute(triangleElement, "nShininess");
+      return new TriangleDescriptor(p0, p1, p2, emission, kA, kD, kS, nShininess);
+   }
+
+   private static DirectionalLightDescriptor parseDirectionalLight(Element element) {
+      Color intensity = parseColorAttribute(element, "intensity", Color.BLACK);
+      Vector direction = parseVectorAttribute(element, "direction");
+      return new DirectionalLightDescriptor(intensity, direction);
+   }
+
+   private static PointLightDescriptor parsePointLight(Element element) {
+      Color intensity = parseColorAttribute(element, "intensity", Color.BLACK);
+      Point position = parsePointAttribute(element, "position");
+      Double kC = parseDoubleOptionalAttribute(element, "kC", "kc");
+      Double kL = parseDoubleOptionalAttribute(element, "kL", "kl");
+      Double kQ = parseDoubleOptionalAttribute(element, "kQ", "kq");
+      return new PointLightDescriptor(intensity, position, kC, kL, kQ);
+   }
+
+   private static SpotLightDescriptor parseSpotLight(Element element) {
+      Color intensity = parseColorAttribute(element, "intensity", Color.BLACK);
+      Point position = parsePointAttribute(element, "position");
+      Vector direction = parseVectorAttribute(element, "direction");
+      Double kC = parseDoubleOptionalAttribute(element, "kC", "kc");
+      Double kL = parseDoubleOptionalAttribute(element, "kL", "kl");
+      Double kQ = parseDoubleOptionalAttribute(element, "kQ", "kq");
+      Integer narrowBeam = parseIntAttribute(element, "narrowBeam");
+      return new SpotLightDescriptor(intensity, position, direction, kC, kL, kQ, narrowBeam);
    }
 
    /**
@@ -161,6 +215,39 @@ final class XmlSceneParser {
       throw new IllegalArgumentException(
          "Expected 1 or 3 numbers for Double3 attribute '" + attributeName + "' but got: " + value
       );
+   }
+
+   private static Integer parseIntAttribute(Element element, String attributeName) {
+      String value = element.getAttribute(attributeName);
+      if (value == null || value.isBlank()) {
+         return null;
+      }
+      return Integer.parseInt(value.trim());
+   }
+
+   private static Double parseDoubleOptionalAttribute(Element element, String... attributeNames) {
+      for (String name : attributeNames) {
+         String value = element.getAttribute(name);
+         if (value != null && !value.isBlank()) {
+            return Double.parseDouble(value.trim());
+         }
+      }
+      return null;
+   }
+
+   private static Vector parseVectorAttribute(Element element, String attributeName) {
+      String value = element.getAttribute(attributeName);
+      if (value == null || value.isBlank()) {
+         throw new IllegalArgumentException(
+            "Missing attribute '" + attributeName + "' in <" + element.getTagName() + "> element"
+         );
+      }
+
+      String[] parts = value.trim().split("\\s+");
+      if (parts.length != 3) {
+         throw new IllegalArgumentException("Expected 3 numbers for vector attribute '" + attributeName + "' but got: " + value);
+      }
+      return new Vector(Double.parseDouble(parts[0]), Double.parseDouble(parts[1]), Double.parseDouble(parts[2]));
    }
 
    /**
