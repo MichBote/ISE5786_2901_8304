@@ -159,12 +159,24 @@ final class XmlSceneParser {
       return new TriangleDescriptor(p0, p1, p2, emission, kA, kD, kS, nShininess);
    }
 
+   /**
+    * Parses a directional-light element.
+    *
+    * @param element directional-light XML element
+    * @return parsed directional-light descriptor
+    */
    private static DirectionalLightDescriptor parseDirectionalLight(Element element) {
       Color intensity = parseColorAttribute(element, "intensity", Color.BLACK);
       Vector direction = parseVectorAttribute(element, "direction");
       return new DirectionalLightDescriptor(intensity, direction);
    }
 
+   /**
+    * Parses a point-light element.
+    *
+    * @param element point-light XML element
+    * @return parsed point-light descriptor
+    */
    private static PointLightDescriptor parsePointLight(Element element) {
       Color intensity = parseColorAttribute(element, "intensity", Color.BLACK);
       Point position = parsePointAttribute(element, "position");
@@ -174,6 +186,12 @@ final class XmlSceneParser {
       return new PointLightDescriptor(intensity, position, kC, kL, kQ);
    }
 
+   /**
+    * Parses a spot-light element.
+    *
+    * @param element spot-light XML element
+    * @return parsed spot-light descriptor
+    */
    private static SpotLightDescriptor parseSpotLight(Element element) {
       Color intensity = parseColorAttribute(element, "intensity", Color.BLACK);
       Point position = parsePointAttribute(element, "position");
@@ -217,6 +235,13 @@ final class XmlSceneParser {
       );
    }
 
+   /**
+    * Parses an optional integer attribute.
+    *
+    * @param element XML element containing the attribute
+    * @param attributeName attribute name
+    * @return parsed integer, or {@code null} if the attribute is missing
+    */
    private static Integer parseIntAttribute(Element element, String attributeName) {
       String value = element.getAttribute(attributeName);
       if (value == null || value.isBlank()) {
@@ -225,6 +250,13 @@ final class XmlSceneParser {
       return Integer.parseInt(value.trim());
    }
 
+   /**
+    * Parses the first available optional double attribute.
+    *
+    * @param element XML element containing the attribute
+    * @param attributeNames accepted attribute names
+    * @return parsed double, or {@code null} if no accepted attribute is present
+    */
    private static Double parseDoubleOptionalAttribute(Element element, String... attributeNames) {
       for (String name : attributeNames) {
          String value = element.getAttribute(name);
@@ -235,6 +267,13 @@ final class XmlSceneParser {
       return null;
    }
 
+   /**
+    * Parses a required vector attribute.
+    *
+    * @param element XML element containing the attribute
+    * @param attributeName attribute name
+    * @return parsed vector
+    */
    private static Vector parseVectorAttribute(Element element, String attributeName) {
       String value = element.getAttribute(attributeName);
       if (value == null || value.isBlank()) {

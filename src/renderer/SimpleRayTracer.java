@@ -37,7 +37,7 @@ class SimpleRayTracer extends RayTracerBase {
       }
 
       Intersection closest = ray.findClosestIntersection(intersections);
-      return calcColor(closest, ray.direction());
+      return preprocessIntersection(closest, ray) ? calcColor(closest) : Color.BLACK;
    }
 
    /**
@@ -46,23 +46,22 @@ class SimpleRayTracer extends RayTracerBase {
     * @param intersection geometry-aware intersection point
     * @return computed color
     */
-   private Color calcColor(Intersection intersection, Vector v) {
-      if (!preprocessIntersection(intersection, v)) {
-         return Color.BLACK;
-      }
-
+   private Color calcColor(Intersection intersection) {
       return _scene.ambientLight.getIntensity().scale(intersection.material.kA)
          .add(calcLocalEffects(intersection));
    }
 
    /**
     * Calculates local lighting effects (emission + diffuse + specular) from all external lights.
+    *
+    * @param intersection geometry-aware intersection point
+    * @return local lighting color
     */
    private Color calcLocalEffects(Intersection intersection) {
       Color color = intersection.geometry.getEmission();
 
       for (var lightSource : _scene.lights) {
-         if (!preprocessLightSource(intersection, lightSource)) continue;
+         if (!setLightSource(intersection, lightSource)) continue;
 
          Color lightIntensity = lightSource.getIntensity(intersection.point);
          Double3 factor = calcDiffuse(intersection).add(calcSpecular(intersection));
@@ -74,22 +73,28 @@ class SimpleRayTracer extends RayTracerBase {
 
    /**
     * Computes the diffuse reflection factor (kD * |l·n|).
+    *
+    * @param intersection geometry-aware intersection point
+    * @return diffuse reflection factor
     */
    private Double3 calcDiffuse(Intersection intersection) {
-      double ln = intersection.lNormal;
+      double ln = intersection.nl;
       double factor = ln < 0 ? -ln : ln;
       return intersection.material.kD.scale(factor);
    }
 
    /**
     * Computes the specular reflection factor (kS * (max(0, -v·r))^nShininess).
+    *
+    * @param intersection geometry-aware intersection point
+    * @return specular reflection factor
     */
    private Double3 calcSpecular(Intersection intersection) {
       // r = reflection of the incident direction (-l) around the normal
       Vector r;
       try {
          r = intersection.l.scale(-1)
-            .add(intersection.normal.scale(2d * intersection.lNormal));
+            .add(intersection.normal.scale(2d * intersection.nl));
       } catch (IllegalArgumentException ex) {
          return Double3.ZERO;
       }

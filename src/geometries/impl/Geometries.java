@@ -38,6 +38,12 @@ public final class Geometries extends Intersectable {
         this.geometries.addAll(List.of(geometries));
     }
 
+    /**
+     * Aggregates geometry-aware intersections from all contained objects.
+     *
+     * @param ray the intersecting ray
+     * @return a list of geometry-point pairs, or {@code null} if there are none
+     */
     @Override
     protected List<Intersection> calcIntersectionsHelper(Ray ray) {
         List<Intersection> intersections = null;

@@ -9,17 +9,20 @@ import primitives.Color;
 import primitives.Point;
 import primitives.Vector;
 
+/** Unit tests for {@link DirectionalLight}. */
 @SuppressWarnings("java:S109")
 class DirectionalLightTests {
    /** Default constructor to satisfy JavaDoc generator */
    DirectionalLightTests() { /* to satisfy JavaDoc generator */ }
 
+   /** Verifies the constant normalized light direction. */
    @Test
    void testGetL() {
       DirectionalLight light = new DirectionalLight(new Color(10, 20, 30), new Vector(1, -1, -1));
       assertEquals(new Vector(1, -1, -1).normalize(), light.getL(new Point(1, 2, 3)));
    }
 
+   /** Verifies that directional-light intensity is constant. */
    @Test
    void testGetIntensity() {
       Color intensity = new Color(10, 20, 30);

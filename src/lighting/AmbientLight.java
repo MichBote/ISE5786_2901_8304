@@ -9,7 +9,7 @@ import primitives.Color;
  * At this stage it is represented only by its intensity color.
  * </p>
  */
-public class AmbientLight extends Light {
+public final class AmbientLight extends Light {
    /** Constant representing no ambient light (black). */
    public static final AmbientLight NONE = new AmbientLight(Color.BLACK);
 

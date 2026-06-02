@@ -45,12 +45,14 @@ class RenderStage6XmlTests {
          .writeToImage(fileName);
    }
 
+   /** Renders an XML scene with geometry emission. */
    @Test
    void testRenderEmissionColorFromXml() {
       Scene scene = SceneLoader.loadFromXml("stage6Emission");
       createImage(scene, "emission render test xml");
    }
 
+   /** Renders an XML scene with ambient light. */
    @Test
    void testRenderAmbientColorFromXml() {
       Scene scene = SceneLoader.loadFromXml("stage6Ambient");

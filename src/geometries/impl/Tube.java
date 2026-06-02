@@ -46,6 +46,12 @@ public class Tube extends RadialGeometry {
         return point.subtract(o).normalize();
     }
 
+    /**
+     * Calculates intersections between the ray and this tube.
+     *
+     * @param ray ray to intersect with the tube
+     * @return geometry-aware intersections, or {@code null} if there are none
+     */
     @Override
     protected List<Intersection> calcIntersectionsHelper(Ray ray) {
         Point p0 = ray.origin();

@@ -13,9 +13,11 @@ public class PointLight extends Light implements LightSource {
    /** Light position. */
    private final Point _position;
 
-   /** Attenuation factors. */
+   /** Constant attenuation factor. */
    private double _kC = 1d;
+   /** Linear attenuation factor. */
    private double _kL = 0d;
+   /** Quadratic attenuation factor. */
    private double _kQ = 0d;
 
    /**
@@ -29,35 +31,65 @@ public class PointLight extends Light implements LightSource {
       _position = position;
    }
 
-   /** Chained setter for kC. */
+   /**
+    * Sets the constant attenuation factor.
+    *
+    * @param kC constant attenuation factor
+    * @return this point light, for chaining
+    */
    public PointLight setKC(double kC) {
       _kC = kC;
       return this;
    }
 
-   /** Chained setter for kC (legacy naming used by some provided tests). */
+   /**
+    * Sets the constant attenuation factor using the legacy method name.
+    *
+    * @param kC constant attenuation factor
+    * @return this point light, for chaining
+    */
    public PointLight setKc(double kC) {
       return setKC(kC);
    }
 
-   /** Chained setter for kL. */
+   /**
+    * Sets the linear attenuation factor.
+    *
+    * @param kL linear attenuation factor
+    * @return this point light, for chaining
+    */
    public PointLight setKL(double kL) {
       _kL = kL;
       return this;
    }
 
-   /** Chained setter for kL (legacy naming used by some provided tests). */
+   /**
+    * Sets the linear attenuation factor using the legacy method name.
+    *
+    * @param kL linear attenuation factor
+    * @return this point light, for chaining
+    */
    public PointLight setKl(double kL) {
       return setKL(kL);
    }
 
-   /** Chained setter for kQ. */
+   /**
+    * Sets the quadratic attenuation factor.
+    *
+    * @param kQ quadratic attenuation factor
+    * @return this point light, for chaining
+    */
    public PointLight setKQ(double kQ) {
       _kQ = kQ;
       return this;
    }
 
-   /** Chained setter for kQ (legacy naming used by some provided tests). */
+   /**
+    * Sets the quadratic attenuation factor using the legacy method name.
+    *
+    * @param kQ quadratic attenuation factor
+    * @return this point light, for chaining
+    */
    public PointLight setKq(double kQ) {
       return setKQ(kQ);
    }

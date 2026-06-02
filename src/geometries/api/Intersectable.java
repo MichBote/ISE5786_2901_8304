@@ -5,10 +5,7 @@ import primitives.Ray;
 import primitives.Material;
 import primitives.Vector;
 
-import lighting.LightSource;
-
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Base abstract class for all intersectable geometric objects.
@@ -31,19 +28,16 @@ public abstract class Intersectable {
         public final Point point;
         /** Material of the intersected geometry. */
         public final Material material;
-
-        /** Surface normal at the intersection point (computed cache). */
-        public Vector normal;
-        /** Viewer direction vector (computed cache). */
+        /** Surface normal at the intersection point. */
+        public final Vector normal;
+        /** Viewer direction vector. */
         public Vector v;
-        /** Dot product between v and normal (computed cache). */
-        public double vNormal;
-        /** Current light source (computed cache). */
-        public LightSource light;
-        /** Light direction vector from light source to the point (computed cache). */
+        /** Dot product between viewer direction and normal. */
+        public double nv;
+        /** Current light direction vector. */
         public Vector l;
-        /** Dot product between l and normal (computed cache). */
-        public double lNormal;
+        /** Dot product between light direction and normal. */
+        public double nl;
 
         /**
          * Constructs a geometry-point pair.
@@ -55,24 +49,12 @@ public abstract class Intersectable {
             this.geometry = geometry;
             this.point = point;
             this.material = geometry == null ? new Material() : geometry.getMaterial();
+            this.normal = geometry == null ? null : geometry.getNormal(point);
         }
 
         @Override
         public String toString() {
             return "Intersection(geometry=" + geometry + ", point=" + point + ")";
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (obj == null || getClass() != obj.getClass()) return false;
-            Intersection other = (Intersection) obj;
-            return geometry == other.geometry && Objects.equals(point, other.point);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(System.identityHashCode(geometry), point);
         }
     }
 
@@ -103,17 +85,12 @@ public abstract class Intersectable {
      * @param ray the intersecting ray
      * @return a list of geometry-point pairs, or {@code null} if there are none
      */
-
     public final List<Intersection> calcIntersections(Ray ray) {
         return calcIntersectionsHelper(ray);
     }
 
     /**
-     * Calculates geometry-aware intersection points using the NVI pattern.
-     * <p>
-     * Concrete geometries implement this method; callers should always use
-     * {@link #calcIntersections(Ray)}.
-     * </p>
+     * Calculates geometry-aware intersection points.
      *
      * @param ray the intersecting ray
      * @return a list of geometry-point pairs, or {@code null} if there are none

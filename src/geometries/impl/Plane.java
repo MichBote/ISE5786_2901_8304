@@ -62,6 +62,12 @@ public final class Plane extends Geometry {
         return _normal;
     }
 
+    /**
+     * Calculates intersections between the ray and this plane.
+     *
+     * @param ray ray to intersect with the plane
+     * @return geometry-aware intersections, or {@code null} if there are none
+     */
     @Override
     protected List<Intersection> calcIntersectionsHelper(Ray ray) {
         Point p0 = ray.origin();

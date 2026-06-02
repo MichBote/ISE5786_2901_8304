@@ -51,20 +51,38 @@ class MultiLightsTests {
    /** Color of the sphere (copied from LightsTests) */
    private static final Color    SPHERE_COLOR              = new Color(BLUE).reduce(2);
 
+   /**
+    * Creates the sphere used by the combined-light test.
+    *
+    * @return a configured sphere for the combined-light test
+    */
    private static Geometry newSphere() {
       return new Sphere(SPHERE_CENTER, SPHERE_RADIUS)
          .setEmission(SPHERE_COLOR)
          .setMaterial(new Material().setKD(KD).setKS(KS).setShininess(SHININESS));
    }
 
+   /**
+    * Creates the first triangle used by the combined-light test.
+    *
+    * @param material triangle material
+    * @return the first configured triangle
+    */
    private static Geometry newTriangle1(Material material) {
       return new Triangle(VERTICES[0], VERTICES[1], VERTICES[2]).setMaterial(material);
    }
 
+   /**
+    * Creates the second triangle used by the combined-light test.
+    *
+    * @param material triangle material
+    * @return the second configured triangle
+    */
    private static Geometry newTriangle2(Material material) {
       return new Triangle(VERTICES[0], VERTICES[1], VERTICES[3]).setMaterial(material);
    }
 
+   /** Renders a sphere illuminated by all supported light types. */
    @Test
    void testSphereAllLights() {
       Scene scene = new Scene("Sphere - all lights")
@@ -90,6 +108,7 @@ class MultiLightsTests {
          .writeToImage("lightSphereAll");
    }
 
+   /** Renders triangles illuminated by all supported light types. */
    @Test
    void testTrianglesAllLights() {
       Scene scene = new Scene("Triangles - all lights")

@@ -41,6 +41,12 @@ public final class Sphere extends RadialGeometry {
         return point.subtract(_center).normalize();
     }
 
+    /**
+     * Calculates intersections between the ray and this sphere.
+     *
+     * @param ray ray to intersect with the sphere
+     * @return geometry-aware intersections, or {@code null} if there are none
+     */
     @Override
     protected List<Intersection> calcIntersectionsHelper(Ray ray) {
         Point p0 = ray.origin();

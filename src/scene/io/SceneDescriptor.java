@@ -27,6 +27,7 @@ final class SceneDescriptor {
     * @param background background color
     * @param ambientLight ambient light color
     * @param geometries parsed geometry descriptors
+    * @param lights parsed external light descriptors
     */
    SceneDescriptor(String name, Color background, Color ambientLight, List<GeometryDescriptor> geometries, List<LightDescriptor> lights) {
       this.name = name;

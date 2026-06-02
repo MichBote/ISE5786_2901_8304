@@ -10,7 +10,7 @@ import primitives.Vector;
  * Direction and intensity are constant for all points in the scene.
  * </p>
  */
-public class DirectionalLight extends Light implements LightSource {
+public final class DirectionalLight extends Light implements LightSource {
    /** Light direction (normalized). */
    private final Vector _direction;
 

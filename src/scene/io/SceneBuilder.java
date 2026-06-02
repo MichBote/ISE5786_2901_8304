@@ -69,6 +69,15 @@ final class SceneBuilder {
       return scene;
    }
 
+   /**
+    * Applies optional material values to a geometry.
+    *
+    * @param geometry geometry to update
+    * @param kA optional ambient attenuation factor
+    * @param kD optional diffuse attenuation factor
+    * @param kS optional specular attenuation factor
+    * @param nShininess optional shininess exponent
+    */
    private static void applyMaterial(geometries.api.Geometry geometry,
                                     primitives.Double3 kA,
                                     primitives.Double3 kD,

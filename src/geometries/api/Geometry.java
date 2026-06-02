@@ -73,6 +73,7 @@ public abstract class Geometry extends Intersectable {
      * @return the geometry normal at {@code point}
      */
     public abstract Vector getNormal(Point point);
+
 }
 
 

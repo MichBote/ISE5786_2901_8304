@@ -1,7 +1,6 @@
 package geometries.impl;
 
 import geometries.api.Geometry;
-import geometries.api.Intersectable.Intersection;
 import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
@@ -91,6 +90,12 @@ public class Polygon extends Geometry {
         return _plane.getNormal(point);
     }
 
+    /**
+     * Calculates intersections between the ray and this polygon.
+     *
+     * @param ray ray to intersect with the polygon
+     * @return geometry-aware intersections, or {@code null} if there are none
+     */
     @Override
     protected List<Intersection> calcIntersectionsHelper(Ray ray) {
         List<Point> planeIntersections = _plane.findIntersections(ray);
