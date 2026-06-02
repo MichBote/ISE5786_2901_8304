@@ -3,6 +3,9 @@ package geometries.api;
 import primitives.Point;
 import primitives.Ray;
 import primitives.Material;
+import primitives.Vector;
+
+import lighting.LightSource;
 
 import java.util.List;
 import java.util.Objects;
@@ -28,6 +31,19 @@ public abstract class Intersectable {
         public final Point point;
         /** Material of the intersected geometry. */
         public final Material material;
+
+        /** Surface normal at the intersection point (computed cache). */
+        public Vector normal;
+        /** Viewer direction vector (computed cache). */
+        public Vector v;
+        /** Dot product between v and normal (computed cache). */
+        public double vNormal;
+        /** Current light source (computed cache). */
+        public LightSource light;
+        /** Light direction vector from light source to the point (computed cache). */
+        public Vector l;
+        /** Dot product between l and normal (computed cache). */
+        public double lNormal;
 
         /**
          * Constructs a geometry-point pair.

@@ -11,6 +11,15 @@ public class Material {
    /** Ambient-light attenuation coefficient. */
    public Double3 kA = Double3.ONE;
 
+   /** Diffuse reflection coefficient (Phong). */
+   public Double3 kD = Double3.ZERO;
+
+   /** Specular reflection coefficient (Phong). */
+   public Double3 kS = Double3.ZERO;
+
+   /** Shininess factor (Phong). */
+   public int nShininess = 0;
+
    /**
     * Constructs material coefficients with default values.
     */
@@ -36,6 +45,61 @@ public class Material {
     */
    public Material setKA(Double3 kA) {
       this.kA = kA;
+      return this;
+   }
+
+   /**
+    * Sets a uniform diffuse reflection coefficient.
+    *
+    * @param kD diffuse coefficient
+    * @return this material, for chaining
+    */
+   public Material setKD(double kD) {
+      this.kD = new Double3(kD);
+      return this;
+   }
+
+   /**
+    * Sets a per-channel diffuse reflection coefficient.
+    *
+    * @param kD diffuse coefficient
+    * @return this material, for chaining
+    */
+   public Material setKD(Double3 kD) {
+      this.kD = kD;
+      return this;
+   }
+
+   /**
+    * Sets a uniform specular reflection coefficient.
+    *
+    * @param kS specular coefficient
+    * @return this material, for chaining
+    */
+   public Material setKS(double kS) {
+      this.kS = new Double3(kS);
+      return this;
+   }
+
+   /**
+    * Sets a per-channel specular reflection coefficient.
+    *
+    * @param kS specular coefficient
+    * @return this material, for chaining
+    */
+   public Material setKS(Double3 kS) {
+      this.kS = kS;
+      return this;
+   }
+
+   /**
+    * Sets the Phong shininess factor.
+    *
+    * @param nShininess shininess exponent
+    * @return this material, for chaining
+    */
+   public Material setShininess(int nShininess) {
+      this.nShininess = nShininess;
       return this;
    }
 }
