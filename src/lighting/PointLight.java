@@ -35,16 +35,31 @@ public class PointLight extends Light implements LightSource {
       return this;
    }
 
+   /** Chained setter for kC (legacy naming used by some provided tests). */
+   public PointLight setKc(double kC) {
+      return setKC(kC);
+   }
+
    /** Chained setter for kL. */
    public PointLight setKL(double kL) {
       _kL = kL;
       return this;
    }
 
+   /** Chained setter for kL (legacy naming used by some provided tests). */
+   public PointLight setKl(double kL) {
+      return setKL(kL);
+   }
+
    /** Chained setter for kQ. */
    public PointLight setKQ(double kQ) {
       _kQ = kQ;
       return this;
+   }
+
+   /** Chained setter for kQ (legacy naming used by some provided tests). */
+   public PointLight setKq(double kQ) {
+      return setKQ(kQ);
    }
 
    @Override

@@ -11,6 +11,9 @@ public class SpotLight extends PointLight {
    /** Spotlight direction (normalized). */
    private final Vector _direction;
 
+   /** Narrow-beam exponent (1 = regular spotlight). */
+   private int _narrowBeam = 1;
+
    /**
     * Constructs a spot light.
     *
@@ -30,8 +33,20 @@ public class SpotLight extends PointLight {
    }
 
    @Override
+   public SpotLight setKc(double kC) {
+      super.setKc(kC);
+      return this;
+   }
+
+   @Override
    public SpotLight setKL(double kL) {
       super.setKL(kL);
+      return this;
+   }
+
+   @Override
+   public SpotLight setKl(double kL) {
+      super.setKl(kL);
       return this;
    }
 
@@ -42,9 +57,29 @@ public class SpotLight extends PointLight {
    }
 
    @Override
+   public SpotLight setKq(double kQ) {
+      super.setKq(kQ);
+      return this;
+   }
+
+   /**
+    * Sets a narrow-beam exponent to concentrate the spotlight into a tighter cone.
+    *
+    * @param narrowBeam exponent (values <= 1 behave like a regular spotlight)
+    * @return this spotlight, for chaining
+    */
+   public SpotLight setNarrowBeam(int narrowBeam) {
+      _narrowBeam = narrowBeam;
+      return this;
+   }
+
+   @Override
    public Color getIntensity(Point p) {
       Vector l = getL(p);
       double factor = Math.max(0d, _direction.dotProduct(l));
+      if (_narrowBeam > 1) {
+         factor = Math.pow(factor, _narrowBeam);
+      }
       return super.getIntensity(p).scale(factor);
    }
 }
