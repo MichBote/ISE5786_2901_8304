@@ -5,6 +5,7 @@ import primitives.Ray;
 import primitives.Material;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Base abstract class for all intersectable geometric objects.
@@ -20,7 +21,7 @@ public abstract class Intersectable {
     /**
      * Geometry-point pair for intersections that must keep the intersected object.
      */
-    public static class Intersection {
+    public static final class Intersection {
         /** Intersected geometry. */
         public final Geometry geometry;
         /** Intersection point. */
@@ -37,7 +38,25 @@ public abstract class Intersectable {
         public Intersection(Geometry geometry, Point point) {
             this.geometry = geometry;
             this.point = point;
-            this.material = geometry.getMaterial();
+            this.material = geometry == null ? new Material() : geometry.getMaterial();
+        }
+
+        @Override
+        public String toString() {
+            return "Intersection(geometry=" + geometry + ", point=" + point + ")";
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (obj == null || getClass() != obj.getClass()) return false;
+            Intersection other = (Intersection) obj;
+            return geometry == other.geometry && Objects.equals(point, other.point);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(System.identityHashCode(geometry), point);
         }
     }
 
@@ -55,7 +74,12 @@ public abstract class Intersectable {
      * @param ray the intersecting ray
      * @return a list of intersection points, or {@code null} if there are none
      */
-    public abstract List<Point> findIntersections(Ray ray);
+    public final List<Point> findIntersections(Ray ray) {
+        var intersections = calcIntersections(ray);
+        return intersections == null
+            ? null
+            : intersections.stream().map(intersection -> intersection.point).toList();
+    }
 
     /**
      * Finds geometry-aware intersection points between a ray and this object.
@@ -63,7 +87,20 @@ public abstract class Intersectable {
      * @param ray the intersecting ray
      * @return a list of geometry-point pairs, or {@code null} if there are none
      */
-    public List<Intersection> calcIntersections(Ray ray) {
-        return null;
+
+    public final List<Intersection> calcIntersections(Ray ray) {
+        return calcIntersectionsHelper(ray);
     }
+
+    /**
+     * Calculates geometry-aware intersection points using the NVI pattern.
+     * <p>
+     * Concrete geometries implement this method; callers should always use
+     * {@link #calcIntersections(Ray)}.
+     * </p>
+     *
+     * @param ray the intersecting ray
+     * @return a list of geometry-point pairs, or {@code null} if there are none
+     */
+    protected abstract List<Intersection> calcIntersectionsHelper(Ray ray);
 }

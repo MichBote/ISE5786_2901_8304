@@ -1,6 +1,7 @@
 package geometries.impl;
 
 import geometries.api.Geometry;
+import geometries.api.Intersectable.Intersection;
 import primitives.Point;
 import primitives.Vector;
 import primitives.Ray;
@@ -62,7 +63,7 @@ public final class Plane extends Geometry {
     }
 
     @Override
-    public List<Point> findIntersections(Ray ray) {
+    protected List<Intersection> calcIntersectionsHelper(Ray ray) {
         Point p0 = ray.origin();
 
         // Ray starts at the plane reference point => intersection at t=0 (excluded)
@@ -78,7 +79,7 @@ public final class Plane extends Geometry {
         double t = alignZero(nQMinusP0 / nv);
 
         // intersection must be in the ray direction and must not include the origin
-        return t <= 0 ? null : List.of(ray.getPoint(t));
+        return t <= 0 ? null : List.of(new Intersection(this, ray.getPoint(t)));
     }
 
     @Override

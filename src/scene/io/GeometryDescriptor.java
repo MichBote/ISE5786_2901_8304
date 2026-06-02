@@ -1,5 +1,7 @@
 package scene.io;
 
+import primitives.Color;
+import primitives.Double3;
 import primitives.Point;
 
 /**
@@ -13,7 +15,7 @@ sealed interface GeometryDescriptor permits SphereDescriptor, TriangleDescriptor
  * @param center sphere center
  * @param radius sphere radius
  */
-record SphereDescriptor(Point center, double radius) implements GeometryDescriptor { }
+record SphereDescriptor(Point center, double radius, Color emission, Double3 kA) implements GeometryDescriptor { }
 
 /**
  * Parsed triangle definition.
@@ -22,4 +24,4 @@ record SphereDescriptor(Point center, double radius) implements GeometryDescript
  * @param p1 second triangle vertex
  * @param p2 third triangle vertex
  */
-record TriangleDescriptor(Point p0, Point p1, Point p2) implements GeometryDescriptor { }
+record TriangleDescriptor(Point p0, Point p1, Point p2, Color emission, Double3 kA) implements GeometryDescriptor { }

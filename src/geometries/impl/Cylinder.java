@@ -1,5 +1,6 @@
 package geometries.impl;
 
+import geometries.api.Intersectable.Intersection;
 import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
@@ -69,17 +70,19 @@ public final class Cylinder extends Tube {
     }
 
     @Override
-    public List<Point> findIntersections(Ray ray) {
+    protected List<Intersection> calcIntersectionsHelper(Ray ray) {
         Point pBase = _axis.origin();
         Vector va = _axis.direction();
         Point pTop = pBase.add(va.scale(_height));
 
-        List<Point> intersections = null;
+        List<Intersection> intersections = null;
 
         // ---- Lateral surface (infinite tube) intersections, filtered by height ----
-        List<Point> tubePoints = super.findIntersections(ray);
-        if (tubePoints != null) {
-            for (Point p : tubePoints) {
+        // Exception to the NVI rule: reuse the tube implementation directly
+        List<Intersection> tubeIntersections = super.calcIntersectionsHelper(ray);
+        if (tubeIntersections != null) {
+            for (Intersection intersection : tubeIntersections) {
+                Point p = intersection.point;
                 double s = alignZero(va.dotProduct(p.subtract(pBase)));
                 if (s < 0 || s > _height) continue;
                 intersections = addUnique(intersections, p);
@@ -94,7 +97,7 @@ public final class Cylinder extends Tube {
         }
 
         if (intersections == null) return null;
-        intersections.sort(Comparator.comparingDouble(p -> p.distanceSquared(ray.origin())));
+        intersections.sort(Comparator.comparingDouble(i -> i.point.distanceSquared(ray.origin())));
         return intersections;
     }
 
@@ -108,7 +111,7 @@ public final class Cylinder extends Tube {
      * @param nv dot product between cap normal and ray direction
      * @return updated intersection list, or the original list when there is no cap hit
      */
-    private List<Point> addCapIntersection(List<Point> intersections, Ray ray, Point center, Vector normal, double nv) {
+    private List<Intersection> addCapIntersection(List<Intersection> intersections, Ray ray, Point center, Vector normal, double nv) {
         if (center.equals(ray.origin())) return intersections;
 
         double numerator = normal.dotProduct(center.subtract(ray.origin()));
@@ -128,18 +131,18 @@ public final class Cylinder extends Tube {
      * @param p point to add
      * @return updated intersection list
      */
-    private static List<Point> addUnique(List<Point> intersections, Point p) {
+    private List<Intersection> addUnique(List<Intersection> intersections, Point p) {
         if (intersections == null) {
             intersections = new ArrayList<>();
-            intersections.add(p);
+            intersections.add(new Intersection(this, p));
             return intersections;
         }
 
         final double eps2 = UNIQUE_POINT_EPS * UNIQUE_POINT_EPS;
-        for (Point existing : intersections) {
-            if (existing.distanceSquared(p) <= eps2) return intersections;
+        for (Intersection existing : intersections) {
+            if (existing.point.distanceSquared(p) <= eps2) return intersections;
         }
-        intersections.add(p);
+        intersections.add(new Intersection(this, p));
         return intersections;
     }
 

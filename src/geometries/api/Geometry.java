@@ -3,10 +3,7 @@ package geometries.api;
 import primitives.Color;
 import primitives.Material;
 import primitives.Point;
-import primitives.Ray;
 import primitives.Vector;
-
-import java.util.List;
 
 /**
  * Base abstract class for all geometric shapes.
@@ -76,26 +73,6 @@ public abstract class Geometry extends Intersectable {
      * @return the geometry normal at {@code point}
      */
     public abstract Vector getNormal(Point point);
-
-    /**
-     * Finds intersection points between a ray and the geometry.
-     * <p>
-     * Concrete geometries should override this method.
-     * </p>
-     *
-     * @param ray the intersecting ray
-     * @return a list of intersection points, or {@code null} if there are none
-     */
-    @Override
-    public List<Point> findIntersections(Ray ray) {
-        return null;
-    }
-
-    @Override
-    public List<Intersection> calcIntersections(Ray ray) {
-        List<Point> intersections = findIntersections(ray);
-        return intersections == null ? null : intersections.stream().map(point -> new Intersection(this, point)).toList();
-    }
 }
 
 

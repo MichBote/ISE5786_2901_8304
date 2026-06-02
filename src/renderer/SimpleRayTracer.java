@@ -32,7 +32,7 @@ class SimpleRayTracer extends RayTracerBase {
          return _scene.background;
       }
 
-      Intersection closest = findClosestIntersection(ray, intersections);
+      Intersection closest = ray.findClosestIntersection(intersections);
       return calcColor(closest);
    }
 
@@ -47,25 +47,4 @@ class SimpleRayTracer extends RayTracerBase {
          .add(_scene.ambientLight.getIntensity().scale(intersection.material.kA));
    }
 
-   /**
-    * Finds the closest geometry-aware intersection point to the ray origin.
-    *
-    * @param ray source ray
-    * @param intersections geometry-aware intersection points
-    * @return closest geometry-aware point
-    */
-   private Intersection findClosestIntersection(Ray ray, List<Intersection> intersections) {
-      Intersection closest = null;
-      double closestDistance = Double.POSITIVE_INFINITY;
-
-      for (Intersection intersection : intersections) {
-         double distance = intersection.point.distanceSquared(ray.origin());
-         if (distance < closestDistance) {
-            closestDistance = distance;
-            closest = intersection;
-         }
-      }
-
-      return closest;
-   }
 }

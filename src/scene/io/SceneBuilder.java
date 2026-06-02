@@ -4,6 +4,7 @@ import geometries.impl.Geometries;
 import geometries.impl.Sphere;
 import geometries.impl.Triangle;
 import lighting.AmbientLight;
+import primitives.Material;
 import scene.Scene;
 
 /**
@@ -27,9 +28,23 @@ final class SceneBuilder {
 
       for (GeometryDescriptor geometry : descriptor.geometries) {
          if (geometry instanceof SphereDescriptor sphere) {
-            scene.geometries.add(new Sphere(sphere.center(), sphere.radius()));
+            Sphere s = new Sphere(sphere.center(), sphere.radius());
+            if (sphere.emission() != null) {
+               s.setEmission(sphere.emission());
+            }
+            if (sphere.kA() != null) {
+               s.setMaterial(new Material().setKA(sphere.kA()));
+            }
+            scene.geometries.add(s);
          } else if (geometry instanceof TriangleDescriptor triangle) {
-            scene.geometries.add(new Triangle(triangle.p0(), triangle.p1(), triangle.p2()));
+            Triangle t = new Triangle(triangle.p0(), triangle.p1(), triangle.p2());
+            if (triangle.emission() != null) {
+               t.setEmission(triangle.emission());
+            }
+            if (triangle.kA() != null) {
+               t.setMaterial(new Material().setKA(triangle.kA()));
+            }
+            scene.geometries.add(t);
          }
       }
 

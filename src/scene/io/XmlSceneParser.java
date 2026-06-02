@@ -18,6 +18,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import primitives.Color;
+import primitives.Double3;
 import primitives.Point;
 
 /**
@@ -110,7 +111,9 @@ final class XmlSceneParser {
    private static SphereDescriptor parseSphere(Element sphereElement) {
       Point center = parsePointAttribute(sphereElement, "center");
       double radius = parseDoubleAttribute(sphereElement, "radius");
-      return new SphereDescriptor(center, radius);
+      Color emission = parseColorAttribute(sphereElement, "emission", null);
+      Double3 kA = parseDouble3Attribute(sphereElement, "kA");
+      return new SphereDescriptor(center, radius, emission, kA);
    }
 
    /**
@@ -123,7 +126,41 @@ final class XmlSceneParser {
       Point p0 = parsePointAttribute(triangleElement, "p0");
       Point p1 = parsePointAttribute(triangleElement, "p1");
       Point p2 = parsePointAttribute(triangleElement, "p2");
-      return new TriangleDescriptor(p0, p1, p2);
+      Color emission = parseColorAttribute(triangleElement, "emission", null);
+      Double3 kA = parseDouble3Attribute(triangleElement, "kA");
+      return new TriangleDescriptor(p0, p1, p2, emission, kA);
+   }
+
+   /**
+    * Parses an optional Double3 attribute.
+    * <p>
+    * Accepts either one number (replicated to all components) or three numbers.
+    * </p>
+    *
+    * @param element XML element containing the attribute
+    * @param attributeName attribute name
+    * @return parsed Double3, or {@code null} if the attribute is missing
+    */
+   private static Double3 parseDouble3Attribute(Element element, String attributeName) {
+      String value = element.getAttribute(attributeName);
+      if (value == null || value.isBlank()) {
+         return null;
+      }
+
+      String[] parts = value.trim().split("\\s+");
+      if (parts.length == 1) {
+         return new Double3(Double.parseDouble(parts[0]));
+      }
+      if (parts.length == 3) {
+         return new Double3(
+            Double.parseDouble(parts[0]),
+            Double.parseDouble(parts[1]),
+            Double.parseDouble(parts[2])
+         );
+      }
+      throw new IllegalArgumentException(
+         "Expected 1 or 3 numbers for Double3 attribute '" + attributeName + "' but got: " + value
+      );
    }
 
    /**
