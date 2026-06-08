@@ -46,6 +46,7 @@ abstract class RayTracerBase {
     */
    protected boolean preprocessIntersection(Intersection intersection, Ray ray) {
       intersection.v = ray.direction();
+      intersection.normal = intersection.geometry.getNormal(intersection.point);
       intersection.nv = alignZero(intersection.normal.dotProduct(intersection.v));
       return intersection.nv != 0;
    }
@@ -62,6 +63,7 @@ abstract class RayTracerBase {
     * @return {@code true} if the light contributes to the intersection
     */
    protected boolean setLightSource(Intersection intersection, LightSource light) {
+      intersection.light = light;
       intersection.l = light.getL(intersection.point);
       intersection.nl = alignZero(intersection.normal.dotProduct(intersection.l));
       return intersection.nl * intersection.nv > 0;

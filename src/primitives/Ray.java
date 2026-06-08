@@ -2,10 +2,8 @@ package primitives;
 
 import geometries.api.Intersectable.Intersection;
 
-import static primitives.Util.isZero;
-
-import java.util.Objects;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Represents a ray (half-line) in 3D space.
@@ -72,7 +70,6 @@ public final class Ray {
      * @return point on the ray's line
      */
     public Point getPoint(double t) {
-        if (isZero(t)) return _origin;
         try {
             return _origin.add(_direction.scale(t));
         } catch (IllegalArgumentException ex) {
@@ -89,13 +86,13 @@ public final class Ray {
      *
      * @param points list of points (may be {@code null})
      * @return the closest point to the ray origin, or {@code null} if the list
-     *         is {@code null}
+     * is {@code null}
      */
     public Point findClosestPoint(List<Point> points) {
         if (points == null) return null;
 
         Intersection closest = findClosestIntersection(
-            points.stream().map(point -> new Intersection(null, point)).toList()
+                points.stream().map(point -> new Intersection(null, point)).toList()
         );
         return closest == null ? null : closest.point;
     }
@@ -107,7 +104,7 @@ public final class Ray {
      * @return closest intersection, or {@code null} when the list is {@code null} or empty
      */
     public Intersection findClosestIntersection(List<Intersection> intersections) {
-        if (intersections == null || intersections.isEmpty()) return null;
+        if (intersections == null) return null;
 
         Intersection closestIntersection = null;
         double closestDistanceSquared = Double.POSITIVE_INFINITY;

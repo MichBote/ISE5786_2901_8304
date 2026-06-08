@@ -4,6 +4,7 @@ import primitives.Point;
 import primitives.Ray;
 import primitives.Material;
 import primitives.Vector;
+import lighting.LightSource;
 
 import java.util.List;
 
@@ -29,13 +30,15 @@ public abstract class Intersectable {
         /** Material of the intersected geometry. */
         public final Material material;
         /** Surface normal at the intersection point. */
-        public final Vector normal;
+        public Vector normal;
         /** Viewer direction vector. */
         public Vector v;
         /** Dot product between viewer direction and normal. */
         public double nv;
         /** Current light direction vector. */
         public Vector l;
+        /** Current light source. */
+        public LightSource light;
         /** Dot product between light direction and normal. */
         public double nl;
 
@@ -49,7 +52,6 @@ public abstract class Intersectable {
             this.geometry = geometry;
             this.point = point;
             this.material = geometry == null ? new Material() : geometry.getMaterial();
-            this.normal = geometry == null ? null : geometry.getNormal(point);
         }
 
         @Override
