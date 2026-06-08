@@ -20,6 +20,12 @@ public class Material {
    /** Shininess factor (Phong). */
    public int nShininess = 0;
 
+   /** Transparency attenuation coefficient. */
+   public Double3 kT = Double3.ZERO;
+
+   /** Reflection attenuation coefficient. */
+   public Double3 kR = Double3.ZERO;
+
    /**
     * Constructs material coefficients with default values.
     */
@@ -100,6 +106,50 @@ public class Material {
     */
    public Material setShininess(int nShininess) {
       this.nShininess = nShininess;
+      return this;
+   }
+
+   /**
+    * Sets a uniform transparency coefficient.
+    *
+    * @param kT transparency coefficient
+    * @return this material, for chaining
+    */
+   public Material setKT(double kT) {
+      this.kT = new Double3(kT);
+      return this;
+   }
+
+   /**
+    * Sets a per-channel transparency coefficient.
+    *
+    * @param kT transparency coefficient
+    * @return this material, for chaining
+    */
+   public Material setKT(Double3 kT) {
+      this.kT = kT;
+      return this;
+   }
+
+   /**
+    * Sets a uniform reflection coefficient.
+    *
+    * @param kR reflection coefficient
+    * @return this material, for chaining
+    */
+   public Material setKR(double kR) {
+      this.kR = new Double3(kR);
+      return this;
+   }
+
+   /**
+    * Sets a per-channel reflection coefficient.
+    *
+    * @param kR reflection coefficient
+    * @return this material, for chaining
+    */
+   public Material setKR(Double3 kR) {
+      this.kR = kR;
       return this;
    }
 }

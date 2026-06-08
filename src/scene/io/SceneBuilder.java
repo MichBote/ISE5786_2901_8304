@@ -35,14 +35,14 @@ final class SceneBuilder {
             if (sphere.emission() != null) {
                s.setEmission(sphere.emission());
             }
-            applyMaterial(s, sphere.kA(), sphere.kD(), sphere.kS(), sphere.nShininess());
+            applyMaterial(s, sphere.kA(), sphere.kD(), sphere.kS(), sphere.kT(), sphere.kR(), sphere.nShininess());
             scene.geometries.add(s);
          } else if (geometry instanceof TriangleDescriptor triangle) {
             Triangle t = new Triangle(triangle.p0(), triangle.p1(), triangle.p2());
             if (triangle.emission() != null) {
                t.setEmission(triangle.emission());
             }
-            applyMaterial(t, triangle.kA(), triangle.kD(), triangle.kS(), triangle.nShininess());
+            applyMaterial(t, triangle.kA(), triangle.kD(), triangle.kS(), triangle.kT(), triangle.kR(), triangle.nShininess());
             scene.geometries.add(t);
          }
       }
@@ -76,19 +76,25 @@ final class SceneBuilder {
     * @param kA optional ambient attenuation factor
     * @param kD optional diffuse attenuation factor
     * @param kS optional specular attenuation factor
+    * @param kT optional transparency attenuation factor
+    * @param kR optional reflection attenuation factor
     * @param nShininess optional shininess exponent
     */
    private static void applyMaterial(geometries.api.Geometry geometry,
                                     primitives.Double3 kA,
                                     primitives.Double3 kD,
                                     primitives.Double3 kS,
+                                    primitives.Double3 kT,
+                                    primitives.Double3 kR,
                                     Integer nShininess) {
-      if (kA == null && kD == null && kS == null && nShininess == null) return;
+      if (kA == null && kD == null && kS == null && kT == null && kR == null && nShininess == null) return;
 
       Material material = new Material();
       if (kA != null) material.setKA(kA);
       if (kD != null) material.setKD(kD);
       if (kS != null) material.setKS(kS);
+      if (kT != null) material.setKT(kT);
+      if (kR != null) material.setKR(kR);
       if (nShininess != null) material.setShininess(nShininess);
       geometry.setMaterial(material);
    }

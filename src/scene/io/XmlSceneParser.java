@@ -137,8 +137,10 @@ final class XmlSceneParser {
       Double3 kA = parseDouble3Attribute(sphereElement, "kA");
       Double3 kD = parseDouble3Attribute(sphereElement, "kD");
       Double3 kS = parseDouble3Attribute(sphereElement, "kS");
+      Double3 kT = parseDouble3Attribute(sphereElement, "kT");
+      Double3 kR = parseDouble3Attribute(sphereElement, "kR");
       Integer nShininess = parseIntAttribute(sphereElement, "nShininess");
-      return new SphereDescriptor(center, radius, emission, kA, kD, kS, nShininess);
+      return new SphereDescriptor(center, radius, emission, kA, kD, kS, kT, kR, nShininess);
    }
 
    /**
@@ -155,8 +157,10 @@ final class XmlSceneParser {
       Double3 kA = parseDouble3Attribute(triangleElement, "kA");
       Double3 kD = parseDouble3Attribute(triangleElement, "kD");
       Double3 kS = parseDouble3Attribute(triangleElement, "kS");
+      Double3 kT = parseDouble3Attribute(triangleElement, "kT");
+      Double3 kR = parseDouble3Attribute(triangleElement, "kR");
       Integer nShininess = parseIntAttribute(triangleElement, "nShininess");
-      return new TriangleDescriptor(p0, p1, p2, emission, kA, kD, kS, nShininess);
+      return new TriangleDescriptor(p0, p1, p2, emission, kA, kD, kS, kT, kR, nShininess);
    }
 
    /**

@@ -24,4 +24,12 @@ public interface LightSource {
     * @return intensity at {@code p}
     */
    Color getIntensity(Point p);
+
+   /**
+    * Returns the distance from this light source to the given point.
+    *
+    * @param p illuminated point
+    * @return distance to {@code p}; infinity for directional light
+    */
+   double getDistance(Point p);
 }

@@ -127,6 +127,20 @@ public record Double3(double _d1, double _d2, double _d3) {
     }
 
     /**
+     * Checks whether at least one component is greater than or equal to a given value.
+     * <p>
+     * This is the logical negation of {@link #isLowerThan(double)}, as required
+     * for recursive contribution threshold checks.
+     * </p>
+     *
+     * @param k the value to compare against
+     * @return {@code true} if this triad is not lower than {@code k}
+     */
+    public boolean isGreaterThan(double k) {
+        return !isLowerThan(k);
+    }
+
+    /**
      * Checks whether all components of this triad are smaller than the
      * corresponding components of another triad.
      *
@@ -136,5 +150,19 @@ public record Double3(double _d1, double _d2, double _d3) {
      */
     public boolean isLowerThan(Double3 other) {
         return _d1 < other._d1 && _d2 < other._d2 && _d3 < other._d3;
+    }
+
+    /**
+     * Checks whether at least one component is greater than or equal to the
+     * corresponding component in another triad.
+     * <p>
+     * This is the logical negation of {@link #isLowerThan(Double3)}.
+     * </p>
+     *
+     * @param other the triad to compare with
+     * @return {@code true} if this triad is not lower than {@code other}
+     */
+    public boolean isGreaterThan(Double3 other) {
+        return !isLowerThan(other);
     }
 }

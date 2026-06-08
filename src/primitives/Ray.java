@@ -5,6 +5,8 @@ import geometries.api.Intersectable.Intersection;
 import java.util.List;
 import java.util.Objects;
 
+import static primitives.Util.isZero;
+
 /**
  * Represents a ray (half-line) in 3D space.
  * <p>
@@ -15,6 +17,11 @@ import java.util.Objects;
  * @author Michal Berdugo &amp; Bina Cohen
  */
 public final class Ray {
+    /**
+     * Small offset used to move secondary ray heads away from a surface.
+     */
+    private static final double DELTA = 0.1;
+
     /**
      * Ray origin point
      */
@@ -34,6 +41,20 @@ public final class Ray {
     public Ray(Point origin, Vector direction) {
         _origin = origin;
         _direction = direction.normalize();
+    }
+
+    /**
+     * Constructs a ray whose origin is shifted along a normal to avoid
+     * self-intersection with the surface that created the secondary ray.
+     *
+     * @param origin    original ray origin
+     * @param direction ray direction
+     * @param normal    surface normal used for the offset
+     */
+    public Ray(Point origin, Vector direction, Vector normal) {
+        _direction = direction.normalize();
+        double nv = normal.dotProduct(_direction);
+        _origin = isZero(nv) ? origin : origin.add(normal.scale(nv < 0 ? -DELTA : DELTA));
     }
 
     /**

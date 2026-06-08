@@ -18,9 +18,12 @@ sealed interface GeometryDescriptor permits SphereDescriptor, TriangleDescriptor
  * @param kA optional ambient attenuation factor
  * @param kD optional diffuse attenuation factor
  * @param kS optional specular attenuation factor
+ * @param kT optional transparency attenuation factor
+ * @param kR optional reflection attenuation factor
  * @param nShininess optional shininess exponent
  */
-record SphereDescriptor(Point center, double radius, Color emission, Double3 kA, Double3 kD, Double3 kS, Integer nShininess)
+record SphereDescriptor(Point center, double radius, Color emission, Double3 kA, Double3 kD, Double3 kS, Double3 kT,
+                        Double3 kR, Integer nShininess)
 	implements GeometryDescriptor { }
 
 /**
@@ -33,8 +36,11 @@ record SphereDescriptor(Point center, double radius, Color emission, Double3 kA,
  * @param kA optional ambient attenuation factor
  * @param kD optional diffuse attenuation factor
  * @param kS optional specular attenuation factor
+ * @param kT optional transparency attenuation factor
+ * @param kR optional reflection attenuation factor
  * @param nShininess optional shininess exponent
  */
-record TriangleDescriptor(Point p0, Point p1, Point p2, Color emission, Double3 kA, Double3 kD, Double3 kS, Integer nShininess)
+record TriangleDescriptor(Point p0, Point p1, Point p2, Color emission, Double3 kA, Double3 kD, Double3 kS,
+                          Double3 kT, Double3 kR, Integer nShininess)
 	implements GeometryDescriptor { }
 
