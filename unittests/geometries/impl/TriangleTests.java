@@ -178,4 +178,27 @@ class TriangleTests {
             assertNull(result, ERROR_TRIANGLE_INTERSECTION);
         }
     }
+
+    /**
+     * Test method for {@link geometries.api.Intersectable#calcIntersections(Ray, double)}
+     * in {@link Triangle}.
+     */
+    @Test
+    void testCalcIntersectionsWithMaxDistance() {
+        Triangle triangle = new Triangle(new Point(1, 0, 1), new Point(0, 2, 1), new Point(2, 2, 1));
+        Ray ray = new Ray(new Point(1, 1.5, 0), new Vector(0, 0, 1)); // t = 1 inside triangle
+
+        var resultBefore = triangle.calcIntersections(ray, 0.9);
+        assertNull(resultBefore, ERROR_TRIANGLE_INTERSECTION);
+
+        var resultAt = triangle.calcIntersections(ray, 1.0);
+        assertNotNull(resultAt, ERROR_TRIANGLE_INTERSECTION);
+        assertEquals(1, resultAt.size(), ERROR_TRIANGLE_INTERSECTION);
+        assertPointEquals(new Point(1, 1.5, 1), resultAt.get(0).point, ERROR_TRIANGLE_INTERSECTION);
+
+        var resultAfter = triangle.calcIntersections(ray, 2.0);
+        assertNotNull(resultAfter, ERROR_TRIANGLE_INTERSECTION);
+        assertEquals(1, resultAfter.size(), ERROR_TRIANGLE_INTERSECTION);
+        assertPointEquals(new Point(1, 1.5, 1), resultAfter.get(0).point, ERROR_TRIANGLE_INTERSECTION);
+    }
 }

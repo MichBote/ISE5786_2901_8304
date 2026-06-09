@@ -50,10 +50,11 @@ public class Tube extends RadialGeometry {
      * Calculates intersections between the ray and this tube.
      *
      * @param ray ray to intersect with the tube
+        * @param maxDistance maximal allowed distance from the ray origin
      * @return geometry-aware intersections, or {@code null} if there are none
      */
     @Override
-    protected List<Intersection> calcIntersectionsHelper(Ray ray) {
+        protected List<Intersection> calcIntersectionsHelper(Ray ray, double maxDistance) {
         Point p0 = ray.origin();
         Vector v = ray.direction();
 
@@ -133,8 +134,8 @@ public class Tube extends RadialGeometry {
         double t1 = alignZero((-b - sqrtD) / (2d * a));
         double t2 = alignZero((-b + sqrtD) / (2d * a));
 
-        boolean t1Positive = t1 > 0;
-        boolean t2Positive = t2 > 0;
+        boolean t1Positive = t1 > 0 && alignZero(t1 - maxDistance) <= 0;
+        boolean t2Positive = t2 > 0 && alignZero(t2 - maxDistance) <= 0;
 
         if (t1Positive && t2Positive) {
             return t1 < t2

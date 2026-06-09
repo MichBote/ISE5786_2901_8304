@@ -42,13 +42,14 @@ public final class Geometries extends Intersectable {
      * Aggregates geometry-aware intersections from all contained objects.
      *
      * @param ray the intersecting ray
+     * @param maxDistance maximal allowed distance from the ray origin
      * @return a list of geometry-point pairs, or {@code null} if there are none
      */
     @Override
-    protected List<Intersection> calcIntersectionsHelper(Ray ray) {
+    protected List<Intersection> calcIntersectionsHelper(Ray ray, double maxDistance) {
         List<Intersection> intersections = null;
         for (var geometry : geometries) {
-            var geoIntersections = geometry.calcIntersections(ray);
+            var geoIntersections = geometry.calcIntersections(ray, maxDistance);
             if (geoIntersections != null) {
                 if (intersections == null) {
                     intersections = new ArrayList<>();

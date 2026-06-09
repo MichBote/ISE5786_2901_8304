@@ -70,7 +70,7 @@ public final class Cylinder extends Tube {
     }
 
     @Override
-    protected List<Intersection> calcIntersectionsHelper(Ray ray) {
+    protected List<Intersection> calcIntersectionsHelper(Ray ray, double maxDistance) {
         Point pBase = _axis.origin();
         Vector va = _axis.direction();
         Point pTop = pBase.add(va.scale(_height));
@@ -79,7 +79,7 @@ public final class Cylinder extends Tube {
 
         // ---- Lateral surface (infinite tube) intersections, filtered by height ----
         // Exception to the NVI rule: reuse the tube implementation directly
-        List<Intersection> tubeIntersections = super.calcIntersectionsHelper(ray);
+        List<Intersection> tubeIntersections = super.calcIntersectionsHelper(ray, maxDistance);
         if (tubeIntersections != null) {
             for (Intersection intersection : tubeIntersections) {
                 Point p = intersection.point;
@@ -92,8 +92,8 @@ public final class Cylinder extends Tube {
         // ---- Caps (disks) intersections ----
         double nv = alignZero(va.dotProduct(ray.direction()));
         if (!isZero(nv)) {
-            intersections = addCapIntersection(intersections, ray, pBase, va, nv);
-            intersections = addCapIntersection(intersections, ray, pTop, va, nv);
+            intersections = addCapIntersection(intersections, ray, pBase, va, nv, maxDistance);
+            intersections = addCapIntersection(intersections, ray, pTop, va, nv, maxDistance);
         }
 
         if (intersections == null) return null;
@@ -109,14 +109,16 @@ public final class Cylinder extends Tube {
      * @param center cap center
      * @param normal cap normal
      * @param nv dot product between cap normal and ray direction
+     * @param maxDistance maximal allowed distance from the ray origin
      * @return updated intersection list, or the original list when there is no cap hit
      */
-    private List<Intersection> addCapIntersection(List<Intersection> intersections, Ray ray, Point center, Vector normal, double nv) {
+    private List<Intersection> addCapIntersection(List<Intersection> intersections, Ray ray, Point center, Vector normal,
+                                                  double nv, double maxDistance) {
         if (center.equals(ray.origin())) return intersections;
 
         double numerator = normal.dotProduct(center.subtract(ray.origin()));
         double t = alignZero(numerator / nv);
-        if (t <= 0) return intersections;
+        if (t <= 0 || alignZero(t - maxDistance) > 0) return intersections;
 
         Point p = ray.getPoint(t);
         // Include points on the rim (join between base and shell)

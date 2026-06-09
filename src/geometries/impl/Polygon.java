@@ -94,14 +94,15 @@ public class Polygon extends Geometry {
      * Calculates intersections between the ray and this polygon.
      *
      * @param ray ray to intersect with the polygon
+     * @param maxDistance maximal allowed distance from the ray origin
      * @return geometry-aware intersections, or {@code null} if there are none
      */
     @Override
-    protected List<Intersection> calcIntersectionsHelper(Ray ray) {
-        List<Point> planeIntersections = _plane.findIntersections(ray);
+    protected List<Intersection> calcIntersectionsHelper(Ray ray, double maxDistance) {
+        List<Intersection> planeIntersections = _plane.calcIntersections(ray, maxDistance);
         if (planeIntersections == null) return null;
 
-        Point p = planeIntersections.get(0);
+        Point p = planeIntersections.get(0).point;
         Vector n = _plane.getNormal(p);
 
         double sign = 0;

@@ -88,14 +88,27 @@ public abstract class Intersectable {
      * @return a list of geometry-point pairs, or {@code null} if there are none
      */
     public final List<Intersection> calcIntersections(Ray ray) {
-        return calcIntersectionsHelper(ray);
+        return calcIntersections(ray, Double.POSITIVE_INFINITY);
+    }
+
+    /**
+     * Finds geometry-aware intersection points between a ray and this object,
+     * limited by a maximal distance from the ray head.
+     *
+     * @param ray the intersecting ray
+     * @param maxDistance maximal allowed distance from ray origin
+     * @return a list of geometry-point pairs, or {@code null} if there are none
+     */
+    public final List<Intersection> calcIntersections(Ray ray, double maxDistance) {
+        return calcIntersectionsHelper(ray, maxDistance);
     }
 
     /**
      * Calculates geometry-aware intersection points.
      *
      * @param ray the intersecting ray
+     * @param maxDistance maximal allowed distance from ray origin
      * @return a list of geometry-point pairs, or {@code null} if there are none
      */
-    protected abstract List<Intersection> calcIntersectionsHelper(Ray ray);
+    protected abstract List<Intersection> calcIntersectionsHelper(Ray ray, double maxDistance);
 }

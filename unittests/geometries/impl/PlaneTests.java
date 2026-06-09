@@ -188,4 +188,27 @@ class PlaneTests {
             assertNull(result, ERROR_PLANE_INTERSECTION);
         }
     }
+
+    /**
+     * Test method for {@link geometries.api.Intersectable#calcIntersections(Ray, double)}
+     * in {@link Plane}.
+     */
+    @Test
+    void testCalcIntersectionsWithMaxDistance() {
+        Plane plane = new Plane(new Point(0, 0, 1), new Vector(0, 0, 1));
+        Ray ray = new Ray(new Point(1, 0, 0), new Vector(0, 0, 1)); // t = 1
+
+        var resultBefore = plane.calcIntersections(ray, 0.9);
+        assertNull(resultBefore, ERROR_PLANE_INTERSECTION);
+
+        var resultAt = plane.calcIntersections(ray, 1.0);
+        assertNotNull(resultAt, ERROR_PLANE_INTERSECTION);
+        assertEquals(1, resultAt.size(), ERROR_PLANE_INTERSECTION);
+        assertPointEquals(new Point(1, 0, 1), resultAt.get(0).point, ERROR_PLANE_INTERSECTION);
+
+        var resultAfter = plane.calcIntersections(ray, 2.0);
+        assertNotNull(resultAfter, ERROR_PLANE_INTERSECTION);
+        assertEquals(1, resultAfter.size(), ERROR_PLANE_INTERSECTION);
+        assertPointEquals(new Point(1, 0, 1), resultAfter.get(0).point, ERROR_PLANE_INTERSECTION);
+    }
 }

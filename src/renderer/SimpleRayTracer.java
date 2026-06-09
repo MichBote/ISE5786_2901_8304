@@ -109,13 +109,12 @@ class SimpleRayTracer extends RayTracerBase {
     private boolean unshaded(Intersection intersection) {
         Vector pointToLight = intersection.l.scale(-1);
         Ray shadowRay = new Ray(intersection.point, pointToLight, intersection.normal);
-        var shadowIntersections = _scene.geometries.calcIntersections(shadowRay);
+        double lightDistance = intersection.light.getDistance(intersection.point);
+        var shadowIntersections = _scene.geometries.calcIntersections(shadowRay, lightDistance);
         if (shadowIntersections == null) return true;
 
-        double lightDistance = intersection.light.getDistance(intersection.point);
         for (Intersection shadowIntersection : shadowIntersections) {
-            if (alignZero(shadowIntersection.point.distance(intersection.point) - lightDistance) < 0
-                    && shadowIntersection.material.kT.isLowerThan(MIN_CALC_COLOR_K)) {
+            if (shadowIntersection.material.kT.isLowerThan(MIN_CALC_COLOR_K)) {
                 return false;
             }
         }
@@ -131,16 +130,14 @@ class SimpleRayTracer extends RayTracerBase {
     private Double3 transparency(Intersection intersection) {
         Vector pointToLight = intersection.l.scale(-1);
         Ray shadowRay = new Ray(intersection.point, pointToLight, intersection.normal);
-        var shadowIntersections = _scene.geometries.calcIntersections(shadowRay);
+        double lightDistance = intersection.light.getDistance(intersection.point);
+        var shadowIntersections = _scene.geometries.calcIntersections(shadowRay, lightDistance);
         if (shadowIntersections == null) return Double3.ONE;
 
-        double lightDistance = intersection.light.getDistance(intersection.point);
         Double3 ktr = Double3.ONE;
         for (Intersection shadowIntersection : shadowIntersections) {
-            if (alignZero(shadowIntersection.point.distance(intersection.point) - lightDistance) < 0) {
-                ktr = ktr.product(shadowIntersection.material.kT);
-                if (ktr.isLowerThan(MIN_CALC_COLOR_K)) return Double3.ZERO;
-            }
+            ktr = ktr.product(shadowIntersection.material.kT);
+            if (ktr.isLowerThan(MIN_CALC_COLOR_K)) return Double3.ZERO;
         }
         return ktr;
     }

@@ -189,4 +189,26 @@ class PolygonTests {
             assertNull(result, ERROR_POLYGON_INTERSECTION);
         }
     }
+
+    /**
+     * Test method for {@link geometries.api.Intersectable#calcIntersections(Ray, double)}
+     * in {@link Polygon}.
+     */
+    @Test
+    void testCalcIntersectionsWithMaxDistance() {
+        Ray ray = new Ray(new Point(2, 2, 0), new Vector(0, 0, 1)); // t = 1 inside polygon
+
+        var resultBefore = POLYGON_INTERSECTIONS.calcIntersections(ray, 0.9);
+        assertNull(resultBefore, ERROR_POLYGON_INTERSECTION);
+
+        var resultAt = POLYGON_INTERSECTIONS.calcIntersections(ray, 1.0);
+        assertNotNull(resultAt, ERROR_POLYGON_INTERSECTION);
+        assertEquals(1, resultAt.size(), ERROR_POLYGON_INTERSECTION);
+        assertPointEquals(new Point(2, 2, 1), resultAt.get(0).point, ERROR_POLYGON_INTERSECTION);
+
+        var resultAfter = POLYGON_INTERSECTIONS.calcIntersections(ray, 2.0);
+        assertNotNull(resultAfter, ERROR_POLYGON_INTERSECTION);
+        assertEquals(1, resultAfter.size(), ERROR_POLYGON_INTERSECTION);
+        assertPointEquals(new Point(2, 2, 1), resultAfter.get(0).point, ERROR_POLYGON_INTERSECTION);
+    }
 }

@@ -45,10 +45,11 @@ public final class Sphere extends RadialGeometry {
      * Calculates intersections between the ray and this sphere.
      *
      * @param ray ray to intersect with the sphere
+     * @param maxDistance maximal allowed distance from the ray origin
      * @return geometry-aware intersections, or {@code null} if there are none
      */
     @Override
-    protected List<Intersection> calcIntersectionsHelper(Ray ray) {
+    protected List<Intersection> calcIntersectionsHelper(Ray ray, double maxDistance) {
         Point p0 = ray.origin();
         Vector v = ray.direction();
 
@@ -57,7 +58,9 @@ public final class Sphere extends RadialGeometry {
             u = _center.subtract(p0);
         } catch (IllegalArgumentException ex) {
             // Ray starts at the sphere center
-            return List.of(new Intersection(this, ray.getPoint(_radius)));
+            return alignZero(_radius - maxDistance) <= 0
+                ? List.of(new Intersection(this, ray.getPoint(_radius)))
+                : null;
         }
 
         double tm = alignZero(v.dotProduct(u));
@@ -73,8 +76,8 @@ public final class Sphere extends RadialGeometry {
         double t1 = alignZero(tm - th);
         double t2 = alignZero(tm + th);
 
-        boolean t1Positive = t1 > 0;
-        boolean t2Positive = t2 > 0;
+        boolean t1Positive = t1 > 0 && alignZero(t1 - maxDistance) <= 0;
+        boolean t2Positive = t2 > 0 && alignZero(t2 - maxDistance) <= 0;
 
         if (t1Positive && t2Positive) {
             // order by distance from ray origin

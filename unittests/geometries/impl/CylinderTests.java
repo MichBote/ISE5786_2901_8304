@@ -412,4 +412,33 @@ class CylinderTests {
                 }
         );
     }
+
+    /**
+     * Test method for {@link geometries.api.Intersectable#calcIntersections(Ray, double)}
+     * in {@link Cylinder}.
+     */
+    @Test
+    void testCalcIntersectionsWithMaxDistance() {
+        Cylinder cylinder = createTestCylinder();
+        Ray ray = new Ray(new Point(-1, 2, 4), new Vector(1, 0, 0)); // t values are 1 and 3 on the side
+
+        var resultBefore = cylinder.calcIntersections(ray, 0.9);
+        assertNull(resultBefore, ERROR_CYLINDER_INTERSECTION);
+
+        var resultAtFirst = cylinder.calcIntersections(ray, 1.0);
+        assertNotNull(resultAtFirst, ERROR_CYLINDER_INTERSECTION);
+        assertEquals(1, resultAtFirst.size(), ERROR_CYLINDER_INTERSECTION);
+        assertPointEquals(new Point(0, 2, 4), resultAtFirst.get(0).point, ERROR_CYLINDER_INTERSECTION);
+
+        var resultBetween = cylinder.calcIntersections(ray, 2.0);
+        assertNotNull(resultBetween, ERROR_CYLINDER_INTERSECTION);
+        assertEquals(1, resultBetween.size(), ERROR_CYLINDER_INTERSECTION);
+        assertPointEquals(new Point(0, 2, 4), resultBetween.get(0).point, ERROR_CYLINDER_INTERSECTION);
+
+        var resultAtSecond = cylinder.calcIntersections(ray, 3.0);
+        assertNotNull(resultAtSecond, ERROR_CYLINDER_INTERSECTION);
+        assertEquals(2, resultAtSecond.size(), ERROR_CYLINDER_INTERSECTION);
+        assertPointEquals(new Point(0, 2, 4), resultAtSecond.get(0).point, ERROR_CYLINDER_INTERSECTION);
+        assertPointEquals(new Point(2, 2, 4), resultAtSecond.get(1).point, ERROR_CYLINDER_INTERSECTION);
+    }
 }

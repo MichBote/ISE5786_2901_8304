@@ -72,4 +72,31 @@ class GeometriesTests {
             assertEquals(5, result.size(), ERROR_GEOMETRIES);
         }
     }
+
+    /**
+     * Test method for {@link geometries.api.Intersectable#calcIntersections(Ray, double)}
+     * in {@link Geometries}.
+     */
+    @Test
+    void testCalcIntersectionsWithMaxDistance() {
+        Sphere sphere = new Sphere(new Point(2, 0, 0), 1d); // t = 3,5
+        Plane plane = new Plane(new Point(4, 0, 0), new Vector(1, 0, 0)); // t = 6
+        Geometries geometries = new Geometries(sphere, plane);
+        Ray ray = new Ray(new Point(-2, 0, 0), new Vector(1, 0, 0));
+
+        var resultBefore = geometries.calcIntersections(ray, 2.9);
+        assertNull(resultBefore, ERROR_GEOMETRIES);
+
+        var resultAtSphereEnter = geometries.calcIntersections(ray, 3.0);
+        assertNotNull(resultAtSphereEnter, ERROR_GEOMETRIES);
+        assertEquals(1, resultAtSphereEnter.size(), ERROR_GEOMETRIES);
+
+        var resultAtSphereExit = geometries.calcIntersections(ray, 5.0);
+        assertNotNull(resultAtSphereExit, ERROR_GEOMETRIES);
+        assertEquals(2, resultAtSphereExit.size(), ERROR_GEOMETRIES);
+
+        var resultAtPlane = geometries.calcIntersections(ray, 6.0);
+        assertNotNull(resultAtPlane, ERROR_GEOMETRIES);
+        assertEquals(3, resultAtPlane.size(), ERROR_GEOMETRIES);
+    }
 }

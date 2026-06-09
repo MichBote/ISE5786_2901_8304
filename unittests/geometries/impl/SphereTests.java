@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
+import geometries.api.Intersectable.Intersection;
 import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
@@ -204,5 +205,34 @@ class SphereTests {
             assertEquals(1, result.size(), ERROR_SPHERE_INTERSECTION);
             assertPointEquals(new Point(2 + Math.sqrt(0.75), 0.5, 0), result.get(0), ERROR_SPHERE_INTERSECTION);
         }
+    }
+
+    /**
+     * Test method for {@link geometries.api.Intersectable#calcIntersections(Ray, double)}
+     * in {@link Sphere}.
+     */
+    @Test
+    void testCalcIntersectionsWithMaxDistance() {
+        Ray ray = new Ray(new Point(-2, 0, 0), new Vector(1, 0, 0));
+
+        // t values are 3 and 5 for this sphere/ray pair
+        var resultBeforeFirst = SPHERE.calcIntersections(ray, 2.9);
+        assertNull(resultBeforeFirst, ERROR_SPHERE_INTERSECTION);
+
+        var resultAtFirst = SPHERE.calcIntersections(ray, 3.0);
+        assertNotNull(resultAtFirst, ERROR_SPHERE_INTERSECTION);
+        assertEquals(1, resultAtFirst.size(), ERROR_SPHERE_INTERSECTION);
+        assertPointEquals(new Point(1, 0, 0), resultAtFirst.get(0).point, ERROR_SPHERE_INTERSECTION);
+
+        var resultBetween = SPHERE.calcIntersections(ray, 4.0);
+        assertNotNull(resultBetween, ERROR_SPHERE_INTERSECTION);
+        assertEquals(1, resultBetween.size(), ERROR_SPHERE_INTERSECTION);
+        assertPointEquals(new Point(1, 0, 0), resultBetween.get(0).point, ERROR_SPHERE_INTERSECTION);
+
+        var resultAtSecond = SPHERE.calcIntersections(ray, 5.0);
+        assertNotNull(resultAtSecond, ERROR_SPHERE_INTERSECTION);
+        assertEquals(2, resultAtSecond.size(), ERROR_SPHERE_INTERSECTION);
+        assertPointEquals(new Point(1, 0, 0), resultAtSecond.get(0).point, ERROR_SPHERE_INTERSECTION);
+        assertPointEquals(new Point(3, 0, 0), resultAtSecond.get(1).point, ERROR_SPHERE_INTERSECTION);
     }
 }

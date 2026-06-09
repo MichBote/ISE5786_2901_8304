@@ -66,10 +66,11 @@ public final class Plane extends Geometry {
      * Calculates intersections between the ray and this plane.
      *
      * @param ray ray to intersect with the plane
+        * @param maxDistance maximal allowed distance from the ray origin
      * @return geometry-aware intersections, or {@code null} if there are none
      */
     @Override
-    protected List<Intersection> calcIntersectionsHelper(Ray ray) {
+        protected List<Intersection> calcIntersectionsHelper(Ray ray, double maxDistance) {
         Point p0 = ray.origin();
 
         // Ray starts at the plane reference point => intersection at t=0 (excluded)
@@ -85,7 +86,9 @@ public final class Plane extends Geometry {
         double t = alignZero(nQMinusP0 / nv);
 
         // intersection must be in the ray direction and must not include the origin
-        return t <= 0 ? null : List.of(new Intersection(this, ray.getPoint(t)));
+        return t <= 0 || alignZero(t - maxDistance) > 0
+            ? null
+            : List.of(new Intersection(this, ray.getPoint(t)));
     }
 
     @Override
