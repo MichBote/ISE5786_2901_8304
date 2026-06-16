@@ -15,11 +15,17 @@ import static primitives.Util.alignZero;
  * A ray tracer with local Phong lighting, shadows, transparency and reflection.
  */
 class SimpleRayTracer extends RayTracerBase {
-    /** Maximum recursion depth for global effects. */
+    /**
+     * Maximum recursion depth for global effects.
+     */
     private static final int MAX_CALC_COLOR_LEVEL = 10;
-    /** Minimal meaningful color contribution coefficient. */
+    /**
+     * Minimal meaningful color contribution coefficient.
+     */
     private static final double MIN_CALC_COLOR_K = 0.001;
-    /** Initial recursive attenuation coefficient. */
+    /**
+     * Initial recursive attenuation coefficient.
+     */
     private static final Double3 INITIAL_K = Double3.ONE;
 
     /**
@@ -52,13 +58,13 @@ class SimpleRayTracer extends RayTracerBase {
      * Computes the final color at an intersection point.
      *
      * @param intersection geometry-aware intersection point
-     * @param ray ray that produced the intersection
+     * @param ray          ray that produced the intersection
      * @return computed color
      */
     private Color calcColor(Intersection intersection, Ray ray) {
         return preprocessIntersection(intersection, ray)
                 ? _scene.ambientLight.getIntensity().scale(intersection.material.kA)
-                    .add(calcColor(intersection, MAX_CALC_COLOR_LEVEL, INITIAL_K))
+                .add(calcColor(intersection, MAX_CALC_COLOR_LEVEL, INITIAL_K))
                 : Color.BLACK;
     }
 
@@ -66,8 +72,8 @@ class SimpleRayTracer extends RayTracerBase {
      * Recursive color calculation without ambient light.
      *
      * @param intersection current intersection
-     * @param level remaining recursion depth
-     * @param k accumulated attenuation coefficient
+     * @param level        remaining recursion depth
+     * @param k            accumulated attenuation coefficient
      * @return local and global color contribution
      */
     private Color calcColor(Intersection intersection, int level, Double3 k) {
@@ -79,7 +85,7 @@ class SimpleRayTracer extends RayTracerBase {
      * Calculates local lighting effects (emission + diffuse + specular).
      *
      * @param intersection geometry-aware intersection point
-     * @param k accumulated attenuation coefficient
+     * @param k            accumulated attenuation coefficient
      * @return local lighting color
      */
     private Color calcLocalEffects(Intersection intersection, Double3 k) {
@@ -89,7 +95,7 @@ class SimpleRayTracer extends RayTracerBase {
             if (!setLightSource(intersection, lightSource)) continue;
 
             Double3 ktr = transparency(intersection);
-            if (!ktr.product(k).isGreaterThan(MIN_CALC_COLOR_K)) continue;
+            if (ktr.product(k).isLowerThan(MIN_CALC_COLOR_K)) continue;
 
             Color lightIntensity = lightSource.getIntensity(intersection.point).scale(ktr);
             Double3 factor = calcDiffuse(intersection).add(calcSpecular(intersection));
@@ -171,8 +177,8 @@ class SimpleRayTracer extends RayTracerBase {
      * Calculates recursive reflection and transparency effects.
      *
      * @param intersection current intersection
-     * @param level remaining recursion depth
-     * @param k accumulated attenuation coefficient
+     * @param level        remaining recursion depth
+     * @param k            accumulated attenuation coefficient
      * @return global effects contribution
      */
     private Color calcGlobalEffects(Intersection intersection, int level, Double3 k) {
@@ -183,15 +189,15 @@ class SimpleRayTracer extends RayTracerBase {
     /**
      * Calculates one recursive global effect.
      *
-     * @param ray secondary ray
+     * @param ray   secondary ray
      * @param level remaining recursion depth
-     * @param k accumulated attenuation coefficient
-     * @param kx current material global coefficient
+     * @param k     accumulated attenuation coefficient
+     * @param kx    current material global coefficient
      * @return global effect color contribution
      */
     private Color calcGlobalEffect(Ray ray, int level, Double3 k, Double3 kx) {
         Double3 kkx = k.product(kx);
-        if (!kkx.isGreaterThan(MIN_CALC_COLOR_K)) return Color.BLACK;
+        if (kkx.isLowerThan(MIN_CALC_COLOR_K)) return Color.BLACK;
 
         Intersection intersection = findClosestIntersection(ray);
         if (intersection == null) return _scene.background.scale(kx);

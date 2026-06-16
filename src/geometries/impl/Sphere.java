@@ -1,6 +1,5 @@
 package geometries.impl;
 
-import geometries.api.Intersectable.Intersection;
 import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
@@ -8,7 +7,6 @@ import primitives.Vector;
 import java.util.List;
 
 import static primitives.Util.alignZero;
-import static primitives.Util.isZero;
 
 /**
  * Represents a sphere in 3D space.
@@ -44,7 +42,7 @@ public final class Sphere extends RadialGeometry {
     /**
      * Calculates intersections between the ray and this sphere.
      *
-     * @param ray ray to intersect with the sphere
+     * @param ray         ray to intersect with the sphere
      * @param maxDistance maximal allowed distance from the ray origin
      * @return geometry-aware intersections, or {@code null} if there are none
      */
@@ -58,38 +56,28 @@ public final class Sphere extends RadialGeometry {
             u = _center.subtract(p0);
         } catch (IllegalArgumentException ex) {
             // Ray starts at the sphere center
-            return alignZero(_radius - maxDistance) <= 0
-                ? List.of(new Intersection(this, ray.getPoint(_radius)))
-                : null;
+        return alignZero(_radius - maxDistance) <= 0
+                    ? List.of(new Intersection(this, ray.getPoint(_radius)))
+                    : null;
         }
 
-        double tm = alignZero(v.dotProduct(u));
-        double dSquared = alignZero(u.lengthSquared() - tm * tm);
-
-        // No intersections if the ray misses the sphere or is tangent (tangent excluded)
-        if (alignZero(dSquared - _radiusSquared) >= 0) return null;
-
+        double tm = v.dotProduct(u);
+        double dSquared = u.lengthSquared() - tm * tm;
         double thSquared = alignZero(_radiusSquared - dSquared);
         if (thSquared <= 0) return null;
+
         double th = Math.sqrt(thSquared);
-
-        double t1 = alignZero(tm - th);
         double t2 = alignZero(tm + th);
+        if (t2 <= 0) return null;
+        double t1 = alignZero(tm - th);
+        if (alignZero(t1 - maxDistance) > 0) return null;
 
-        boolean t1Positive = t1 > 0 && alignZero(t1 - maxDistance) <= 0;
-        boolean t2Positive = t2 > 0 && alignZero(t2 - maxDistance) <= 0;
-
-        if (t1Positive && t2Positive) {
-            // order by distance from ray origin
-            return t1 < t2
-                ? List.of(new Intersection(this, ray.getPoint(t1)), new Intersection(this, ray.getPoint(t2)))
-                : List.of(new Intersection(this, ray.getPoint(t2)), new Intersection(this, ray.getPoint(t1)));
+        if (alignZero(t2 - maxDistance) > 0) {
+            return t1 <= 0 ? null : List.of(new Intersection(this, ray.getPoint(t1)));
+        } else {
+            return t1 <= 0 ? List.of(new Intersection(this, ray.getPoint(t2)))
+                    : List.of(new Intersection(this, ray.getPoint(t1)), new Intersection(this, ray.getPoint(t2)));
         }
-
-        if (t1Positive) return List.of(new Intersection(this, ray.getPoint(t1)));
-        if (t2Positive) return List.of(new Intersection(this, ray.getPoint(t2)));
-
-        return null;
     }
 
     @Override

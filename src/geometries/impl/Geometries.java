@@ -16,7 +16,9 @@ import java.util.List;
  * @author Michal Berdugo &amp; Bina Cohen
  */
 public final class Geometries extends Intersectable {
-    /** Internal list of geometries */
+    /**
+     * Internal list of geometries
+     */
     private final List<Intersectable> geometries = new ArrayList<>();
 
     /**
@@ -41,7 +43,7 @@ public final class Geometries extends Intersectable {
     /**
      * Aggregates geometry-aware intersections from all contained objects.
      *
-     * @param ray the intersecting ray
+     * @param ray         the intersecting ray
      * @param maxDistance maximal allowed distance from the ray origin
      * @return a list of geometry-point pairs, or {@code null} if there are none
      */
@@ -51,10 +53,10 @@ public final class Geometries extends Intersectable {
         for (var geometry : geometries) {
             var geoIntersections = geometry.calcIntersections(ray, maxDistance);
             if (geoIntersections != null) {
-                if (intersections == null) {
-                    intersections = new ArrayList<>();
-                }
-                intersections.addAll(geoIntersections);
+                if (intersections == null)
+                    intersections = new ArrayList<>(geoIntersections);
+                else
+                    intersections.addAll(geoIntersections);
             }
         }
         return intersections;
