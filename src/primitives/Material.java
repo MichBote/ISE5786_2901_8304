@@ -27,6 +27,21 @@ public class Material {
    public Double3 kR = Double3.ZERO;
 
    /**
+    * Glossy reflection blur size on the ray tracer target plane.
+    * A value of {@code 0} keeps a perfect reflected ray.
+    */
+   public double glossyBlur = 0d;
+
+   /**
+    * Blurry transparency/refraction blur size on the ray tracer target plane.
+    * A value of {@code 0} keeps a perfect transmitted/refracted ray.
+    */
+   public double transparencyBlur = 0d;
+
+   /** Index of refraction used for transparent materials. */
+   public double refractiveIndex = 1.5d;
+
+   /**
     * Constructs material coefficients with default values.
     */
    public Material() {
@@ -151,5 +166,63 @@ public class Material {
    public Material setKR(Double3 kR) {
       this.kR = kR;
       return this;
+   }
+
+   /**
+    * Sets the glossy reflection blur size.
+    *
+    * @param blur reflection blur size, must be non-negative
+    * @return this material, for chaining
+    */
+   public Material setGlossyBlur(double blur) {
+      validateBlur(blur, "Glossy blur");
+      glossyBlur = blur;
+      return this;
+   }
+
+   /**
+    * Sets the blurry transparency/refraction blur size.
+    *
+    * @param blur transparency blur size, must be non-negative
+    * @return this material, for chaining
+    */
+   public Material setTransparencyBlur(double blur) {
+      validateBlur(blur, "Transparency blur");
+      transparencyBlur = blur;
+      return this;
+   }
+
+   /**
+    * Compatibility alias for {@link #setTransparencyBlur(double)}.
+    *
+    * @param blur transparency blur size, must be non-negative
+    * @return this material, for chaining
+    */
+   public Material setDiffuseBlur(double blur) {
+      return setTransparencyBlur(blur);
+   }
+
+   /**
+    * Sets the material index of refraction.
+    *
+    * @param refractiveIndex optical index of refraction, must be positive
+    * @return this material, for chaining
+    */
+   public Material setRefractiveIndex(double refractiveIndex) {
+      if (refractiveIndex <= 0) throw new IllegalArgumentException("Refractive index must be positive");
+      this.refractiveIndex = refractiveIndex;
+      return this;
+   }
+
+   /**
+    * Validates a material blur size.
+    *
+    * @param blur blur size
+    * @param name value name used in error messages
+    */
+   private static void validateBlur(double blur, String name) {
+      if (!Double.isFinite(blur) || blur < 0) {
+         throw new IllegalArgumentException(name + " must be non-negative");
+      }
    }
 }

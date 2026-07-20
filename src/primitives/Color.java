@@ -38,6 +38,9 @@ public final class Color {
    /** The black color = (0,0,0) */
    public static final Color   BLACK = new Color();
 
+   /** The white color = (255,255,255) */
+   public static final Color   WHITE = new Color(255, 255, 255);
+
    /** Private constructor for creating the constant black color. */
    private Color() { _rgb = Double3.ZERO; }
 
