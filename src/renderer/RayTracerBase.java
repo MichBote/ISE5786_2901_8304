@@ -7,6 +7,8 @@ import primitives.Ray;
 import primitives.Vector;
 import scene.Scene;
 
+import java.util.List;
+
 import static primitives.Util.alignZero;
 
 /**
@@ -38,6 +40,24 @@ abstract class RayTracerBase {
    abstract Color traceRay(Ray ray);
 
    /**
+    * Traces a beam of rays and returns the averaged color.
+    *
+    * @param rays rays to trace
+    * @return averaged color of the beam
+    */
+   Color traceRays(List<Ray> rays) {
+      if (rays == null || rays.isEmpty()) {
+         throw new IllegalArgumentException("rays must not be null or empty");
+      }
+
+      Color color = Color.BLACK;
+      for (Ray ray : rays) {
+         color = color.add(traceRay(ray));
+      }
+      return color.scale(1d / rays.size());
+   }
+
+   /**
     * Preprocesses intersection data that is independent of a specific light source.
     *
     * @param intersection the intersection to fill (cache)
@@ -65,6 +85,21 @@ abstract class RayTracerBase {
    protected boolean setLightSource(Intersection intersection, LightSource light) {
       intersection.light = light;
       intersection.l = light.getL(intersection.point);
+      intersection.nl = alignZero(intersection.normal.dotProduct(intersection.l));
+      return intersection.nl * intersection.nv > 0;
+   }
+
+   /**
+    * Preprocesses per-light-source data with an explicit sampled light direction.
+    *
+    * @param intersection the intersection to fill
+    * @param light the current light source
+    * @param l sampled light direction from light area point to shaded point
+    * @return {@code true} if the sampled light direction contributes
+    */
+   protected boolean setLightDirection(Intersection intersection, LightSource light, Vector l) {
+      intersection.light = light;
+      intersection.l = l;
       intersection.nl = alignZero(intersection.normal.dotProduct(intersection.l));
       return intersection.nl * intersection.nv > 0;
    }

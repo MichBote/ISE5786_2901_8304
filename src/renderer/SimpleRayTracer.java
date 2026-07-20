@@ -3,10 +3,13 @@ package renderer;
 import geometries.api.Intersectable.Intersection;
 import primitives.Color;
 import primitives.Double3;
+import primitives.Material;
 import primitives.Ray;
+import primitives.Point;
 import primitives.Vector;
 import scene.Scene;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static primitives.Util.alignZero;
@@ -27,6 +30,9 @@ class SimpleRayTracer extends RayTracerBase {
      * Initial recursive attenuation coefficient.
      */
     private static final Double3 INITIAL_K = Double3.ONE;
+
+    /** Golden angle in radians for deterministic spiral disk sampling. */
+    private static final double GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
     /**
      * Constructs a simple ray tracer.
@@ -92,14 +98,25 @@ class SimpleRayTracer extends RayTracerBase {
         Color color = intersection.geometry.getEmission();
 
         for (var lightSource : _scene.lights) {
-            if (!setLightSource(intersection, lightSource)) continue;
+            List<Vector> sampledDirections = lightSource.getLs(intersection.point);
+            Color sampleAccumulated = Color.BLACK;
 
-            Double3 ktr = transparency(intersection);
-            if (ktr.product(k).isLowerThan(MIN_CALC_COLOR_K)) continue;
+            for (Vector sampledL : sampledDirections) {
+                if (!setLightDirection(intersection, lightSource, sampledL)) {
+                    continue;
+                }
 
-            Color lightIntensity = lightSource.getIntensity(intersection.point).scale(ktr);
-            Double3 factor = calcDiffuse(intersection).add(calcSpecular(intersection));
-            color = color.add(lightIntensity.scale(factor));
+                Double3 ktr = transparency(intersection);
+                if (ktr.product(k).isLowerThan(MIN_CALC_COLOR_K)) {
+                    continue;
+                }
+
+                Color lightIntensity = lightSource.getIntensity(intersection.point).scale(ktr);
+                Double3 factor = calcDiffuse(intersection).add(calcSpecular(intersection));
+                sampleAccumulated = sampleAccumulated.add(lightIntensity.scale(factor));
+            }
+
+            color = color.add(sampleAccumulated.scale(1d / sampledDirections.size()));
         }
 
         return color;
@@ -182,8 +199,66 @@ class SimpleRayTracer extends RayTracerBase {
      * @return global effects contribution
      */
     private Color calcGlobalEffects(Intersection intersection, int level, Double3 k) {
-        return calcGlobalEffect(constructReflectedRay(intersection), level, k, intersection.material.kR)
-                .add(calcGlobalEffect(constructRefractedRay(intersection), level, k, intersection.material.kT));
+        Color reflection = calcGlossyReflectionEffect(intersection, level, k);
+        Color refraction = calcDiffuseGlassEffect(intersection, level, k);
+        return reflection.add(refraction);
+    }
+
+    /**
+     * Calculates reflection contribution, optionally using glossy beam tracing.
+     */
+    private Color calcGlossyReflectionEffect(Intersection intersection, int level, Double3 k) {
+        Material material = intersection.material;
+        Ray centerRay = constructReflectedRay(intersection);
+
+        if (material.glossyRays <= 1 || material.glossyRadius == 0) {
+            return calcGlobalEffect(centerRay, level, k, material.kR);
+        }
+
+        List<Ray> beam = constructBeam(
+                centerRay,
+                intersection.normal,
+                material.glossyRadius,
+                material.glossyDistance,
+                material.glossyRays
+        );
+
+        Color color = Color.BLACK;
+        for (Ray ray : beam) {
+            color = color.add(calcGlobalEffect(ray, level, k, material.kR));
+        }
+        return color.scale(1d / beam.size());
+    }
+
+    /**
+     * Calculates transparency contribution, optionally using a diffuse-glass beam.
+     *
+     * @param intersection current intersection
+     * @param level        recursion depth
+     * @param k            accumulated attenuation
+     * @return transparency contribution
+     */
+    private Color calcDiffuseGlassEffect(Intersection intersection, int level, Double3 k) {
+        Material material = intersection.material;
+        Ray centerRay = constructRefractedRay(intersection);
+
+        if (material.diffuseGlassRays <= 1 || material.diffuseGlassRadius == 0) {
+            return calcGlobalEffect(centerRay, level, k, material.kT);
+        }
+
+        List<Ray> beam = constructBeam(
+                centerRay,
+                intersection.normal,
+                material.diffuseGlassRadius,
+                material.diffuseGlassDistance,
+                material.diffuseGlassRays
+        );
+
+        Color color = Color.BLACK;
+        for (Ray ray : beam) {
+            color = color.add(calcGlobalEffect(ray, level, k, material.kT));
+        }
+        return color.scale(1d / beam.size());
     }
 
     /**
@@ -228,5 +303,64 @@ class SimpleRayTracer extends RayTracerBase {
      */
     private Ray constructRefractedRay(Intersection intersection) {
         return new Ray(intersection.point, intersection.v, intersection.normal);
+    }
+
+    /**
+     * Constructs a deterministic beam around a central ray using disk sampling.
+     *
+     * @param centerRay central ray
+     * @param normal    surface normal at hit point
+     * @param radius    disk radius at target plane
+     * @param distance  target plane distance from ray origin
+     * @param rays      requested number of rays
+     * @return sampled beam containing at least the central ray
+     */
+    private List<Ray> constructBeam(Ray centerRay, Vector normal, double radius, double distance, int rays) {
+        List<Ray> beam = new ArrayList<>(Math.max(1, rays));
+        beam.add(centerRay);
+        if (rays <= 1 || radius == 0) {
+            return beam;
+        }
+
+        Vector centerDir = centerRay.direction();
+        Point origin = centerRay.origin();
+        Point centerTarget = origin.add(centerDir.scale(distance));
+        Vector[] basis = buildOrthonormalBasis(centerDir);
+        Vector u = basis[0];
+        Vector v = basis[1];
+
+        double centerSign = alignZero(centerDir.dotProduct(normal));
+        int candidateCount = rays - 1;
+        for (int i = 1; i <= candidateCount; i++) {
+            double t = i / (double) candidateCount;
+            double r = radius * Math.sqrt(t);
+            double theta = i * GOLDEN_ANGLE;
+
+            Vector offset = u.scale(r * Math.cos(theta)).add(v.scale(r * Math.sin(theta)));
+            Point target = centerTarget.add(offset);
+            Vector dir = target.subtract(origin);
+
+            // Keep rays on the same side of the tangent plane as the central ray.
+            if (centerSign != 0 && alignZero(dir.dotProduct(normal)) * centerSign <= 0) {
+                continue;
+            }
+
+            beam.add(new Ray(origin, dir, normal));
+        }
+
+        return beam;
+    }
+
+    /**
+     * Builds two normalized vectors orthogonal to the given direction.
+     *
+     * @param direction normalized center direction
+     * @return orthonormal basis {u, v}
+     */
+    private Vector[] buildOrthonormalBasis(Vector direction) {
+        Vector helper = Math.abs(direction.dotProduct(Vector.AXIS_Y)) < 0.9 ? Vector.AXIS_Y : Vector.AXIS_X;
+        Vector u = direction.crossProduct(helper).normalize();
+        Vector v = direction.crossProduct(u).normalize();
+        return new Vector[]{u, v};
     }
 }

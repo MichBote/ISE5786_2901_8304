@@ -26,6 +26,24 @@ public class Material {
    /** Reflection attenuation coefficient. */
    public Double3 kR = Double3.ZERO;
 
+   /** Diffuse-glass blur radius on the target area plane. */
+   public double diffuseGlassRadius = 0;
+
+   /** Distance of the diffuse-glass target area from the hit point. */
+   public double diffuseGlassDistance = 100;
+
+   /** Number of rays in diffuse-glass beam (1 means disabled). */
+   public int diffuseGlassRays = 1;
+
+   /** Glossy reflection blur radius on the target area plane. */
+   public double glossyRadius = 0;
+
+   /** Distance of glossy target area from the hit point. */
+   public double glossyDistance = 100;
+
+   /** Number of rays in glossy reflection beam (1 means disabled). */
+   public int glossyRays = 1;
+
    /**
     * Constructs material coefficients with default values.
     */
@@ -150,6 +168,106 @@ public class Material {
     */
    public Material setKR(Double3 kR) {
       this.kR = kR;
+      return this;
+   }
+
+   /**
+    * Enables diffuse-glass blur using an angular spread and number of rays.
+    *
+    * @param blurAngleDegrees maximal blur angle in degrees
+    * @param rays             number of rays in the beam (must be at least 1)
+    * @return this material, for chaining
+    */
+   public Material setDiffuseGlass(double blurAngleDegrees, int rays) {
+      if (blurAngleDegrees < 0) {
+         throw new IllegalArgumentException("blurAngleDegrees must be non-negative");
+      }
+      if (rays < 1) {
+         throw new IllegalArgumentException("rays must be at least 1");
+      }
+      diffuseGlassRays = rays;
+      if (blurAngleDegrees == 0 || rays == 1) {
+         diffuseGlassRadius = 0;
+         return this;
+      }
+
+      double angleRadians = Math.toRadians(blurAngleDegrees);
+      diffuseGlassRadius = Math.tan(angleRadians) * diffuseGlassDistance;
+      return this;
+   }
+
+   /**
+    * Enables diffuse-glass blur with explicit radius/distance/rays.
+    *
+    * @param radius   target area radius
+    * @param distance target area distance from the hit point
+    * @param rays     number of rays in beam (must be at least 1)
+    * @return this material, for chaining
+    */
+   public Material setDiffuseGlass(double radius, double distance, int rays) {
+      if (radius < 0) {
+         throw new IllegalArgumentException("radius must be non-negative");
+      }
+      if (distance <= 0) {
+         throw new IllegalArgumentException("distance must be positive");
+      }
+      if (rays < 1) {
+         throw new IllegalArgumentException("rays must be at least 1");
+      }
+
+      diffuseGlassRadius = radius;
+      diffuseGlassDistance = distance;
+      diffuseGlassRays = rays;
+      return this;
+   }
+
+   /**
+    * Enables glossy reflection blur using an angular spread and number of rays.
+    *
+    * @param blurAngleDegrees maximal blur angle in degrees
+    * @param rays number of rays in reflection beam
+    * @return this material, for chaining
+    */
+   public Material setGlossy(double blurAngleDegrees, int rays) {
+      if (blurAngleDegrees < 0) {
+         throw new IllegalArgumentException("blurAngleDegrees must be non-negative");
+      }
+      if (rays < 1) {
+         throw new IllegalArgumentException("rays must be at least 1");
+      }
+      glossyRays = rays;
+      if (blurAngleDegrees == 0 || rays == 1) {
+         glossyRadius = 0;
+         return this;
+      }
+
+      double angleRadians = Math.toRadians(blurAngleDegrees);
+      glossyRadius = Math.tan(angleRadians) * glossyDistance;
+      return this;
+   }
+
+   /**
+    * Enables glossy reflection blur with explicit radius/distance/rays.
+    *
+    * @param radius target area radius
+    * @param distance target area distance
+    * @param rays number of rays
+    * @return this material, for chaining
+    */
+   public Material setGlossy(double radius, double distance, int rays) {
+      if (radius < 0) {
+         throw new IllegalArgumentException("radius must be non-negative");
+      }
+      if (distance <= 0) {
+         throw new IllegalArgumentException("distance must be positive");
+      }
+      if (rays < 1) {
+         throw new IllegalArgumentException("rays must be at least 1");
+      }
+
+      glossyRadius = radius;
+      glossyDistance = distance;
+      glossyRays = rays;
       return this;
    }
 }

@@ -3,6 +3,10 @@ package lighting;
 import primitives.Color;
 import primitives.Point;
 import primitives.Vector;
+import renderer.Blackboard;
+
+import java.util.LinkedList;
+import java.util.List;
 
 import static primitives.Util.alignZero;
 
@@ -111,6 +115,21 @@ public class SpotLight extends PointLight {
     }
 
     /**
+     * Sets soft-shadow sampling for this spotlight.
+     *
+     * @param radius area radius (0 disables)
+     * @param rays number of sampled rays (1 disables)
+     * @param shape sampling area shape
+     * @param pattern sampling pattern
+     * @return this spotlight
+     */
+    @Override
+    public SpotLight setSoftShadows(double radius, int rays, Blackboard.Shape shape, Blackboard.Pattern pattern) {
+        super.setSoftShadows(radius, rays, shape, pattern);
+        return this;
+    }
+
+    /**
      * Returns the spotlight intensity reaching the given point.
      *
      * @param p illuminated point
@@ -133,5 +152,19 @@ public class SpotLight extends PointLight {
             factor = Math.pow(factor, _narrowBeam);
         }
         return super.getIntensity(p).scale(factor);
+    }
+
+    @Override
+    public List<Vector> getLs(Point p) {
+        if (_softShadowRadius == 0 || _softShadowRays <= 1) {
+            return List.of(getL(p));
+        }
+
+        List<Point> points = sampleLightPoints(_direction, p.hashCode());
+        var vectors = new LinkedList<Vector>();
+        for (Point lightPoint : points) {
+            vectors.add(p.subtract(lightPoint).normalize());
+        }
+        return vectors;
     }
 }
