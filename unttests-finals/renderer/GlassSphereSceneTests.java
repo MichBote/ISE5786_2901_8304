@@ -75,8 +75,9 @@ class GlassSphereSceneTests {
 //                .writeToImage("largeTurquoiseGlassSphere");
 //    }
 //
-//    /**
-    /* Produces a dark-blue scene with a glass sphere resting on a blue plane and soft lighting.
+
+    /**
+     * Produces a dark-blue scene with a glass sphere resting on a blue plane and soft lighting.
      */
     @Test
     void testDarkBlueGlassSphereOnBluePlane() {
