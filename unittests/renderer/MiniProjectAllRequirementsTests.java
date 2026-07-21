@@ -19,7 +19,15 @@ import scene.Scene;
  */
 @SuppressWarnings("java:S109")
 class MiniProjectAllRequirementsTests {
+    /**
+     * Creates the all-requirements mini-project test fixture.
+     */
+    MiniProjectAllRequirementsTests() {
+    }
 
+    /**
+     * Renders the requirements scene with improvements disabled.
+     */
     @Test
     void renderRequirementsSceneWithoutImprovements() {
         Scene scene = buildScene(false);
@@ -27,6 +35,9 @@ class MiniProjectAllRequirementsTests {
         System.out.println("Requirements OFF render time: " + elapsedMs + " ms");
     }
 
+    /**
+     * Renders the requirements scene with improvements enabled.
+     */
     @Test
     void renderRequirementsSceneWithImprovements() {
         Scene scene = buildScene(true);
@@ -34,6 +45,14 @@ class MiniProjectAllRequirementsTests {
         System.out.println("Requirements ON render time: " + elapsedMs + " ms");
     }
 
+    /**
+     * Renders the requirements scene and writes the resulting image.
+     *
+     * @param scene scene to render
+     * @param enableImprovements true to enable camera improvements
+     * @param outputName output image name
+     * @return elapsed render time in milliseconds
+     */
     private long render(Scene scene, boolean enableImprovements, String outputName) {
         Camera.Builder builder = Camera.getBuilder()
                 .setRayTracer(scene, RayTracerType.SIMPLE)
@@ -56,6 +75,12 @@ class MiniProjectAllRequirementsTests {
         return (System.nanoTime() - start) / 1_000_000;
     }
 
+    /**
+     * Builds the requirements scene.
+     *
+     * @param enableImprovements true to enable material and light improvements
+     * @return configured scene
+     */
     private Scene buildScene(boolean enableImprovements) {
         Scene scene = new Scene("Mini project all requirements")
                 .setBackground(new Color(14, 15, 21))

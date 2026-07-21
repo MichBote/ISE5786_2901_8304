@@ -81,6 +81,8 @@ public class PointLight extends Light implements LightSource {
 
     /**
      * Returns light position for subclasses.
+     *
+     * @return this light's position
      */
     protected Point getPosition() {
         return _position;

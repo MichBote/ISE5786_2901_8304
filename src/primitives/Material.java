@@ -26,6 +26,15 @@ public class Material {
    /** Reflection attenuation coefficient. */
    public Double3 kR = Double3.ZERO;
 
+   /** Glossy reflection blur radius used by the newer renderer API. */
+   public double glossyBlur = 0;
+
+   /** Blurry transparency radius used by the newer renderer API. */
+   public double transparencyBlur = 0;
+
+   /** Relative refractive index placeholder for transparent materials. */
+   public double refractiveIndex = 1;
+
    /** Diffuse-glass blur radius on the target area plane. */
    public double diffuseGlassRadius = 0;
 
@@ -172,6 +181,56 @@ public class Material {
    }
 
    /**
+    * Sets the glossy reflection blur radius.
+    *
+    * @param blur glossy blur radius, zero for sharp reflection
+    * @return this material, for chaining
+    */
+   public Material setGlossyBlur(double blur) {
+      validateNonNegativeFinite(blur, "glossy blur");
+      glossyBlur = blur;
+      glossyRadius = blur;
+      return this;
+   }
+
+   /**
+    * Sets the blurry transparency radius.
+    *
+    * @param blur transparency blur radius, zero for sharp transparency
+    * @return this material, for chaining
+    */
+   public Material setTransparencyBlur(double blur) {
+      validateNonNegativeFinite(blur, "transparency blur");
+      transparencyBlur = blur;
+      diffuseGlassRadius = blur;
+      return this;
+   }
+
+   /**
+    * Backward-compatible alias for transparency blur.
+    *
+    * @param blur transparency blur radius
+    * @return this material, for chaining
+    */
+   public Material setDiffuseBlur(double blur) {
+      return setTransparencyBlur(blur);
+   }
+
+   /**
+    * Sets the material's refractive index.
+    *
+    * @param refractiveIndex refractive index, must be positive and finite
+    * @return this material, for chaining
+    */
+   public Material setRefractiveIndex(double refractiveIndex) {
+      if (!Double.isFinite(refractiveIndex) || refractiveIndex <= 0) {
+         throw new IllegalArgumentException("refractiveIndex must be positive and finite");
+      }
+      this.refractiveIndex = refractiveIndex;
+      return this;
+   }
+
+   /**
     * Enables diffuse-glass blur using an angular spread and number of rays.
     *
     * @param blurAngleDegrees maximal blur angle in degrees
@@ -188,11 +247,13 @@ public class Material {
       diffuseGlassRays = rays;
       if (blurAngleDegrees == 0 || rays == 1) {
          diffuseGlassRadius = 0;
+         transparencyBlur = 0;
          return this;
       }
 
       double angleRadians = Math.toRadians(blurAngleDegrees);
       diffuseGlassRadius = Math.tan(angleRadians) * diffuseGlassDistance;
+      transparencyBlur = diffuseGlassRadius;
       return this;
    }
 
@@ -216,6 +277,7 @@ public class Material {
       }
 
       diffuseGlassRadius = radius;
+      transparencyBlur = radius;
       diffuseGlassDistance = distance;
       diffuseGlassRays = rays;
       return this;
@@ -238,11 +300,13 @@ public class Material {
       glossyRays = rays;
       if (blurAngleDegrees == 0 || rays == 1) {
          glossyRadius = 0;
+         glossyBlur = 0;
          return this;
       }
 
       double angleRadians = Math.toRadians(blurAngleDegrees);
       glossyRadius = Math.tan(angleRadians) * glossyDistance;
+      glossyBlur = glossyRadius;
       return this;
    }
 
@@ -266,8 +330,21 @@ public class Material {
       }
 
       glossyRadius = radius;
+      glossyBlur = radius;
       glossyDistance = distance;
       glossyRays = rays;
       return this;
+   }
+
+   /**
+    * Validates a finite non-negative scalar.
+    *
+    * @param value value to validate
+    * @param name diagnostic parameter name
+    */
+   private static void validateNonNegativeFinite(double value, String name) {
+      if (!Double.isFinite(value) || value < 0) {
+         throw new IllegalArgumentException(name + " must be non-negative and finite");
+      }
    }
 }

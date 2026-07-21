@@ -9,6 +9,9 @@ import scene.Scene;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.MissingResourceException;
+import java.util.Objects;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.IntStream;
 
 import static primitives.Util.alignZero;
@@ -43,10 +46,19 @@ public class Camera implements Cloneable {
     private double aaRadiusFactor = 0.5;
 
     /** Sampling pattern for anti-aliasing. */
-    private Blackboard.Pattern aaPattern = Blackboard.Pattern.GRID;
+    private SamplingPattern aaPattern = SamplingPattern.GRID;
 
     /** Sampling shape for anti-aliasing. */
-    private Blackboard.Shape aaShape = Blackboard.Shape.SQUARE;
+    private SamplingShape aaShape = SamplingShape.SQUARE;
+
+    /** Optional explicit anti-aliasing sampling area width. Zero means pixel width. */
+    private double aaAreaWidth = 0;
+
+    /** Optional explicit anti-aliasing sampling area height. Zero means pixel height. */
+    private double aaAreaHeight = 0;
+
+    /** Base seed for deterministic jittered anti-aliasing. */
+    private long aaSeed = 0L;
 
     /** Aperture radius for depth of field (0 disables DOF). */
     private double apertureRadius = 0;
@@ -221,14 +233,20 @@ public class Camera implements Cloneable {
      */
     private Camera renderImageRawThreads() {
         var threads = new LinkedList<Thread>();
+        Queue<Throwable> workerErrors = new ConcurrentLinkedQueue<>();
         int workers = threadsCount;
 
         while (workers-- > 0) {
             threads.add(new Thread(() -> {
                 PixelManager.Pixel pixel;
                 while ((pixel = pixelManager.nextPixel()) != null) {
-                    castRay(pixel.col(), pixel.row());
-                    pixelManager.pixelDone();
+                    try {
+                        castRay(pixel.col(), pixel.row());
+                        pixelManager.pixelDone();
+                    } catch (Throwable ex) {
+                        workerErrors.add(ex);
+                        break;
+                    }
                 }
             }));
         }
@@ -243,6 +261,17 @@ public class Camera implements Cloneable {
             }
         } catch (InterruptedException ignored) {
             Thread.currentThread().interrupt();
+        }
+
+        if (!workerErrors.isEmpty()) {
+            Throwable first = workerErrors.peek();
+            if (first instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            if (first instanceof Error error) {
+                throw error;
+            }
+            throw new RuntimeException(first);
         }
 
         return this;
@@ -300,15 +329,37 @@ public class Camera implements Cloneable {
         }
 
         Point center = centerRay.getPoint(_vpDistance);
-        double areaRadius = Math.min(_pixelWidth, _pixelHeight) * aaRadiusFactor;
-        Blackboard board = new Blackboard(aaShape, aaPattern, aaSamples, hashSeed(xIndex, yIndex, 3));
+        double areaWidth = aaAreaWidth > 0 ? aaAreaWidth : _pixelWidth * aaRadiusFactor * 2d;
+        double areaHeight = aaAreaHeight > 0 ? aaAreaHeight : _pixelHeight * aaRadiusFactor * 2d;
+        SamplingBoard board = createSamplingBoard(areaWidth, areaHeight, aaSamples, aaPattern, aaShape,
+                hashSeed(xIndex, yIndex, 3));
 
-        List<Point> points = board.samplePoints(center, _vRight, _vUp, areaRadius);
+        List<Point> points = board.sample(center, _vRight, _vUp);
         var rays = new LinkedList<Ray>();
         for (Point point : points) {
             rays.add(new Ray(_p0, point.subtract(_p0)));
         }
         return rays;
+    }
+
+    /**
+     * Creates the configured camera sampling board.
+     *
+     * @param width sampling area width
+     * @param height sampling area height
+     * @param samples exact sample count
+     * @param pattern sampling pattern
+     * @param shape sampling shape
+     * @param seed deterministic jitter seed
+     * @return configured sampling board
+     */
+    private SamplingBoard createSamplingBoard(double width, double height, int samples,
+                                             SamplingPattern pattern, SamplingShape shape, long seed) {
+        return switch (shape) {
+            case SQUARE -> SamplingBoard.square(Math.min(width, height), samples, pattern, seed);
+            case CIRCLE -> SamplingBoard.circle(Math.min(width, height) / 2d, samples, pattern, seed);
+            case RECTANGLE -> SamplingBoard.rectangle(width, height, samples, pattern, seed);
+        };
     }
 
     /**
@@ -332,12 +383,19 @@ public class Camera implements Cloneable {
 
     /**
      * Produces deterministic per-pixel seed for sampling patterns that use randomness.
+     *
+     * @param xIndex pixel column index
+     * @param yIndex pixel row index
+     * @param salt feature-specific salt
+     * @return deterministic seed
      */
     private long hashSeed(int xIndex, int yIndex, int salt) {
         long h = 1469598103934665603L;
         h ^= xIndex + salt;
         h *= 1099511628211L;
         h ^= yIndex + (long) salt * 31;
+        h *= 1099511628211L;
+        h ^= aaSeed;
         h *= 1099511628211L;
         return h;
     }
@@ -408,6 +466,27 @@ public class Camera implements Cloneable {
          * Optional roll around viewing direction, applied during build.
          */
         private double _rollRadians = 0d;
+
+        /** Pending simple-ray-tracer blur enabled flag. */
+        private boolean _blurEnabled = true;
+
+        /** Pending simple-ray-tracer blur sample count. */
+        private int _blurSamples = 1;
+
+        /** Pending simple-ray-tracer blur target distance. */
+        private double _blurTargetDistance = 100d;
+
+        /** Pending simple-ray-tracer blur pattern. */
+        private SamplingPattern _blurSamplingPattern = SamplingPattern.GRID;
+
+        /** Pending simple-ray-tracer blur shape. */
+        private SamplingShape _blurSamplingShape = SamplingShape.CIRCLE;
+
+        /** Pending simple-ray-tracer blur seed. */
+        private long _blurSamplingSeed = 0L;
+
+        /** Pending render statistics collector. */
+        private RenderStats _renderStats;
 
         /**
          * Sets the camera location.
@@ -552,14 +631,107 @@ public class Camera implements Cloneable {
             if (samples < 1) {
                 throw new IllegalArgumentException("samples must be at least 1");
             }
-            if (radiusFactor < 0) {
-                throw new IllegalArgumentException("radiusFactor must be non-negative");
+            if (!Double.isFinite(radiusFactor) || radiusFactor < 0) {
+                throw new IllegalArgumentException("radiusFactor must be non-negative and finite");
             }
 
             _camera.aaSamples = samples;
-            _camera.aaShape = shape == null ? Blackboard.Shape.SQUARE : shape;
-            _camera.aaPattern = pattern == null ? Blackboard.Pattern.GRID : pattern;
+            _camera.aaShape = shape == Blackboard.Shape.CIRCLE ? SamplingShape.CIRCLE : SamplingShape.SQUARE;
+            _camera.aaPattern = pattern == Blackboard.Pattern.GRID ? SamplingPattern.GRID : SamplingPattern.JITTERED;
             _camera.aaRadiusFactor = radiusFactor;
+            _camera.aaAreaWidth = 0;
+            _camera.aaAreaHeight = 0;
+            return this;
+        }
+
+        /**
+         * Enables/disables camera super sampling with a conventional default.
+         *
+         * @param enabled true to enable, false to disable
+         * @return this builder
+         */
+        public Builder setSuperSampling(boolean enabled) {
+            if (!enabled) {
+                _camera.aaSamples = 1;
+            } else if (_camera.aaSamples <= 1) {
+                _camera.aaSamples = 9;
+            }
+            return this;
+        }
+
+        /**
+         * Sets the exact number of camera samples per pixel.
+         *
+         * @param samples sample count, must be positive
+         * @return this builder
+         */
+        public Builder setSuperSampling(int samples) {
+            return setSamples(samples);
+        }
+
+        /**
+         * Sets the exact number of camera samples per pixel.
+         *
+         * @param samples sample count, must be positive
+         * @return this builder
+         */
+        public Builder setSamples(int samples) {
+            if (samples < 1) {
+                throw new IllegalArgumentException("samples must be at least 1");
+            }
+            _camera.aaSamples = samples;
+            return this;
+        }
+
+        /**
+         * Sets the camera sampling pattern.
+         *
+         * @param pattern sampling pattern
+         * @return this builder
+         */
+        public Builder setSamplingPattern(SamplingPattern pattern) {
+            _camera.aaPattern = Objects.requireNonNull(pattern, "sampling pattern must not be null");
+            return this;
+        }
+
+        /**
+         * Sets the camera sampling shape.
+         *
+         * @param shape sampling shape
+         * @return this builder
+         */
+        public Builder setSamplingShape(SamplingShape shape) {
+            Objects.requireNonNull(shape, "sampling shape must not be null");
+            if (shape == SamplingShape.RECTANGLE) {
+                throw new IllegalArgumentException("Camera sampling supports square or circle only");
+            }
+            _camera.aaShape = shape;
+            return this;
+        }
+
+        /**
+         * Sets an explicit camera sampling area size.
+         *
+         * @param width sampling area width
+         * @param height sampling area height
+         * @return this builder
+         */
+        public Builder setSamplingArea(double width, double height) {
+            validatePositiveFinite(width, "sampling width");
+            validatePositiveFinite(height, "sampling height");
+            _camera.aaAreaWidth = width;
+            _camera.aaAreaHeight = height;
+            return this;
+        }
+
+        /**
+         * Sets the base seed for deterministic jittered camera samples.
+         *
+         * @param seed base seed
+         * @return this builder
+         */
+        public Builder setSamplingSeed(long seed) {
+            _camera.aaSeed = seed;
             return this;
         }
 
@@ -603,9 +775,102 @@ public class Camera implements Cloneable {
         public Builder setRayTracer(Scene scene, RayTracerType type) {
             if (type == RayTracerType.SIMPLE) {
                 _camera._rayTracer = new SimpleRayTracer(scene);
+                applySimpleRayTracerOptions();
             } else {
                 throw new IllegalArgumentException("Unsupported ray tracer type: " + type);
             }
+            return this;
+        }
+
+        /**
+         * Enables/disables blur beams on the simple ray tracer.
+         *
+         * @param enabled true to enable blur beams
+         * @return this builder
+         */
+        public Builder setBlurEnabled(boolean enabled) {
+            _blurEnabled = enabled;
+            simpleRayTracer().ifPresent(tracer -> tracer.setBlurEnabled(enabled));
+            return this;
+        }
+
+        /**
+         * Sets blur beam sample count on the simple ray tracer.
+         *
+         * @param samples sample count, must be positive
+         * @return this builder
+         */
+        public Builder setBlurSamples(int samples) {
+            if (samples < 1) {
+                throw new IllegalArgumentException("blur samples must be at least 1");
+            }
+            _blurSamples = samples;
+            simpleRayTracer().ifPresent(tracer -> tracer.setBlurSamples(samples));
+            return this;
+        }
+
+        /**
+         * Sets blur sampling target distance.
+         *
+         * @param distance target distance, must be positive and finite
+         * @return this builder
+         */
+        public Builder setBlurTargetDistance(double distance) {
+            validatePositiveFinite(distance, "blur target distance");
+            _blurTargetDistance = distance;
+            simpleRayTracer().ifPresent(tracer -> tracer.setBlurTargetDistance(distance));
+            return this;
+        }
+
+        /**
+         * Sets blur sampling pattern.
+         *
+         * @param pattern sampling pattern
+         * @return this builder
+         */
+        public Builder setBlurSamplingPattern(SamplingPattern pattern) {
+            _blurSamplingPattern = Objects.requireNonNull(pattern, "blur sampling pattern must not be null");
+            simpleRayTracer().ifPresent(tracer -> tracer.setBlurSamplingPattern(pattern));
+            return this;
+        }
+
+        /**
+         * Sets blur sampling shape.
+         *
+         * @param shape sampling shape
+         * @return this builder
+         */
+        public Builder setBlurSamplingShape(SamplingShape shape) {
+            Objects.requireNonNull(shape, "blur sampling shape must not be null");
+            if (shape == SamplingShape.RECTANGLE) {
+                throw new IllegalArgumentException("Blur sampling supports square or circle only");
+            }
+            _blurSamplingShape = shape;
+            simpleRayTracer().ifPresent(tracer -> tracer.setBlurSamplingShape(shape));
+            return this;
+        }
+
+        /**
+         * Sets blur sampling seed.
+         *
+         * @param seed deterministic seed
+         * @return this builder
+         */
+        public Builder setBlurSamplingSeed(long seed) {
+            _blurSamplingSeed = seed;
+            simpleRayTracer().ifPresent(tracer -> tracer.setBlurSamplingSeed(seed));
+            return this;
+        }
+
+        /**
+         * Installs a render statistics collector on the simple ray tracer.
+         *
+         * @param renderStats statistics collector
+         * @return this builder
+         */
+        public Builder setRenderStats(RenderStats renderStats) {
+            _renderStats = renderStats;
+            simpleRayTracer().ifPresent(tracer -> tracer.setRenderStats(renderStats));
             return this;
         }
 
@@ -707,6 +972,43 @@ public class Camera implements Cloneable {
             _camera._vpCenter = _camera._p0.add(_camera._vTo.scale(_camera._vpDistance));
             _camera._pixelWidth = _camera._vpWidth / _camera._nX;
             _camera._pixelHeight = _camera._vpHeight / _camera._nY;
+        }
+
+        /**
+         * Applies pending builder options to a simple ray tracer.
+         */
+        private void applySimpleRayTracerOptions() {
+            simpleRayTracer().ifPresent(tracer -> tracer
+                    .setBlurEnabled(_blurEnabled)
+                    .setBlurSamples(_blurSamples)
+                    .setBlurSamplingPattern(_blurSamplingPattern)
+                    .setBlurSamplingShape(_blurSamplingShape)
+                    .setBlurSamplingSeed(_blurSamplingSeed)
+                    .setBlurTargetDistance(_blurTargetDistance)
+                    .setRenderStats(_renderStats));
+        }
+
+        /**
+         * Returns the current ray tracer as a simple ray tracer when applicable.
+         *
+         * @return optional simple ray tracer
+         */
+        private java.util.Optional<SimpleRayTracer> simpleRayTracer() {
+            return _camera._rayTracer instanceof SimpleRayTracer tracer
+                    ? java.util.Optional.of(tracer)
+                    : java.util.Optional.empty();
+        }
+
+        /**
+         * Validates a positive finite scalar.
+         *
+         * @param value value to validate
+         * @param name diagnostic parameter name
+         */
+        private void validatePositiveFinite(double value, String name) {
+            if (!Double.isFinite(value) || alignZero(value) <= 0) {
+                throw new IllegalArgumentException(name + " must be positive and finite");
+            }
         }
     }
 }

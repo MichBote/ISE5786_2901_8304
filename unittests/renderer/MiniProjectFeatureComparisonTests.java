@@ -18,65 +18,115 @@ import scene.Scene;
  */
 @SuppressWarnings("java:S109")
 class MiniProjectFeatureComparisonTests {
+    /**
+     * Creates the feature-comparison test fixture.
+     */
+    MiniProjectFeatureComparisonTests() {
+    }
 
+    /**
+     * Mini-project feature under comparison.
+     */
     private enum Feature {
+        /** Camera anti-aliasing. */
         ANTI_ALIASING,
+        /** Camera depth-of-field. */
         DEPTH_OF_FIELD,
+        /** Area-light soft shadows. */
         SOFT_SHADOWS,
+        /** Glossy reflection. */
         GLOSSY,
+        /** Diffuse-glass transparency. */
         DIFFUSE_GLASS
     }
 
+    /**
+     * Renders the anti-aliasing comparison scene with anti-aliasing disabled.
+     */
     @Test
     void renderAntiAliasingOff() {
         renderFeature(Feature.ANTI_ALIASING, false, "mp_aa_off");
     }
 
+    /**
+     * Renders the anti-aliasing comparison scene with anti-aliasing enabled.
+     */
     @Test
     void renderAntiAliasingOn() {
         renderFeature(Feature.ANTI_ALIASING, true, "mp_aa_on");
     }
 
+    /**
+     * Renders the depth-of-field comparison scene with depth of field disabled.
+     */
     @Test
     void renderDepthOfFieldOff() {
         renderFeature(Feature.DEPTH_OF_FIELD, false, "mp_dof_off");
     }
 
+    /**
+     * Renders the depth-of-field comparison scene with depth of field enabled.
+     */
     @Test
     void renderDepthOfFieldOn() {
         renderFeature(Feature.DEPTH_OF_FIELD, true, "mp_dof_on");
     }
 
+    /**
+     * Renders the soft-shadow comparison scene with soft shadows disabled.
+     */
     @Test
     void renderSoftShadowsOff() {
         renderFeature(Feature.SOFT_SHADOWS, false, "mp_soft_shadows_off");
     }
 
+    /**
+     * Renders the soft-shadow comparison scene with soft shadows enabled.
+     */
     @Test
     void renderSoftShadowsOn() {
         renderFeature(Feature.SOFT_SHADOWS, true, "mp_soft_shadows_on");
     }
 
+    /**
+     * Renders the glossy-reflection comparison scene with glossy reflection disabled.
+     */
     @Test
     void renderGlossyOff() {
         renderFeature(Feature.GLOSSY, false, "mp_glossy_off");
     }
 
+    /**
+     * Renders the glossy-reflection comparison scene with glossy reflection enabled.
+     */
     @Test
     void renderGlossyOn() {
         renderFeature(Feature.GLOSSY, true, "mp_glossy_on");
     }
 
+    /**
+     * Renders the diffuse-glass comparison scene with diffuse glass disabled.
+     */
     @Test
     void renderDiffuseGlassOff() {
         renderFeature(Feature.DIFFUSE_GLASS, false, "mp_diffuse_glass_feature_off");
     }
 
+    /**
+     * Renders the diffuse-glass comparison scene with diffuse glass enabled.
+     */
     @Test
     void renderDiffuseGlassOn() {
         renderFeature(Feature.DIFFUSE_GLASS, true, "mp_diffuse_glass_feature_on");
     }
 
+    /**
+     * Renders one feature comparison variant.
+     *
+     * @param feature feature being compared
+     * @param enabled true to enable the feature
+     * @param outputName output image name
+     */
     private void renderFeature(Feature feature, boolean enabled, String outputName) {
         Scene scene = buildScene(feature, enabled);
         Camera.Builder builder = Camera.getBuilder()
@@ -102,6 +152,13 @@ class MiniProjectFeatureComparisonTests {
         System.out.println(feature + " " + (enabled ? "ON" : "OFF") + " render time: " + elapsedMs + " ms");
     }
 
+    /**
+     * Builds a feature-comparison scene.
+     *
+     * @param feature feature being compared
+     * @param enabled true to enable the feature-specific scene configuration
+     * @return configured scene
+     */
     private Scene buildScene(Feature feature, boolean enabled) {
         Scene scene = new Scene("Mini project feature comparison")
                 .setBackground(new Color(14, 15, 21))

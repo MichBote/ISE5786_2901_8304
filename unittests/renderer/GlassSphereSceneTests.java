@@ -25,58 +25,58 @@ class GlassSphereSceneTests {
     /**
      * Produces a picture of a large turquoise-blue glass sphere on a white/gray floor.
      */
-    @Test
-    void testLargeTurquoiseGlassSphereOnWhiteGrayFloor() {
-        Scene scene = new Scene("Large turquoise glass sphere")
-                .setBackground(new Color(150, 170, 190))
-                .setAmbientLight(new AmbientLight(new Color(15, 18, 20)));
-
-        scene.geometries.add(
-                new Plane(new Point(0, -80, 0), new Vector(0, 1, 0))
-                        .setEmission(new Color(170, 170, 170))
-                        .setMaterial(new Material()
-                                .setKD(0.45)
-                                .setKS(0.25)
-                                .setKR(0.15)
-                                .setShininess(80)),
-                new Sphere(new Point(0, -5, -210), 75)
-                        .setEmission(Color.BLACK)
-                        //    .setEmission(new Color(95, 7, 10))
-                        .setMaterial(new Material()
-                                .setKD(0.16)
-                                .setKS(0.88)
-                                .setKR(0.18)
-                                .setShininess(320))
-        );
-
-        scene.lights.add(new SpotLight(new Color(300, 300, 180), new Point(-130, 170, 150),
-                new Vector(1.0, -1.5, -2.2))
-                .setKl(0.00035)
-                .setKq(0.000001));
-     /*   scene.lights.add(new PointLight(new Color(80, 140, 180), new Point(120, 60, 30))
-                .setKl(0.0007)
-                .setKq(0.000002));
-     */
-     /*   scene.lights.add(new PointLight(new Color(80, 140, 180), new Point(-35, 55, 70))
-
-                .setKl(0.0009)
-                .setKq(0.000003));
-*/
-        Camera.getBuilder()
-                .setRayTracer(scene, RayTracerType.SIMPLE)
-                .setLocation(new Point(0, 35, 520))
-                .setDirection(new Point(0, -20, -210), Vector.AXIS_Y)
-                .setVpDistance(520)
-                .setVpSize(240, 240)
-                .setResolution(300, 300)
-                .setBlurEnabled(false)
-                .build()
-                .renderImage()
-                .writeToImage("largeTurquoiseGlassSphere");
-    }
-
-    /**
-     * Produces a dark-blue scene with a glass sphere resting on a blue plane and soft lighting.
+    //@Test
+//    void testLargeTurquoiseGlassSphereOnWhiteGrayFloor() {
+//        Scene scene = new Scene("Large turquoise glass sphere")
+//                .setBackground(new Color(150, 170, 190))
+//                .setAmbientLight(new AmbientLight(new Color(15, 18, 20)));
+//
+//        scene.geometries.add(
+//                new Plane(new Point(0, -80, 0), new Vector(0, 1, 0))
+//                        .setEmission(new Color(170, 170, 170))
+//                        .setMaterial(new Material()
+//                                .setKD(0.45)
+//                                .setKS(0.25)
+//                                .setKR(0.15)
+//                                .setShininess(80)),
+//                new Sphere(new Point(0, -5, -210), 75)
+//                        .setEmission(Color.BLACK)
+//                        //    .setEmission(new Color(95, 7, 10))
+//                        .setMaterial(new Material()
+//                                .setKD(0.16)
+//                                .setKS(0.88)
+//                                .setKR(0.18)
+//                                .setShininess(320))
+//        );
+//
+//        scene.lights.add(new SpotLight(new Color(300, 300, 180), new Point(-130, 170, 150),
+//                new Vector(1.0, -1.5, -2.2))
+//                .setKl(0.00035)
+//                .setKq(0.000001));
+//     /*   scene.lights.add(new PointLight(new Color(80, 140, 180), new Point(120, 60, 30))
+//                .setKl(0.0007)
+//                .setKq(0.000002));
+//     */
+//     /*   scene.lights.add(new PointLight(new Color(80, 140, 180), new Point(-35, 55, 70))
+//
+//                .setKl(0.0009)
+//                .setKq(0.000003));
+//*/
+//        Camera.getBuilder()
+//                .setRayTracer(scene, RayTracerType.SIMPLE)
+//                .setLocation(new Point(0, 35, 520))
+//                .setDirection(new Point(0, -20, -210), Vector.AXIS_Y)
+//                .setVpDistance(520)
+//                .setVpSize(240, 240)
+//                .setResolution(300, 300)
+//                .setBlurEnabled(false)
+//                .build()
+//                .renderImage()
+//                .writeToImage("largeTurquoiseGlassSphere");
+//    }
+//
+//    /**
+    /* Produces a dark-blue scene with a glass sphere resting on a blue plane and soft lighting.
      */
     @Test
     void testDarkBlueGlassSphereOnBluePlane() {

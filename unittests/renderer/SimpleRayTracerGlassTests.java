@@ -15,6 +15,12 @@ import static org.junit.jupiter.api.Assertions.*;
  * Focused tests for glossy reflection and blurry transparency beam handling.
  */
 class SimpleRayTracerGlassTests {
+    /**
+     * Creates the glass ray-tracer test fixture.
+     */
+    SimpleRayTracerGlassTests() {
+    }
+
     /** Numeric tolerance. */
     private static final double DELTA = 1e-10;
     /** Primary ray origin used by scene-level tests. */
@@ -444,6 +450,8 @@ class SimpleRayTracerGlassTests {
 
     /**
      * Creates a bare tracer.
+     *
+     * @return bare simple ray tracer
      */
     private SimpleRayTracer tracer() {
         return new SimpleRayTracer(new Scene("glass unit test"));
@@ -451,6 +459,11 @@ class SimpleRayTracerGlassTests {
 
     /**
      * Creates a ray tracer for scene-level global-effect tests.
+     *
+     * @param primaryRay primary ray that hits the test surface
+     * @param primaryMaterial material assigned to the primary surface
+     * @param colorFunction function used to color target hits
+     * @return configured scene tracer
      */
     private static SimpleRayTracer sceneTracer(Ray primaryRay, Material primaryMaterial,
                                                Function<Ray, Color> colorFunction) {
@@ -459,6 +472,12 @@ class SimpleRayTracerGlassTests {
 
     /**
      * Creates a ray tracer for scene-level global-effect tests with a target material.
+     *
+     * @param primaryRay primary ray that hits the test surface
+     * @param primaryMaterial material assigned to the primary surface
+     * @param colorFunction function used to color target hits
+     * @param targetMaterial material assigned to the target surface
+     * @return configured scene tracer
      */
     private static SimpleRayTracer sceneTracer(Ray primaryRay, Material primaryMaterial,
                                                Function<Ray, Color> colorFunction, Material targetMaterial) {
@@ -472,6 +491,10 @@ class SimpleRayTracerGlassTests {
 
     /**
      * Computes a reflected direction.
+     *
+     * @param direction incoming direction
+     * @param normal surface normal
+     * @return reflected direction
      */
     private static Vector reflected(Vector direction, Vector normal) {
         double vn = direction.dotProduct(normal);
@@ -480,6 +503,9 @@ class SimpleRayTracerGlassTests {
 
     /**
      * Returns a deterministic color from a ray direction.
+     *
+     * @param ray ray to color
+     * @return deterministic direction-based color
      */
     private static Color directionColor(Ray ray) {
         Vector direction = ray.direction();
@@ -492,6 +518,10 @@ class SimpleRayTracerGlassTests {
 
     /**
      * Averages colors returned for the supplied rays.
+     *
+     * @param rays rays to sample
+     * @param colorFunction function used to color each ray
+     * @return averaged color
      */
     private static Color average(List<Ray> rays, Function<Ray, Color> colorFunction) {
         assertFalse(rays.isEmpty(), "Test setup must provide at least one ray");
@@ -515,6 +545,11 @@ class SimpleRayTracerGlassTests {
 
         /**
          * Creates the primary geometry.
+         *
+         * @param primaryOrigin primary ray origin accepted by this geometry
+         * @param hitPoint fixed hit point
+         * @param normal fixed surface normal
+         * @param material geometry material
          */
         private PrimaryGeometry(Point primaryOrigin, Point hitPoint, Vector normal, Material material) {
             this.primaryOrigin = primaryOrigin;
@@ -551,6 +586,10 @@ class SimpleRayTracerGlassTests {
 
         /**
          * Creates the target geometry.
+         *
+         * @param primaryOrigin primary ray origin ignored by this target
+         * @param colorFunction ray-to-color function
+         * @param material target material
          */
         private RayColoredTarget(Point primaryOrigin, Function<Ray, Color> colorFunction, Material material) {
             this.primaryOrigin = primaryOrigin;
@@ -585,6 +624,8 @@ class SimpleRayTracerGlassTests {
     private static final class AlwaysHitGeometry extends Geometry {
         /**
          * Creates recursive reflective geometry.
+         *
+         * @param material geometry material
          */
         private AlwaysHitGeometry(Material material) {
             setMaterial(material);

@@ -4,21 +4,36 @@ package renderer;
  * Pixel manager for synchronized pixel distribution and optional progress print.
  */
 final class PixelManager {
-    /** Immutable row/column pixel coordinates. */
+    /**
+     * Immutable row/column pixel coordinates.
+     *
+     * @param row pixel row index
+     * @param col pixel column index
+     */
     record Pixel(int row, int col) {
     }
 
+    /** Number of image rows. */
     private final int rows;
+    /** Number of image columns. */
     private final int cols;
+    /** Total number of pixels to render. */
     private final long totalPixels;
+    /** Minimum progress-print interval in seconds. */
     private final double printIntervalSeconds;
 
+    /** Next linear pixel index to assign. */
     private long nextIndex = 0;
+    /** Number of pixels already processed. */
     private long processedPixels = 0;
+    /** Last printed integer progress percentage. */
     private long lastPrintedPercent = -1;
+    /** Time of the last progress print. */
     private long lastPrintNano = System.nanoTime();
 
+    /** Mutex protecting pixel assignment. */
     private final Object mutexNext = new Object();
+    /** Mutex protecting processed-pixel progress state. */
     private final Object mutexPixels = new Object();
 
     /**

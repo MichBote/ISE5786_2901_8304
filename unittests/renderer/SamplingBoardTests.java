@@ -14,6 +14,12 @@ import static org.junit.jupiter.api.Assertions.*;
  * Focused unit tests for {@link SamplingBoard}.
  */
 class SamplingBoardTests {
+    /**
+     * Creates the sampling-board test fixture.
+     */
+    SamplingBoardTests() {
+    }
+
     /** Numeric comparison tolerance. */
     private static final double DELTA = 1e-10;
     /** Sample counts that cover perfect and non-perfect square layouts. */
@@ -216,6 +222,8 @@ class SamplingBoardTests {
 
     /**
      * Verifies concurrent calls on the same board produce stable results without shared random state.
+     *
+     * @throws Exception if worker synchronization fails
      */
     @Test
     void testConcurrentCallsAreSafe() throws Exception {
@@ -256,6 +264,12 @@ class SamplingBoardTests {
 
     /**
      * Creates a required-shape sampling board.
+     *
+     * @param shape sampling shape
+     * @param count sample count
+     * @param pattern sampling pattern
+     * @param seed deterministic seed
+     * @return configured sampling board
      */
     private SamplingBoard createBoard(SamplingShape shape, int count, SamplingPattern pattern, long seed) {
         return switch (shape) {

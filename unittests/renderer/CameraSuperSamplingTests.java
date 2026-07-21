@@ -20,6 +20,12 @@ import static org.junit.jupiter.api.Assertions.*;
  * Focused tests for camera super sampling integration.
  */
 class CameraSuperSamplingTests {
+    /**
+     * Creates the camera super-sampling test fixture.
+     */
+    CameraSuperSamplingTests() {
+    }
+
     /** Numeric comparison tolerance. */
     private static final double DELTA = 1e-10;
     /** Camera location used by these tests. */
@@ -31,6 +37,8 @@ class CameraSuperSamplingTests {
 
     /**
      * Verifies the default path traces one center ray only.
+     *
+     * @throws Exception if reflection-based tracer installation fails
      */
     @Test
     void testDefaultRenderingUsesOneCentralRay() throws Exception {
@@ -44,6 +52,8 @@ class CameraSuperSamplingTests {
 
     /**
      * Verifies exact ray counts for required sample counts.
+     *
+     * @throws Exception if reflection-based tracer installation fails
      */
     @Test
     void testSupersamplingTracesExactSampleCounts() throws Exception {
@@ -66,6 +76,8 @@ class CameraSuperSamplingTests {
 
     /**
      * Verifies that the central ray is not added in addition to configured samples.
+     *
+     * @throws Exception if reflection-based tracer installation fails
      */
     @Test
     void testNoAdditionalCentralRayIsAdded() throws Exception {
@@ -84,6 +96,8 @@ class CameraSuperSamplingTests {
 
     /**
      * Verifies sample colors are summed first and averaged once.
+     *
+     * @throws Exception if reflection-based tracer installation fails
      */
     @Test
     void testSampleColorsAreAveraged() throws Exception {
@@ -107,6 +121,8 @@ class CameraSuperSamplingTests {
 
     /**
      * Verifies grid sampling is deterministic and independent of jitter seed.
+     *
+     * @throws Exception if reflection-based tracer installation fails
      */
     @Test
     void testGridSamplingIsDeterministic() throws Exception {
@@ -130,6 +146,8 @@ class CameraSuperSamplingTests {
 
     /**
      * Verifies jittered sampling is reproducible with the same base seed.
+     *
+     * @throws Exception if reflection-based tracer installation fails
      */
     @Test
     void testJitteredSamplingSameSeedIsDeterministic() throws Exception {
@@ -141,6 +159,8 @@ class CameraSuperSamplingTests {
 
     /**
      * Verifies different base seeds affect jittered sample positions.
+     *
+     * @throws Exception if reflection-based tracer installation fails
      */
     @Test
     void testJitteredSamplingDifferentSeedsDiffer() throws Exception {
@@ -152,6 +172,8 @@ class CameraSuperSamplingTests {
 
     /**
      * Verifies square and circle camera sampling shapes both stay inside the pixel.
+     *
+     * @throws Exception if reflection-based point inspection fails
      */
     @Test
     void testSamplingShapesStayInsidePixel() throws Exception {
@@ -181,6 +203,8 @@ class CameraSuperSamplingTests {
 
     /**
      * Verifies row/column orientation on a non-square image grid.
+     *
+     * @throws Exception if reflection-based tracer installation fails
      */
     @Test
     void testNonSquareGridPreservesRowColumnOrientation() throws Exception {
@@ -206,6 +230,8 @@ class CameraSuperSamplingTests {
 
     /**
      * Verifies super sampling increases rays per pixel but not image dimensions.
+     *
+     * @throws Exception if reflection-based image inspection fails
      */
     @Test
     void testSupersamplingDoesNotChangeImageResolution() throws Exception {
@@ -246,6 +272,10 @@ class CameraSuperSamplingTests {
 
     /**
      * Creates a camera builder with square two-unit pixels unless overridden by the test.
+     *
+     * @param columns number of output columns
+     * @param rows number of output rows
+     * @return configured camera builder
      */
     private Camera.Builder baseBuilder(int columns, int rows) {
         return Camera.getBuilder()
@@ -259,6 +289,9 @@ class CameraSuperSamplingTests {
 
     /**
      * Creates a one-pixel jittered camera with a configurable base seed.
+     *
+     * @param seed base jitter seed
+     * @return configured jittered camera
      */
     private Camera jitteredCamera(long seed) {
         return baseBuilder(1, 1)
@@ -271,6 +304,11 @@ class CameraSuperSamplingTests {
 
     /**
      * Installs a recording tracer and renders the camera.
+     *
+     * @param camera camera to render
+     * @param tracer recording tracer to install
+     * @return installed tracer after rendering
+     * @throws Exception if reflection-based tracer installation fails
      */
     private static RecordingRayTracer renderWithTracer(Camera camera, RecordingRayTracer tracer) throws Exception {
         Field rayTracerField = Camera.class.getDeclaredField("_rayTracer");
@@ -282,6 +320,9 @@ class CameraSuperSamplingTests {
 
     /**
      * Computes where a recorded ray intersects the test view plane at z = -VP_DISTANCE.
+     *
+     * @param ray recorded ray
+     * @return target point on the view plane
      */
     private static Point targetOnViewPlane(Ray ray) {
         double directionZ = ray.direction().dotProduct(Vector.AXIS_Z);
@@ -290,6 +331,11 @@ class CameraSuperSamplingTests {
 
     /**
      * Reads one coordinate from a point.
+     *
+     * @param point point to inspect
+     * @param index coordinate index
+     * @return selected coordinate
+     * @throws Exception if reflective field access fails
      */
     private static double coordinate(Point point, int index) throws Exception {
         Field xyzField = Point.class.getDeclaredField("_xyz");
@@ -305,6 +351,10 @@ class CameraSuperSamplingTests {
 
     /**
      * Reads the rendered image from a camera.
+     *
+     * @param camera camera to inspect
+     * @return rendered image
+     * @throws Exception if reflective field access fails
      */
     private static BufferedImage image(Camera camera) throws Exception {
         Field imageWriterField = Camera.class.getDeclaredField("_imageWriter");
@@ -318,6 +368,12 @@ class CameraSuperSamplingTests {
 
     /**
      * Reads one rendered pixel from a camera.
+     *
+     * @param camera camera to inspect
+     * @param x pixel x-coordinate
+     * @param y pixel y-coordinate
+     * @return rendered pixel color
+     * @throws Exception if reflective image access fails
      */
     private static java.awt.Color pixelColor(Camera camera, int x, int y) throws Exception {
         return new java.awt.Color(image(camera).getRGB(x, y));
@@ -336,6 +392,8 @@ class CameraSuperSamplingTests {
 
         /**
          * Creates a tracer with a color function.
+         *
+         * @param colorFunction function used to color each ray
          */
         private RecordingRayTracer(Function<Ray, Color> colorFunction) {
             super(new Scene("recording tracer"));
@@ -345,6 +403,8 @@ class CameraSuperSamplingTests {
 
         /**
          * Creates a tracer with a deterministic color sequence.
+         *
+         * @param colors deterministic color sequence
          */
         private RecordingRayTracer(List<Color> colors) {
             super(new Scene("recording tracer"));
@@ -360,6 +420,8 @@ class CameraSuperSamplingTests {
         }
 
         /**
+         * Returns recorded rays.
+         *
          * @return immutable recorded ray list
          */
         private List<Ray> rays() {

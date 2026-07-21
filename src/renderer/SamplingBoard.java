@@ -141,6 +141,14 @@ public final class SamplingBoard {
 
     /**
      * Private canonical constructor.
+     *
+     * @param width sampling area width
+     * @param height sampling area height
+     * @param radius circle radius, or zero for non-circular boards
+     * @param samples exact sample count
+     * @param pattern sampling pattern
+     * @param shape sampling shape
+     * @param jitterSeed deterministic jitter seed
      */
     private SamplingBoard(double width, double height, double radius, int samples,
                           SamplingPattern pattern, SamplingShape shape, long jitterSeed) {
@@ -327,6 +335,8 @@ public final class SamplingBoard {
 
     /**
      * Generates deterministic grid offsets from cached cells.
+     *
+     * @return deterministic grid offsets
      */
     private List<Offset> generateGridOffsets() {
         List<Offset> result = new ArrayList<>(samples);
@@ -342,6 +352,9 @@ public final class SamplingBoard {
 
     /**
      * Generates jittered offsets from cached cells and a local random source.
+     *
+     * @param seed deterministic jitter seed
+     * @return jittered offsets
      */
     private List<Offset> generateJitteredOffsets(long seed) {
         List<Offset> result = new ArrayList<>(samples);
@@ -358,6 +371,8 @@ public final class SamplingBoard {
 
     /**
      * Creates exactly {@link #samples} equal-area cells in canonical square coordinates.
+     *
+     * @return canonical sampling cells
      */
     private List<Cell> createCells() {
         int rows = rowCount();
@@ -387,6 +402,8 @@ public final class SamplingBoard {
 
     /**
      * Chooses a row count that keeps cells close to the sampling area's aspect ratio.
+     *
+     * @return row count for the sampling grid
      */
     private int rowCount() {
         double aspect = width / height;
@@ -399,6 +416,10 @@ public final class SamplingBoard {
 
     /**
      * Converts canonical unit-square coordinates to a local offset in the configured shape.
+     *
+     * @param u horizontal canonical coordinate in {@code [0,1]}
+     * @param v vertical canonical coordinate in {@code [0,1]}
+     * @return local sampling offset
      */
     private Offset toShapeOffset(double u, double v) {
         double squareX = 2d * u - 1d;
@@ -412,6 +433,10 @@ public final class SamplingBoard {
 
     /**
      * Maps a square point in [-1, 1]^2 to the configured circle without rejection.
+     *
+     * @param squareX square-space x-coordinate
+     * @param squareY square-space y-coordinate
+     * @return disk-space offset
      */
     private Offset toDiskOffset(double squareX, double squareY) {
         if (isZero(squareX) && isZero(squareY)) {
@@ -433,6 +458,12 @@ public final class SamplingBoard {
 
     /**
      * Maps local offsets to points on a 3D plane.
+     *
+     * @param offsets local offsets to map
+     * @param center sampling center
+     * @param right local right axis
+     * @param up local up axis
+     * @return mapped sample points
      */
     private List<Point> mapToPlane(List<Offset> offsets, Point center, Vector right, Vector up) {
         Objects.requireNonNull(center, "Sampling center must not be null");
@@ -455,6 +486,10 @@ public final class SamplingBoard {
 
     /**
      * Normalizes supplied axes and verifies they form a valid orthogonal basis for a plane.
+     *
+     * @param right local right axis
+     * @param up local up axis
+     * @return normalized orthogonal axes
      */
     private Axes normalizeAndValidateAxes(Vector right, Vector up) {
         Vector normalizedRight = normalizeAxis(Objects.requireNonNull(right, "Right axis must not be null"),
@@ -470,6 +505,10 @@ public final class SamplingBoard {
 
     /**
      * Normalizes one axis after rejecting invalid values.
+     *
+     * @param axis axis to normalize
+     * @param name diagnostic axis name
+     * @return normalized axis
      */
     private Vector normalizeAxis(Vector axis, String name) {
         double lengthSquared = axis.lengthSquared();
@@ -481,6 +520,9 @@ public final class SamplingBoard {
 
     /**
      * Validates positive finite dimensions.
+     *
+     * @param value value to validate
+     * @param name diagnostic parameter name
      */
     private static void validatePositive(double value, String name) {
         if (!Double.isFinite(value) || alignZero(value) <= 0d) {
@@ -490,12 +532,20 @@ public final class SamplingBoard {
 
     /**
      * Canonical sampling cell in unit-square coordinates.
+     *
+     * @param uMin minimum horizontal coordinate
+     * @param uMax maximum horizontal coordinate
+     * @param vMin minimum vertical coordinate
+     * @param vMax maximum vertical coordinate
      */
     private record Cell(double uMin, double uMax, double vMin, double vMax) {
     }
 
     /**
      * Normalized local axes.
+     *
+     * @param right normalized right axis
+     * @param up normalized up axis
      */
     private record Axes(Vector right, Vector up) {
     }

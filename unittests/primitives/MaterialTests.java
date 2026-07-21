@@ -9,6 +9,12 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class MaterialTests {
     /**
+     * Creates the material test fixture.
+     */
+    MaterialTests() {
+    }
+
+    /**
      * Verifies default blur values preserve ideal reflection/transparency behavior.
      */
     @Test

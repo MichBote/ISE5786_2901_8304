@@ -18,6 +18,12 @@ import static org.junit.jupiter.api.Assertions.*;
  * Focused tests for camera pixel dispatch across supported threading modes.
  */
 class CameraMultithreadingTests {
+    /**
+     * Creates the camera multithreading test fixture.
+     */
+    CameraMultithreadingTests() {
+    }
+
     /** Camera location used by these tests. */
     private static final Point CAMERA_LOCATION = Point.ZERO;
     /** View-plane distance used by these tests. */
@@ -25,6 +31,8 @@ class CameraMultithreadingTests {
 
     /**
      * Verifies supported threading modes render every rectangular-grid pixel exactly once.
+     *
+     * @throws Exception if tracer injection fails
      */
     @Test
     void testThreadingModesRenderEveryPixelExactlyOnce() throws Exception {
@@ -46,6 +54,8 @@ class CameraMultithreadingTests {
 
     /**
      * Verifies raw-thread rendering propagates worker exceptions after joining workers.
+     *
+     * @throws Exception if tracer injection fails
      */
     @Test
     void testRawThreadModePropagatesWorkerException() throws Exception {
@@ -61,6 +71,8 @@ class CameraMultithreadingTests {
 
     /**
      * Creates a rectangular-grid camera builder.
+     *
+     * @return configured camera builder
      */
     private Camera.Builder baseBuilder() {
         return Camera.getBuilder()
@@ -73,6 +85,10 @@ class CameraMultithreadingTests {
 
     /**
      * Installs a recording tracer and renders the camera.
+     *
+     * @param camera camera to render
+     * @param tracer ray tracer to install
+     * @throws Exception if tracer injection fails
      */
     private static void renderWithTracer(Camera camera, RayTracerBase tracer) throws Exception {
         installTracer(camera, tracer);
@@ -81,6 +97,10 @@ class CameraMultithreadingTests {
 
     /**
      * Installs a test ray tracer by reflection.
+     *
+     * @param camera camera to mutate
+     * @param tracer ray tracer to install
+     * @throws Exception if reflection fails
      */
     private static void installTracer(Camera camera, RayTracerBase tracer) throws Exception {
         Field rayTracerField = Camera.class.getDeclaredField("_rayTracer");
@@ -90,6 +110,9 @@ class CameraMultithreadingTests {
 
     /**
      * Computes where a recorded ray intersects the test view plane at z = -VP_DISTANCE.
+     *
+     * @param ray recorded ray
+     * @return target point on the view plane
      */
     private static Point targetOnViewPlane(Ray ray) {
         double directionZ = ray.direction().dotProduct(Vector.AXIS_Z);
@@ -98,6 +121,8 @@ class CameraMultithreadingTests {
 
     /**
      * Expected target centers for the 4x3 rectangular test grid.
+     *
+     * @return expected target centers
      */
     private static List<Point> expectedTargets() {
         return List.of(
@@ -141,6 +166,8 @@ class CameraMultithreadingTests {
 
         /**
          * Returns traced ray count.
+         *
+         * @return traced ray count
          */
         private int count() {
             return count.get();
@@ -148,6 +175,8 @@ class CameraMultithreadingTests {
 
         /**
          * Returns unique view-plane targets.
+         *
+         * @return recorded target list
          */
         private List<Point> targets() {
             return List.copyOf(targets);
@@ -158,6 +187,12 @@ class CameraMultithreadingTests {
      * Ray tracer that fails on its first traced ray.
      */
     private static final class FailingRayTracer extends RecordingRayTracer {
+        /**
+         * Creates a failing tracer.
+         */
+        private FailingRayTracer() {
+        }
+
         @Override
         Color traceRay(Ray ray) {
             throw new RuntimeException("synthetic render failure");

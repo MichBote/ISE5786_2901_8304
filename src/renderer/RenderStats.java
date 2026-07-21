@@ -24,6 +24,12 @@ public final class RenderStats {
     private final AtomicLong renderNanos = new AtomicLong();
 
     /**
+     * Creates an empty render statistics accumulator.
+     */
+    public RenderStats() {
+    }
+
+    /**
      * Clears all counters.
      */
     public void reset() {

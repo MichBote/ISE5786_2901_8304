@@ -18,6 +18,12 @@ import scene.Scene;
 @SuppressWarnings("java:S109")
 class SmallGlassEffectComparisonTests {
     /**
+     * Creates the small glass-effect comparison test fixture.
+     */
+    SmallGlassEffectComparisonTests() {
+    }
+
+    /**
      * Renders a compact Stage 3 comparison image.
      */
     @Test
@@ -70,6 +76,11 @@ class SmallGlassEffectComparisonTests {
 
     /**
      * Creates a small floor mirror panel.
+     *
+     * @param xMin left x-coordinate
+     * @param xMax right x-coordinate
+     * @param blur glossy blur radius
+     * @return mirror panel geometry
      */
     private Polygon mirrorPanel(double xMin, double xMax, double blur) {
         return (Polygon) new Polygon(
@@ -88,6 +99,11 @@ class SmallGlassEffectComparisonTests {
 
     /**
      * Creates a small vertical transparent panel.
+     *
+     * @param xMin left x-coordinate
+     * @param xMax right x-coordinate
+     * @param blur transparency blur radius
+     * @return transparent panel geometry
      */
     private Polygon glassPanel(double xMin, double xMax, double blur) {
         return (Polygon) new Polygon(

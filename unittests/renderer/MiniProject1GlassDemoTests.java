@@ -28,10 +28,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SuppressWarnings("java:S109")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class MiniProject1GlassDemoTests {
-    /** Shared jitter seed used by camera and glass sampling in comparison renders. */
+    /**
+     * Shared jitter seed used by camera and glass sampling in comparison renders.
+     */
     private static final long MP1_SEED = 2026L;
-    /** Last no-blur preview render time, used to print the blur multiplier. */
+    /**
+     * Last no-blur preview render time, used to print the blur multiplier.
+     */
     private static double lastWithoutBlurSeconds;
+
+    /**
+     * Creates the mini-project glass demo test fixture.
+     */
+    MiniProject1GlassDemoTests() {
+    }
 
     /**
      * Verifies the shared MP1 scene satisfies the instructor's stricter object count.
@@ -101,6 +111,8 @@ class MiniProject1GlassDemoTests {
 
     /**
      * Creates the shared dark-blue glass demo scene.
+     *
+     * @return scene construction result
      */
     private static SceneBuild createGlassDemoScene() {
         Scene scene = new Scene("MP1 dark-blue celestial glass garden")
@@ -201,7 +213,7 @@ class MiniProject1GlassDemoTests {
                 new Point(-120, 160, 85),
                 new Point(145, 82, -310),
                 new Point(95, 45, 120));
-        scene.lights.add(new SpotLight(new Color(620, 690, 850), lightPositions.get(0),
+        scene.lights.add(new SpotLight(new Color(380, 430, 560), lightPositions.get(0),
                 new Vector(120, -160, -300))
                 .setKl(0.00065)
                 .setKq(0.0000022));
@@ -219,6 +231,8 @@ class MiniProject1GlassDemoTests {
 
     /**
      * Adds many inexpensive opaque spheres so the glass has rich geometry to distort.
+     *
+     * @param geometries geometry list to extend
      */
     private static void addSpiralGardenSpheres(List<Intersectable> geometries) {
         Color[] colors = {
@@ -240,14 +254,20 @@ class MiniProject1GlassDemoTests {
             addGeometry(geometries, new Sphere(new Point(x, y, z), sphereRadius)
                     .setEmission(colors[i % colors.length])
                     .setMaterial(new Material()
-                            .setKD(0.48)
-                            .setKS(0.20)
-                            .setShininess(60 + (i % 4) * 20)));
+                            .setKD(0.28)
+                            .setKS(0.10)
+                            .setShininess(70 + (i % 4) * 15)));
+//                            .setKD(0.48)
+//                            .setKS(0.20)
+//                            .setShininess(60 + (i % 4) * 20)));
         }
     }
 
     /**
      * Adds one geometry to the scene list.
+     *
+     * @param geometries geometry list to extend
+     * @param geometry   geometry to add
      */
     private static void addGeometry(List<Intersectable> geometries, Intersectable geometry) {
         geometries.add(geometry);
@@ -255,6 +275,11 @@ class MiniProject1GlassDemoTests {
 
     /**
      * Renders the shared glass scene with the requested blur setting.
+     *
+     * @param blurEnabled true to enable blur sampling
+     * @param profile     render profile
+     * @param fileName    output file name, or {@code null} to skip writing
+     * @return render result
      */
     private static RenderResult renderGlassScene(boolean blurEnabled, RenderProfile profile, String fileName) {
         SceneBuild build = createGlassDemoScene();
@@ -275,6 +300,12 @@ class MiniProject1GlassDemoTests {
 
     /**
      * Creates the shared glass demo camera configuration.
+     *
+     * @param scene       scene to render
+     * @param profile     render profile
+     * @param blurEnabled true to enable blur sampling
+     * @param stats       render statistics collector
+     * @return configured camera builder
      */
     private static Camera.Builder glassCameraBuilder(Scene scene, RenderProfile profile,
                                                      boolean blurEnabled, RenderStats stats) {
@@ -284,7 +315,8 @@ class MiniProject1GlassDemoTests {
                 .setDirection(new Point(0, -5, -225), Vector.AXIS_Y)
                 .setVpDistance(430)
                 .setVpSize(230, 230)
-                .setResolution(profile.resolution(), profile.resolution())
+                .setResolution(800, 800)
+                //    .setResolution(profile.resolution(), profile.resolution())
                 .setBlurEnabled(blurEnabled)
                 .setBlurSamples(profile.blurSamples())
                 .setBlurSamplingPattern(SamplingPattern.JITTERED)
@@ -307,6 +339,8 @@ class MiniProject1GlassDemoTests {
 
     /**
      * Creates a small scene for AA-on versus AA-off comparison.
+     *
+     * @return anti-aliasing comparison scene
      */
     private static Scene createAntiAliasingScene() {
         Scene scene = new Scene("MP1 anti-aliasing comparison")
@@ -340,6 +374,10 @@ class MiniProject1GlassDemoTests {
 
     /**
      * Renders the anti-aliasing comparison scene.
+     *
+     * @param scene     scene to render
+     * @param aaEnabled true to enable anti-aliasing
+     * @param fileName  output file name
      */
     private static void renderAntiAliasingScene(Scene scene, boolean aaEnabled, String fileName) {
         Camera.Builder builder = Camera.getBuilder()
@@ -365,6 +403,10 @@ class MiniProject1GlassDemoTests {
 
     /**
      * Shared scene construction result.
+     *
+     * @param scene          constructed scene
+     * @param objectCount    number of scene objects
+     * @param lightPositions positions of the scene lights
      */
     private record SceneBuild(Scene scene, int objectCount, List<Point> lightPositions) {
     }
@@ -372,19 +414,34 @@ class MiniProject1GlassDemoTests {
     /**
      * Test-level quality profiles. The final profile is defined for manual use,
      * but preview/demo profiles are used for routine tests and benchmarking.
+     *
+     * @param name          profile name
+     * @param resolution    square image resolution
+     * @param cameraSamples camera sample count
+     * @param blurSamples   blur sample count
+     * @param threads       threading mode
      */
     private record RenderProfile(String name, int resolution, int cameraSamples, int blurSamples, int threads) {
-        /** Low-cost development profile. */
+        /**
+         * Low-cost development profile.
+         */
         private static final RenderProfile PREVIEW = new RenderProfile("PREVIEW", 160, 1, 4, -2);
-        /** Medium demonstration profile. */
+        /**
+         * Medium demonstration profile.
+         */
         @SuppressWarnings("unused")
         private static final RenderProfile DEMO = new RenderProfile("DEMO", 320, 1, 16, -2);
-        /** Final-quality profile for a separate manual render after review. */
+        /**
+         * Final-quality profile for a separate manual render after review.
+         */
         @SuppressWarnings("unused")
         private static final RenderProfile FINAL = new RenderProfile("FINAL", 500, 1, 25, -2);
 
         /**
          * Returns this profile with a different threading mode.
+         *
+         * @param newThreads replacement threading mode
+         * @return copied profile with updated threading mode
          */
         private RenderProfile withThreads(int newThreads) {
             return new RenderProfile(name, resolution, cameraSamples, blurSamples, newThreads);
@@ -393,6 +450,11 @@ class MiniProject1GlassDemoTests {
 
     /**
      * Render measurement result.
+     *
+     * @param seconds        elapsed render time in seconds
+     * @param stats          render statistics
+     * @param objectCount    rendered object count
+     * @param lightPositions positions of the scene lights
      */
     private record RenderResult(double seconds, RenderStats stats, int objectCount, List<Point> lightPositions) {
     }

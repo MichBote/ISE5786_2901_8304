@@ -19,7 +19,15 @@ import scene.Scene;
  */
 @SuppressWarnings("java:S109")
 class DiffuseGlassMiniProjectTests {
+    /**
+     * Creates the diffuse-glass mini-project test fixture.
+     */
+    DiffuseGlassMiniProjectTests() {
+    }
 
+    /**
+     * Renders the 10+ body scene without diffuse-glass blur.
+     */
     @Test
     void renderTenBodiesWithoutDiffuseGlass() {
         Scene scene = buildScene(false);
@@ -27,6 +35,9 @@ class DiffuseGlassMiniProjectTests {
         System.out.println("Diffuse glass OFF render time: " + ms + " ms");
     }
 
+    /**
+     * Renders the 10+ body scene with diffuse-glass blur.
+     */
     @Test
     void renderTenBodiesWithDiffuseGlass() {
         Scene scene = buildScene(true);
@@ -34,6 +45,13 @@ class DiffuseGlassMiniProjectTests {
         System.out.println("Diffuse glass ON render time: " + ms + " ms");
     }
 
+    /**
+     * Renders a scene and writes the resulting image.
+     *
+     * @param scene      scene to render
+     * @param outputName output image name
+     * @return elapsed render time in milliseconds
+     */
     private long renderScene(Scene scene, String outputName) {
         Camera camera = Camera.getBuilder()
                 .setRayTracer(scene, RayTracerType.SIMPLE)
@@ -51,6 +69,12 @@ class DiffuseGlassMiniProjectTests {
         return (System.nanoTime() - start) / 1_000_000;
     }
 
+    /**
+     * Builds the diffuse-glass comparison scene.
+     *
+     * @param withDiffuseGlass true to enable diffuse-glass blur on the main sphere
+     * @return configured scene
+     */
     private Scene buildScene(boolean withDiffuseGlass) {
         Scene scene = new Scene("Mini project diffuse glass")
                 .setBackground(new Color(14, 16, 22))
